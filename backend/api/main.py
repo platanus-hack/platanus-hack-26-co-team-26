@@ -67,14 +67,26 @@ class QueueTelemetry:
 
 
 def _build_deps(telemetry, artifacts: RunArtifacts) -> Deps:
-    # TODO(D3): reemplazar sandbox/oracle/enforcement por los adaptadores reales.
+    # TODO(D3): reemplazar enforcement por el adaptador real (D5).
     analyst = ClaudeAnalyst() if os.environ.get("ANTHROPIC_API_KEY") else FakeAnalyst()
+    # D3 (Alex): sandbox + oráculo reales enchufables con AEG_REAL_D3=1 (default = fakes,
+    # para no romper el skeleton de los demás mientras integran). El sandbox real ejecuta
+    # un agente objetivo como script; hoy el target-agent de D1 es @tool para extracción AST
+    # (no ejecutable) → integración end-to-end sandbox↔agente-D1 es un pendiente D1↔D3.
+    sandbox = FakeSandbox()
+    oracle = FakeOracle()
+    if os.environ.get("AEG_REAL_D3") == "1":
+        from adapters.oracle import CanaryHoneypotOracle
+        from adapters.sandbox import SubprocessSandbox
+
+        sandbox = SubprocessSandbox()
+        oracle = CanaryHoneypotOracle()
     return Deps(
         extractor=RecordingExtractor(PyAstExtractor(), artifacts),  # D1 real
         analyst=RecordingAnalyst(analyst, artifacts),
         designer=RecordingDesigner(TemplateComposer(), artifacts),  # D2 real
-        sandbox=FakeSandbox(),
-        oracle=RecordingOracle(FakeOracle(), artifacts),
+        sandbox=sandbox,  # D3 real con AEG_REAL_D3=1
+        oracle=RecordingOracle(oracle, artifacts),  # D3 real con AEG_REAL_D3=1
         mitigator=RecordingMitigator(FakeMitigator(), artifacts),
         enforcement=FakeEnforcement(),
         telemetry=telemetry,
