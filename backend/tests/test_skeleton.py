@@ -5,10 +5,10 @@ Ejecuta:  uv run pytest        (o)  uv run python -m tests.test_skeleton
 
 from __future__ import annotations
 
+from adapters.designer import TemplateComposer
 from adapters.fakes import (
     CollectingTelemetry,
     FakeAnalyst,
-    FakeDesigner,
     FakeEnforcement,
     FakeExtractor,
     FakeMitigator,
@@ -23,7 +23,7 @@ def _deps() -> tuple[Deps, CollectingTelemetry]:
     deps = Deps(
         extractor=FakeExtractor(),
         analyst=FakeAnalyst(),
-        designer=FakeDesigner(),
+        designer=TemplateComposer(),  # D2 real (ya no el fake)
         sandbox=FakeSandbox(),
         oracle=FakeOracle(),
         mitigator=FakeMitigator(),
