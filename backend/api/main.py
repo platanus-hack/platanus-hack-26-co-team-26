@@ -18,10 +18,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
+from adapters.designer import TemplateComposer
 from adapters.fakes import (
-    CollectingTelemetry,
     FakeAnalyst,
-    FakeDesigner,
     FakeEnforcement,
     FakeExtractor,
     FakeMitigator,
@@ -56,7 +55,7 @@ def _build_deps(telemetry) -> Deps:
     return Deps(
         extractor=FakeExtractor(),
         analyst=FakeAnalyst(),
-        designer=FakeDesigner(),
+        designer=TemplateComposer(),  # D2 real
         sandbox=FakeSandbox(),
         oracle=FakeOracle(),
         mitigator=FakeMitigator(),
