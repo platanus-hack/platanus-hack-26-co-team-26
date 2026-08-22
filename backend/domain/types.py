@@ -15,6 +15,11 @@ class AttackAttempt(BaseModel):
     payload: str
     repro_steps: list[str] = Field(default_factory=list)
     seed: int
+    # Contexto que el oráculo necesita para armar el Finding sin re-consultar el análisis.
+    # Opcionales con default para no romper a quien construya AttackAttempt sin ellos (fakes).
+    threat_ref: str = ""
+    severity: str = "critical"
+    artifact_path: str | None = None  # p.ej. documento envenenado de indirect_injection
 
 
 class ExecutionTrace(BaseModel):
