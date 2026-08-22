@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+# uv.lock SÍ se versiona (deps reproducibles en las 5 máquinas)
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Datos de corridas (artefactos JSON por run) — no versionar salvo seeds
+runs/*
+!runs/.gitkeep
+*.sqlite
+*.db
+
+# Entorno / secretos
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
