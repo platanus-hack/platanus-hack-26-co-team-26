@@ -2,7 +2,9 @@ import type { AgentArchitecture, ApiError, StartRunResponse, ThreatAnalysis } fr
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000"
 
-export async function startRun(repoPath = "./target-agent"): Promise<StartRunResponse> {
+// El backend resuelve esto contra la raiz del repo (no contra su cwd), asi que un nombre
+// simple alcanza -- ver backend/api/main.py::_resolve_repo_path.
+export async function startRun(repoPath = "target-agent"): Promise<StartRunResponse> {
   const res = await fetch(`${API_BASE}/runs?repo_path=${encodeURIComponent(repoPath)}`, {
     method: "POST",
   })

@@ -9,11 +9,13 @@ Correr:  uv run uvicorn api.main:app --reload
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import queue
 import threading
 import time
 import uuid
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -42,6 +44,11 @@ from contracts import HarnessEvent
 from domain.graph import Deps, build_graph
 
 load_dotenv()  # carga backend/.env (ANTHROPIC_API_KEY) antes de armar los deps
+
+logger = logging.getLogger(__name__)
+
+# api/main.py -> api/ -> backend/ -> raiz del repo.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 
 app = FastAPI(title="Harness Compiler")
 app.add_middleware(
@@ -81,6 +88,19 @@ def _build_deps(telemetry, artifacts: RunArtifacts) -> Deps:
     )
 
 
+def _resolve_repo_path(repo_path: str) -> str:
+    """Resuelve `repo_path` contra la raiz del repo, no contra el cwd del proceso -- asi da
+    igual desde donde se lance `uvicorn` (backend/, la raiz del repo, o cualquier otro lado).
+
+    Antes el default del frontend (`./target-agent`) y el del backend (`../target-agent`)
+    asumian cwd distintos y nunca coincidian: un run disparado desde el dashboard con el
+    path por defecto apuntaba a `backend/target-agent` (no existe) y el extractor reventaba
+    con `ValueError` dentro del thread -- sin ningun evento de error visible en el SSE.
+    """
+    p = Path(repo_path)
+    return str(p if p.is_absolute() else (_REPO_ROOT / p).resolve())
+
+
 def _run_graph(run_id: str, repo_path: str, q: "queue.Queue[HarnessEvent | None]") -> None:
     FakeOracle._n = 0
     artifacts = _artifacts[run_id]
@@ -89,17 +109,33 @@ def _run_graph(run_id: str, repo_path: str, q: "queue.Queue[HarnessEvent | None]
         graph.invoke(
             {"run_id": run_id, "repo_path": repo_path, "mitigation_rounds": 0, "max_rounds": 2}
         )
+    except Exception as exc:
+        # Sin esto, cualquier falla temprana del grafo (path invalido, lo que sea) terminaba
+        # el stream en silencio: "extract started" -> "end done", sin ningun indicio de que
+        # algo fallo. "extract" es un best-effort (la mayoria de las fallas tempranas pasan
+        # ahi); lo que importa es que el dashboard vea *algo* en vez de nada.
+        logger.exception("run %s fallo", run_id)
+        q.put(
+            HarnessEvent(
+                run_id=run_id,
+                step="extract",
+                status="error",
+                ts_ms=int(time.time() * 1000),
+                detail={"error": str(exc)},
+            )
+        )
     finally:
         q.put(None)  # centinela de fin de stream
 
 
 @app.post("/runs")
-def start_run(repo_path: str = "../target-agent") -> dict:
+def start_run(repo_path: str = "target-agent") -> dict:
     run_id = f"run-{uuid.uuid4().hex[:6]}"
+    resolved_path = _resolve_repo_path(repo_path)
     q: "queue.Queue[HarnessEvent | None]" = queue.Queue()
     _streams[run_id] = q
     _artifacts[run_id] = RunArtifacts()
-    threading.Thread(target=_run_graph, args=(run_id, repo_path, q), daemon=True).start()
+    threading.Thread(target=_run_graph, args=(run_id, resolved_path, q), daemon=True).start()
     return {"run_id": run_id, "events_url": f"/runs/{run_id}/events"}
 
 
