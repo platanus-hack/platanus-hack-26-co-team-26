@@ -21,12 +21,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from adapters.analyst import ClaudeAnalyst
+from adapters.designer import TemplateComposer
+from adapters.extractor import PyAstExtractor
 from adapters.fakes import (
-    CollectingTelemetry,
     FakeAnalyst,
-    FakeDesigner,
     FakeEnforcement,
-    FakeExtractor,
     FakeMitigator,
     FakeOracle,
     FakeSandbox,
@@ -68,12 +67,12 @@ class QueueTelemetry:
 
 
 def _build_deps(telemetry, artifacts: RunArtifacts) -> Deps:
-    # TODO(cada dev): reemplazar el fake por el adaptador real.
+    # TODO(D3): reemplazar sandbox/oracle/enforcement por los adaptadores reales.
     analyst = ClaudeAnalyst() if os.environ.get("ANTHROPIC_API_KEY") else FakeAnalyst()
     return Deps(
-        extractor=RecordingExtractor(FakeExtractor(), artifacts),
+        extractor=RecordingExtractor(PyAstExtractor(), artifacts),  # D1 real
         analyst=RecordingAnalyst(analyst, artifacts),
-        designer=RecordingDesigner(FakeDesigner(), artifacts),
+        designer=RecordingDesigner(TemplateComposer(), artifacts),  # D2 real
         sandbox=FakeSandbox(),
         oracle=RecordingOracle(FakeOracle(), artifacts),
         mitigator=RecordingMitigator(FakeMitigator(), artifacts),
@@ -95,7 +94,7 @@ def _run_graph(run_id: str, repo_path: str, q: "queue.Queue[HarnessEvent | None]
 
 
 @app.post("/runs")
-def start_run(repo_path: str = "./target-agent") -> dict:
+def start_run(repo_path: str = "../target-agent") -> dict:
     run_id = f"run-{uuid.uuid4().hex[:6]}"
     q: "queue.Queue[HarnessEvent | None]" = queue.Queue()
     _streams[run_id] = q
