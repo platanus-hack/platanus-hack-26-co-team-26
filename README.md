@@ -50,7 +50,7 @@ Have fun! 🚀
 
 ---
 
-## 🔬 Estado del Arte — Comunicaciones y Dimensionamiento de Señal en Redes de Emergencia
+## Estado del Arte — Comunicaciones y Dimensionamiento de Señal en Redes de Emergencia
 
 SismoMesh propone que teléfonos sin infraestructura de red (torres caídas, sin energía, sin Internet) formen una malla oportunista que mueva señales de estado, ubicación y biomarcadores entre sobrevivientes, rescatistas y un *gateway* eventual. Esa idea se apoya en tres cuerpos de conocimiento con madurez muy distinta: la teoría de comunicación clásica (Shannon, códigos de corrección de errores) está resuelta desde hace décadas; el enrutamiento oportunista/tolerante a demora (DTN) tiene fundamentos sólidos pero pocas validaciones en escombros reales; y la propagación de radio dentro de estructuras colapsadas es, en 2026, todavía un área activa de medición más que de modelos cerrados. Esta sección sintetiza ese estado del arte y lo convierte en fórmulas de dimensionamiento verificables, no en promesas de alcance.
 
@@ -457,7 +457,7 @@ Al recibir: **FEC reconstruye → hash verifica → AEAD autentica → parser de
 
 ---
 
-## 🫀 Estado del Arte — PPG con Cámara y Fusión Multimodal (Biosignals)
+## Estado del Arte — PPG con Cámara y Fusión Multimodal (Biosignals)
 
 La segunda pieza de datos que SismoMesh intenta capturar es evidencia fisiológica: ¿la persona tiene pulso?, ¿está en un estado de activación elevada?, ¿hay indicios de dolor? La fotopletismografía (PPG) con cámara y flash de un smartphone es, con diferencia, la señal biomédica mejor estudiada en teléfonos de consumo — su fundamento óptico se remonta a la revisión clásica de Allen (2007), hoy con más de 2000 citas y todavía el punto de partida obligado de cualquier trabajo en el área [B1]. Ese no es el caso del resto de señales que este proyecto querría inferir: electromiografía (EMG), saturación de oxígeno (SpO2), dolor o estado de ánimo. Ahí la ciencia es mucho más desigual, y el estado del arte importa tanto por lo que permite como por lo que **explícitamente no respalda**.
 
