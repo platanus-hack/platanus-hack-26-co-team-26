@@ -7,12 +7,16 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 Severity = Literal["low", "medium", "high", "critical"]
+# T3 (specs/05-performance-thesis.md, propuesta): "performance" = riesgo de
+# funcionamiento/rendimiento (ej. loop sin limite), no una vulnerabilidad explotable.
+ThreatClass = Literal["security", "performance"]
 
 
 class Threat(BaseModel):
     id: str  # "threat.1"
     surface: str  # "tool.shell" | "mcp.notion + tool.email"
     threat_id: str  # "cmd_injection" | "exfil_chain" | ...
+    threat_class: ThreatClass = "security"
     taxonomy: list[str] = Field(default_factory=list)  # ["OWASP-AS106", "MITRE-ATLAS-T0051"]
     reasoning: str
     evidence_refs: list[str] = Field(default_factory=list)  # IDs de architecture.json

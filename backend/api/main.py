@@ -9,15 +9,18 @@ Correr:  uv run uvicorn api.main:app --reload
 from __future__ import annotations
 
 import asyncio
+import os
 import queue
 import threading
 import time
 import uuid
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
+from adapters.analyst import ClaudeAnalyst
 from adapters.fakes import (
     CollectingTelemetry,
     FakeAnalyst,
@@ -28,8 +31,18 @@ from adapters.fakes import (
     FakeOracle,
     FakeSandbox,
 )
+from api.recording import (
+    RecordingAnalyst,
+    RecordingDesigner,
+    RecordingExtractor,
+    RecordingMitigator,
+    RecordingOracle,
+    RunArtifacts,
+)
 from contracts import HarnessEvent
 from domain.graph import Deps, build_graph
+
+load_dotenv()  # carga backend/.env (ANTHROPIC_API_KEY) antes de armar los deps
 
 app = FastAPI(title="Harness Compiler")
 app.add_middleware(
@@ -38,6 +51,9 @@ app.add_middleware(
 
 # run_id -> cola de eventos (thread-safe; el grafo corre en un hilo, SSE drena async)
 _streams: dict[str, "queue.Queue[HarnessEvent | None]"] = {}
+# run_id -> artefactos completos de la corrida (para que el dashboard los pida por REST;
+# el SSE solo manda conteos/refs, ver api/recording.py).
+_artifacts: dict[str, RunArtifacts] = {}
 _honeypot_hits: list[dict] = []
 
 
@@ -51,15 +67,16 @@ class QueueTelemetry:
         self._q.put(event)
 
 
-def _build_deps(telemetry) -> Deps:
+def _build_deps(telemetry, artifacts: RunArtifacts) -> Deps:
     # TODO(cada dev): reemplazar el fake por el adaptador real.
+    analyst = ClaudeAnalyst() if os.environ.get("ANTHROPIC_API_KEY") else FakeAnalyst()
     return Deps(
-        extractor=FakeExtractor(),
-        analyst=FakeAnalyst(),
-        designer=FakeDesigner(),
+        extractor=RecordingExtractor(FakeExtractor(), artifacts),
+        analyst=RecordingAnalyst(analyst, artifacts),
+        designer=RecordingDesigner(FakeDesigner(), artifacts),
         sandbox=FakeSandbox(),
-        oracle=FakeOracle(),
-        mitigator=FakeMitigator(),
+        oracle=RecordingOracle(FakeOracle(), artifacts),
+        mitigator=RecordingMitigator(FakeMitigator(), artifacts),
         enforcement=FakeEnforcement(),
         telemetry=telemetry,
     )
@@ -67,7 +84,8 @@ def _build_deps(telemetry) -> Deps:
 
 def _run_graph(run_id: str, repo_path: str, q: "queue.Queue[HarnessEvent | None]") -> None:
     FakeOracle._n = 0
-    graph = build_graph(_build_deps(QueueTelemetry(q)))
+    artifacts = _artifacts[run_id]
+    graph = build_graph(_build_deps(QueueTelemetry(q), artifacts))
     try:
         graph.invoke(
             {"run_id": run_id, "repo_path": repo_path, "mitigation_rounds": 0, "max_rounds": 2}
@@ -81,6 +99,7 @@ def start_run(repo_path: str = "./target-agent") -> dict:
     run_id = f"run-{uuid.uuid4().hex[:6]}"
     q: "queue.Queue[HarnessEvent | None]" = queue.Queue()
     _streams[run_id] = q
+    _artifacts[run_id] = RunArtifacts()
     threading.Thread(target=_run_graph, args=(run_id, repo_path, q), daemon=True).start()
     return {"run_id": run_id, "events_url": f"/runs/{run_id}/events"}
 
@@ -101,6 +120,35 @@ async def stream_events(run_id: str):
             yield {"event": "step", "data": event.model_dump_json()}
 
     return EventSourceResponse(gen())
+
+
+@app.get("/runs/{run_id}/threat_analysis")
+def get_threat_analysis(run_id: str) -> dict:
+    """El ThreatAnalysis completo (los 2 arboles: security + performance). Ver specs/05."""
+    artifacts = _artifacts.get(run_id)
+    if artifacts is None:
+        return {"error": "run not found"}
+    if artifacts.analysis is None:
+        return {"error": "not ready"}
+    return artifacts.analysis.model_dump()
+
+
+@app.get("/runs/{run_id}/architecture")
+def get_architecture(run_id: str) -> dict:
+    artifacts = _artifacts.get(run_id)
+    if artifacts is None:
+        return {"error": "run not found"}
+    if artifacts.architecture is None:
+        return {"error": "not ready"}
+    return artifacts.architecture.model_dump()
+
+
+@app.get("/runs/{run_id}/findings")
+def get_findings(run_id: str) -> dict:
+    artifacts = _artifacts.get(run_id)
+    if artifacts is None:
+        return {"error": "run not found"}
+    return {"findings": [f.model_dump() for f in artifacts.findings]}
 
 
 @app.get("/collect")
