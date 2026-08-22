@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "bundle_id": "0191f3a2-0000-7000-8000-00000000005b",
+  "payload_b64": "eyJjcmVhdGVkX2F0IjoiMjAyNi0wOC0yMlQxNzowNjoxMFoiLCJkZXZpY2UiOnsiYXBwX3ZlcnNpb24iOiIwLjEuMCIsImJhdHRlcnlfcGN0IjoxMiwiY2FwYWJpbGl0aWVzIjp7ImJsZV9nYXR0IjpmYWxzZSwiY2FtZXJhIjp0cnVlLCJnbnNzIjp0cnVlLCJuZWFyYnkiOnRydWUsInV3YiI6ZmFsc2UsIndpZmlfYXdhcmUiOmZhbHNlfX0sImV2aWRlbmNlIjp7Im1vdGlvbiI6bnVsbCwicGVlcnMiOltdLCJwcGciOnsiaHJfYnBtIjoxNDgsIm1lYXN1cmVkX2F0IjoiMjAyNi0wOC0yMlQxNzowNjowMFoiLCJwcm92ZW5hbmNlIjoiREVSSVZFRCIsInNxaSI6MC4xOCwid2F2ZWZvcm1fcmVmIjpudWxsfX0sImluY2lkZW50X2lkIjoiZGVtby1ib2dvdGEtMDEiLCJsb2NhdGlvbiI6eyJhY2N1cmFjeV9tIjoxMi4wLCJsYXQiOjQuNjUzMywibG9uIjotNzQuMDgzNiwibWVhc3VyZWRfYXQiOiIyMDI2LTA4LTIyVDE3OjAzOjQxWiIsInNvdXJjZSI6Imduc3MifSwibm9kZV9wc2V1ZG9ueW0iOiJWa2RhcDFSalIwd0NoZDlkIiwicHJpb3JpdHkiOjAsInNlcSI6NSwic3RhdHVzIjoiSEVMUCIsInR0bF9zIjo4NjQwMCwidXNlcl9yZXBvcnRlZCI6dHJ1ZX0=",
+  "payload_hash": "84f38a5e11341f2bd9f307a988a68cfe03c87b8283f267a069ed448de71df4fc",
+  "signer_key_id": "Vkdap1RjR0wChd9d",
+  "signer_pubkey_b64": "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=",
+  "signature": "DyWK4talvh3wZMW0oJ2x9dq1rPOgvIGP8Mti7MPKT+BQzof1VrEuhrqJRJGVpPgQ7NMwdmZVNjiItOUOUGChCA==",
+  "relay": {
+    "hop_count": 0,
+    "received_from": null,
+    "transport": "nearby",
+    "rssi": null,
+    "gateway_position": null
+  }
+}

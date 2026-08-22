@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "bundle_id": "0191f3a2-0000-7000-8000-000000000006",
+  "payload_b64": "eyJjcmVhdGVkX2F0IjoiMjAyNi0wOC0yMlQxNzowOTowMFoiLCJkZXZpY2UiOnsiYXBwX3ZlcnNpb24iOiIwLjEuMCIsImJhdHRlcnlfcGN0Ijo3OCwiY2FwYWJpbGl0aWVzIjp7ImJsZV9nYXR0IjpmYWxzZSwiY2FtZXJhIjp0cnVlLCJnbnNzIjp0cnVlLCJuZWFyYnkiOnRydWUsInV3YiI6ZmFsc2UsIndpZmlfYXdhcmUiOmZhbHNlfX0sImV2aWRlbmNlIjp7Im1vdGlvbiI6bnVsbCwicGVlcnMiOltdLCJwcGciOm51bGx9LCJpbmNpZGVudF9pZCI6ImRlbW8tYm9nb3RhLTAxIiwibG9jYXRpb24iOnsiYWNjdXJhY3lfbSI6MTIuMCwibGF0Ijo0LjY1MzMsImxvbiI6LTc0LjA4MzYsIm1lYXN1cmVkX2F0IjoiMjAyNi0wOC0yMlQxNzowMzo0MVoiLCJzb3VyY2UiOiJnbnNzIn0sIm5vZGVfcHNldWRvbnltIjoiVmtkYXAxUmpSMHdDaGQ5ZCIsInByaW9yaXR5IjowLCJzZXEiOjksInN0YXR1cyI6IlNBRkUiLCJ0dGxfcyI6ODY0MDAsInVzZXJfcmVwb3J0ZWQiOnRydWV9",
+  "payload_hash": "4f4cff4c907a69dcfdd35158089ab2b78c4fd48ce3cc4bf0761e81cc83c1d2b5",
+  "signer_key_id": "Vkdap1RjR0wChd9d",
+  "signer_pubkey_b64": "C7w0aldmfDgBIL2cf9flHSxf3+o3zS9b9AWyxr9vLXg=",
+  "signature": "lAIvoD8lCKcfp96jPY5fyavGElUIebS/W6CFGtzTk4ZZ4iU1PIaSbHtTSpl5cUJ/RXxpMEielkOKWXFRyqb8CQ==",
+  "relay": {
+    "hop_count": 1,
+    "received_from": "Vkdap1RjR0wChd9d",
+    "transport": "nearby",
+    "rssi": -70,
+    "gateway_position": null
+  }
+}

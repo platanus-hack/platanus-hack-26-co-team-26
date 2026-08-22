@@ -1,0 +1,49 @@
+name: sismomesh
+description: Malla de emergencia offline store-carry-forward.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- estado (sin codegen: cero build_runner en el núcleo de 5 h)
+  provider: ^6.1.2
+
+  # --- transporte P0
+  nearby_connections: ^4.1.1
+
+  # --- persistencia
+  sqflite: ^2.3.3
+  path: ^1.9.0
+
+  # --- protocolo / integridad
+  cryptography: ^2.7.0
+  flutter_secure_storage: ^9.2.2
+  uuid: ^4.4.0
+
+  # --- gateway
+  dio: ^5.4.3
+  connectivity_plus: ^6.0.3
+
+  # --- dispositivo
+  permission_handler: ^11.3.1
+  geolocator: ^12.0.0
+  battery_plus: ^6.0.1
+  device_info_plus: ^10.1.0
+
+  # --- servicio en primer plano: sin esto Android mata el descubrimiento
+  flutter_foreground_task: ^6.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/fixtures/

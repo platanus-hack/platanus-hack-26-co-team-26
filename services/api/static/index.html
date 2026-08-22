@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SismoMesh · Operaciones</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--fg:#e6edf3;--dim:#8b949e;
+        --trapped:#f85149;--help:#d29922;--safe:#3fb950;--unk:#8b949e}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 ui-monospace,"SF Mono",Menlo,monospace;background:var(--bg);color:var(--fg)}
+  header{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:center}
+  h1{font-size:15px;margin:0;letter-spacing:.5px}
+  .grow{flex:1}
+  .pill{font-size:11px;padding:2px 8px;border:1px solid var(--line);border-radius:10px;color:var(--dim)}
+  main{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);height:calc(100vh - 47px)}
+  section{background:var(--bg);overflow:auto;padding:12px}
+  #map{height:100%;background:var(--panel)}
+  h2{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:0 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;color:var(--dim);font-weight:400;border-bottom:1px solid var(--line);padding:4px}
+  td{padding:4px;border-bottom:1px solid #21262d}
+  .st{font-weight:700}
+  .TRAPPED{color:var(--trapped)}.HELP{color:var(--help)}.SAFE{color:var(--safe)}.UNCONFIRMED{color:var(--unk)}
+  .nd{color:#484f58;font-style:italic}          /* "sin dato" nunca se ve como un cero */
+  .bad{color:var(--trapped)}
+  .mono{color:var(--dim)}
+  #err{background:#3d1d1d;color:#ffa198;padding:6px 16px;font-size:12px;display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>SISMOMESH · OPERACIONES</h1>
+  <span class="pill" id="incident">—</span>
+  <span class="grow"></span>
+  <span class="pill" id="stat">conectando…</span>
+</header>
+<div id="err"></div>
+<main>
+  <section><h2>Nodos</h2><table id="nodes"><thead><tr>
+    <th>Nodo</th><th>Estado</th><th>Ubicación</th><th>Bat.</th><th>Hops</th><th>Visto</th>
+  </tr></thead><tbody></tbody></table>
+  <h2 style="margin-top:20px">Mapa</h2><div id="map" style="height:320px"></div></section>
+  <section><h2>Timeline de bundles</h2><table id="tl"><thead><tr>
+    <th>bundle_id</th><th>Nodo</th><th>seq</th><th>Estado</th><th>Vía</th><th>RSSI</th><th>Integridad</th>
+  </tr></thead><tbody></tbody></table>
+  <h2 style="margin-top:20px">Rechazados <span class="mono">— la malla detecta y registra</span></h2>
+  <table id="rj"><thead><tr><th>#</th><th>bundle_id</th><th>Motivo</th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onerror="window.NOMAP=1"></script>
+<script>
+const INCIDENT = new URLSearchParams(location.search).get('incident') || 'demo-bogota-01';
+document.getElementById('incident').textContent = INCIDENT;
+const nd = v => v === null || v === undefined ? '<span class="nd">sin dato</span>' : v;
+
+let map, markers = {};
+if (!window.NOMAP && window.L) {
+  map = L.map('map').setView([4.6533, -74.0836], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19}).addTo(map);
+} else {
+  // Sin Internet no hay tiles. Las coordenadas siguen en la tabla: el dato no se pierde.
+  document.getElementById('map').innerHTML =
+    '<div style="padding:20px;color:#8b949e">Mapa no disponible sin red. Coordenadas en la tabla.</div>';
+}
+
+async function tick() {
+  try {
+    const [n, b, j] = await Promise.all([
+      fetch(`/incidents/${INCIDENT}/nodes`).then(r => r.json()),
+      fetch(`/incidents/${INCIDENT}/bundles`).then(r => r.json()),
+      fetch(`/incidents/${INCIDENT}/rejections`).then(r => r.json()),
+    ]);
+    document.getElementById('err').style.display = 'none';
+    document.getElementById('stat').textContent =
+      `${n.nodes.length} nodos · ${b.bundles.length} bundles · ${j.rejections.length} rechazados · ${new Date().toLocaleTimeString()}`;
+
+    document.querySelector('#rj tbody').innerHTML = j.rejections.map(x => `<tr>
+      <td class="mono">${x.id}</td><td class="mono">${(x.bundle_id||'').slice(-12)}</td>
+      <td class="bad">${x.reason}</td></tr>`).join('')
+      || '<tr><td colspan="3" class="nd">ninguno</td></tr>';
+
+    document.querySelector('#nodes tbody').innerHTML = n.nodes.map(x => `<tr>
+      <td class="mono">${x.node_pseudonym}</td>
+      <td class="st ${x.status}">${x.status}</td>
+      <td>${x.lat == null ? nd(null) : `${x.lat.toFixed(4)}, ${x.lon.toFixed(4)} <span class="mono">±${nd(x.accuracy_m)}m</span>`}</td>
+      <td>${x.battery_pct == null ? nd(null) : x.battery_pct + '%'}</td>
+      <td>${nd(x.hop_count)}</td><td class="mono">${nd(x.last_seen)}</td></tr>`).join('');
+
+    if (map) n.nodes.filter(x => x.lat != null).forEach(x => {
+      if (!markers[x.node_pseudonym])
+        markers[x.node_pseudonym] = L.circleMarker([x.lat, x.lon], {radius: 9}).addTo(map);
+      markers[x.node_pseudonym].setStyle({color: {TRAPPED:'#f85149',HELP:'#d29922',SAFE:'#3fb950'}[x.status] || '#8b949e'})
+        .setLatLng([x.lat, x.lon]).bindPopup(`<b>${x.node_pseudonym}</b><br>${x.status}`);
+    });
+
+    document.querySelector('#tl tbody').innerHTML = b.bundles.map(x => `<tr>
+      <td class="mono">${(x.bundle_id||'').slice(-12)}</td>
+      <td class="mono">${x.node_pseudonym}</td><td>${nd(x.seq)}</td>
+      <td class="st ${x.status}">${nd(x.status)}</td>
+      <td>${nd(x.transport)}${x.hop_count ? ` <span class="mono">h${x.hop_count}</span>` : ''}</td>
+      <td>${nd(x.rssi)}</td>
+      <td>${x.verified ? '<span class="SAFE">✓ firmado</span>'
+                       : `<span class="bad">✗ ${x.reject_reason || 'rechazado'}</span>`}
+          ${x.times_seen > 1 ? `<span class="mono"> ·${x.times_seen}×</span>` : ''}</td></tr>`).join('');
+  } catch (e) {
+    document.getElementById('err').style.display = 'block';
+    document.getElementById('err').textContent = 'API inalcanzable: ' + e.message;
+  }
+}
+tick(); setInterval(tick, 2000);
+</script>
+</body></html>
