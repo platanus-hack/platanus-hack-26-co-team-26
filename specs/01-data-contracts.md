@@ -119,6 +119,10 @@ untrusted→sink, secretos, RAG y límites del loop.
 
 ## 2. `threat_analysis.json` — salida del Analista LLM (D5)
 
+> **🟢 Implementado y corriendo contra Claude real** (`backend/adapters/analyst/
+> claude_analyst.py`, owner de facto: Miguel/D4 — ver `04-team-plan.md`). Lo que sigue es el
+> contrato tal como quedó, no solo el borrador original.
+
 El LLM razona sobre el plano y produce amenazas priorizadas. Ve sobre las reglas:
 hipotetiza **cadenas multi-paso** (leer secreto + enviar externo → exfiltración) que la
 detección suelta no ve.
@@ -126,19 +130,20 @@ detección suelta no ve.
 ```jsonc
 {
   "schema_version": "1.0",
-  "analyzed_by": "claude-sonnet",
+  "analyzed_by": "claude-sonnet-5",
   "architecture_ref": "customer-support-agent@a1b2c3",
   "threats": [
     {
       "id": "threat.1",
       "surface": "tool.shell",
       "threat_id": "cmd_injection",
+      "threat_class": "security",      // "security" | "performance" — ver nota T3 abajo
       "taxonomy": ["OWASP-AS106", "MITRE-ATLAS-T0051"],
-      "reasoning": "User input reaches shell exec unsanitized (flow.1). run_shell is destructive with no approval gate.",
+      "reasoning": "El input del usuario llega a shell_exec sin sanitizar (flow.1). run_shell es destructivo y no tiene gate de aprobación.",
       "evidence_refs": ["flow.1", "tool.shell"],
       "confidence": 0.9,
       "severity": "critical",          // low | medium | high | critical
-      "attack_hypothesis": "Inject shell metacharacters via the user message to run arbitrary commands.",
+      "attack_hypothesis": "Inyectar metacaracteres de shell vía el mensaje del usuario para ejecutar comandos arbitrarios.",
       "recommended_modules": ["cmd_injection", "path_traversal"],
       "recommended_oracle": ["syscall:execve", "canary_token"],
       "priority": 1
@@ -147,30 +152,63 @@ detección suelta no ve.
       "id": "threat.2",
       "surface": "mcp.notion + tool.email",
       "threat_id": "exfil_chain",
+      "threat_class": "security",
       "taxonomy": ["OWASP-AS107"],
-      "reasoning": "notion.search_pages reads sensitive data; combined with an external-send tool this enables exfiltration. Chain hypothesized from the tool graph, not a single rule.",
+      "reasoning": "notion.search_pages lee datos sensibles; combinado con una tool que envía datos afuera, habilita exfiltración. Cadena hipotetizada desde el grafo de tools, no una regla suelta.",
       "confidence": 0.6,
       "severity": "high",
-      "attack_hypothesis": "Indirect injection in a Notion page tells the agent to send retrieved data to an external URL.",
+      "attack_hypothesis": "Una inyección indirecta en una página de Notion le dice al agente que mande los datos recuperados a una URL externa.",
       "recommended_modules": ["indirect_injection", "exfiltration"],
       "recommended_oracle": ["honeypot_url"],
       "priority": 2
+    },
+    {
+      "id": "threat.3",
+      "surface": "mcp.notion + tool.shell",
+      "threat_id": "wallet_dos",
+      "threat_class": "performance",   // T3 (specs/05-performance-thesis.md, propuesta)
+      "taxonomy": [],
+      "reasoning": "agent_loop.max_iterations es null y budget_enforced es false: el agente puede encadenar llamadas a tools sin ningún límite interno.",
+      "confidence": 0.7,
+      "severity": "medium",
+      "attack_hypothesis": "Un pedido abierto tienta al agente a encadenar llamadas a tools sin límite (denial-of-wallet).",
+      "recommended_modules": ["wallet_dos"],
+      "recommended_oracle": ["iteration_budget_oracle"],
+      "priority": 3
     }
   ],
-  "notes": "agent_loop.max_iterations is null -> wallet-DoS risk noted, deprioritized for this run."
+  "notes": "agent_loop.max_iterations es null -> se propuso threat.3 (wallet_dos, T3) en vez de solo anotarlo como nota."
 }
 ```
+
+**`threat_class` (T3, propuesta — ver `05-performance-thesis.md`):** además de amenazas de
+seguridad, el analista **ya** propone `threat_class: "performance"` cuando
+`agent_loop.max_iterations` es `null` y `budget_enforced` es `false` — hoy el único
+`threat_id` de esta clase es `wallet_dos`. Esto **no** requiere nada nuevo del Designer/
+Sandbox/Oráculo (D2/D3) para que C2 lo produzca; sí lo requiere si quieren compilar/probar
+esa amenaza como las demás (ver el doc de la propuesta para el detalle y el estado de
+aprobación — **todavía no acordado con D2/D3/D5**).
+
+**Salida en español:** `reasoning`, `attack_hypothesis` y `notes` van en español (el
+dashboard que los renderiza es español-only). Los identificadores (`threat_id`, `surface`,
+`evidence_refs`, códigos de `taxonomy`, `recommended_modules`/`recommended_oracle`) se
+mantienen en su forma técnica normal, nunca se traducen.
 
 **Contrato de invocación del LLM (crítico):** se usa `langchain-anthropic` con
 `.with_structured_output(ThreatAnalysis)` (Pydantic), que fuerza salida JSON válida contra el
 schema. Si el parseo/validación falla, se reintenta una vez pasando el `ValidationError` de
-Pydantic en el prompt.
+Pydantic en el prompt. Además de lo que valida Pydantic, el adaptador chequea en código
+reglas de negocio que el schema por sí solo no captura (≥2 amenazas con la mezcla exigida,
+`evidence_refs` reales, `recommended_modules`/`recommended_oracle` conocidos, `priority` sin
+empates, y — si aplica — la amenaza `wallet_dos`) antes de aceptar la respuesta.
 
 **Criterios de aceptación (D5):**
 - ✅ Produce ≥2 amenazas: al menos 1 `cmd_injection` (single-surface) y 1 cadena multi-paso.
 - ✅ Cada `threat` referencia evidencia real del `architecture.json` (`evidence_refs` válidos).
 - ✅ `recommended_modules` y `recommended_oracle` usan nombres que el Designer/D2 conoce.
 - ✅ `priority` total-order (sin empates) para que el Designer ordene el harness.
+- ✅ Si `agent_loop` no tiene límite, incluye una amenaza `threat_class="performance"`,
+  `threat_id="wallet_dos"` (T3).
 
 ---
 

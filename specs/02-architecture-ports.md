@@ -26,7 +26,9 @@ adaptador con implementación mínima hoy y espacio para un adaptador mejor mañ
 | Estado / datos | **SQLite** (`sqlite3`/SQLModel) + artefactos JSON en `runs/<id>/` | Cero infra, arranca en minutos, cero dependencia de red en demo |
 | Agente objetivo (prueba) | **Agente LangChain/LangGraph (Python)** | Realista y conocido; agregar una tool = prueba T1 |
 | Loop en vivo | **SSE (Server-Sent Events)** | Más simple que WebSockets; muestra el loop corriendo |
-| Dashboard | **Vite + React + TS + Tailwind + shadcn/ui + Recharts** | Owner: Miguel; consume SSE |
+| Dashboard | **Vite + React + TS + Tailwind v4 + shadcn/ui** | Owner: Miguel; consume SSE |
+| Gráficos del dashboard | **Bklit UI** (registry de shadcn, `@bklit/gauge-chart`) — reemplaza a Recharts, que no se llegó a usar | Gauges para métricas por nodo (invocaciones/duración/fallas, confianza) |
+| Animación del dashboard | **anime.js v4** (`svg.createMotionPath`/`createDrawable`, adapter de Three.js) + **Three.js** | Segmentos del loop en vivo, efecto de entrada 3D del árbol de amenazas (decorativo — la interacción real es siempre 2D DOM/SVG) |
 
 > **Sin Redis, sin cola, sin Kafka, sin ClickHouse.** Para una rebanada vertical de una
 > corrida, un orquestador en proceso (LangGraph) que corre el pipeline y transmite por SSE es

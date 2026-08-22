@@ -1,0 +1,16 @@
+rules:
+  - id: untrusted-shell-sink
+    languages: [python]
+    severity: ERROR
+    message: >
+      Untrusted input may reach a shell sink (subprocess/os.system with shell=True).
+      Matches the user_input -> shell_exec data flow the Extractor (D1) flags as
+      unsanitized in architecture.json.
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.run(..., shell=True, ...)
+          - pattern: subprocess.Popen(..., shell=True, ...)
+          - pattern: subprocess.call(..., shell=True, ...)
+          - pattern: subprocess.check_output(..., shell=True, ...)
+          - pattern: os.system(...)
+          - pattern: os.popen(...)
