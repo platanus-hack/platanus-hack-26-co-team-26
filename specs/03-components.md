@@ -22,19 +22,33 @@ criterios de aceptación**. El owner no toca otras piezas salvo por el schema co
 
 ---
 
-## C2 · Analista LLM  — owner D5 (Laura)
+## C2 · Analista LLM  — owner nominal D5 (Laura), implementado por D4 (Miguel)
+
+> **🟢 Implementado.** `backend/adapters/analyst/claude_analyst.py`. En la práctica lo
+> construyó Miguel (D4) además de C9 — ver `04-team-plan.md`. Corre contra Claude real, con
+> tests en `backend/tests/test_analyst.py` (se saltan sin `ANTHROPIC_API_KEY`).
 
 - **Responsabilidad:** razonar sobre el plano y proponer amenazas priorizadas (Reviewer).
 - **Entrada → salida:** `AgentArchitecture` → `threat_analysis.json` ([schema 01·2](./01-data-contracts.md)).
-- **Cómo:** `langchain-anthropic` (Claude Sonnet) + `.with_structured_output(ThreatAnalysis)`.
-  System prompt: solo JSON, razonar cadenas multi-paso, referenciar evidencia real, priorizar.
+- **Cómo:** `langchain-anthropic` (`claude-sonnet-5`) + `.with_structured_output(ThreatAnalysis)`.
+  System prompt: solo JSON, razonar cadenas multi-paso, referenciar evidencia real, priorizar,
+  **y toda la prosa (`reasoning`/`attack_hypothesis`/`notes`) en español** — el dashboard es
+  español-only. Los identificadores (`threat_id`, códigos de `taxonomy`, nombres de
+  módulos/oráculos) nunca se traducen.
 - **Regla:** el LLM **propone**, no juzga verdad. La confirmación es del oráculo.
+- **T3 (propuesta, ver `05-performance-thesis.md`):** además de amenazas de seguridad, ya
+  propone `threat_class="performance"`, `threat_id="wallet_dos"` cuando
+  `agent_loop.max_iterations` es `null` y `budget_enforced` es `false` — grounded 100% en
+  campos que ya trae `architecture.json`, sin pedirle nada nuevo a D1. Esta parte del C2 está
+  hecha; lo que falta de T3 (Designer/Sandbox/Oráculo/Mitigación) sigue sin acordarse con
+  D2/D3/D5.
 
 **Criterios de aceptación:**
 - ✅ Devuelve ≥2 amenazas: 1 `cmd_injection` single-surface + 1 cadena multi-paso (exfil).
 - ✅ `evidence_refs` apuntan a IDs reales del `architecture.json`.
 - ✅ `recommended_modules`/`recommended_oracle` usan nombres que D2/D3 implementan.
 - ✅ `priority` es orden total (sin empates). Reintenta 1 vez con el `ValidationError` si falla.
+- ✅ Si `agent_loop` no tiene límite, agrega la amenaza `wallet_dos` (T3).
 
 ---
 
@@ -132,20 +146,50 @@ criterios de aceptación**. El owner no toca otras piezas salvo por el schema co
 
 ## C9 · Dashboard  — owner D4 (Miguel)
 
+> **🟡 2 de 4 pantallas implementadas** (Análisis, Loop en vivo) — `frontend/`, corriendo
+> contra el backend real (no mockeado: usa el `ClaudeAnalyst` real de C2 y el SSE real del
+> `StateGraph`). Faltan Arquitectura y una pantalla dedicada de Mitigación (hoy esa
+> transición se ve dentro de Loop en vivo, no en pantalla propia).
+
 - **Responsabilidad:** transmitir el loop en vivo y contar la historia en el demo (4 pantallas).
-- **Cómo:** Vite + React + TS + Tailwind + shadcn/ui + Recharts. Se suscribe a
-  `GET /runs/{run_id}/events` (SSE) y renderiza eventos de telemetría.
-- **Las 4 pantallas:**
-  1. **Arquitectura** — grafo de tools/MCP/flows del `architecture.json`.
-  2. **Análisis** — amenazas priorizadas con severidad y confianza.
-  3. **Loop en vivo** — pipeline corriendo, ataque disparado, `exploited` en rojo.
-  4. **Mitigación → CERRADO** — transición `exploited → mitigado → resisted` (prueba T2).
+- **Cómo:** Vite + React + TS + Tailwind v4 + shadcn/ui. Cambios sobre el stack decidido en
+  `02-architecture-ports.md` — ver esa tabla actualizada. Se suscribe a
+  `GET /runs/{run_id}/events` (SSE) y a los endpoints REST nuevos
+  `GET /runs/{run_id}/{architecture,threat_analysis,findings}` (el SSE manda conteos/refs
+  livianos, no el artefacto completo — estos endpoints sirven el JSON entero para que el
+  dashboard renderice detalle real).
+- **Las 4 pantallas (spec original) — estado real:**
+  1. **Arquitectura** — 🔴 no implementada todavía.
+  2. **Análisis** — 🟢 implementada. Dos "threat forests" (árboles de dependencias reales,
+     no listas planas) en tabs: **Vulnerabilidades** (agrupa `Threat[]` por superficie
+     compartida — un threat single-surface y uno multi-paso que usan la misma tool cuelgan
+     del mismo nodo padre) y **Rendimiento & confiabilidad** (T3 — cadena real desde
+     `architecture.data_flows[].path` + el threat `wallet_dos` real; las métricas por nodo
+     — duración, invocaciones, tasa de fallas — son **simuladas y marcadas como tal en la
+     UI**, placeholder hasta que D3 instrumente el Sandbox, ver `05-performance-thesis.md`).
+     Layout vertical, panel de detalle al costado con gauges (Bklit UI). Al abrir cada árbol,
+     un efecto de entrada en Three.js (`InstancedMesh` + adapter de anime.js) — puramente
+     decorativo, la interacción real siempre pasa por el DOM/SVG 2D, nunca por el canvas.
+  3. **Loop en vivo** — 🟢 implementada. Diagrama del pipeline (cajas sin relleno, solo
+     borde) que avanza con el SSE real: un segmento a la vez se revela (cola secuencial,
+     nunca simultáneo aunque lleguen varios eventos del backend en el mismo instante), las
+     cajas se iluminan solo cuando la luz realmente llega. Log de eventos abajo.
+  4. **Mitigación → CERRADO** — 🟡 no es pantalla propia; la transición `exploited →
+     mitigado → resisted` se ve dentro de Loop en vivo (badge "CERRADO" + caja final).
+- **Persistencia:** cada pantalla guarda su última corrida en `sessionStorage` (no
+  `localStorage` — no sobrevive a cerrar el navegador) para que cambiar de pestaña y volver,
+  o un F5, no pierda el resultado. Nunca hay una corrida "a medias" restaurada (la conexión
+  SSE no sobrevive a salir de la pantalla).
+- **Idioma:** toda la UI en español, incluida la salida del LLM (ver nota de C2).
 
 **Criterios de aceptación:**
 - ✅ Renderiza el estado del run en vivo desde SSE sin recargar.
 - ✅ Muestra claramente la transición `exploited → resisted` (el momento "wow" de T2).
-- ✅ Muestra el diff de recompilación cuando cambia la arquitectura (T1).
-- ✅ Funciona con datos mockeados (contrato SSE) para desarrollar en paralelo al backend.
+- 🔴 Muestra el diff de recompilación cuando cambia la arquitectura (T1) — no aplica todavía
+  porque D1 sigue con `FakeExtractor`; no hay una arquitectura real que cambie para mostrar
+  el diff.
+- 🟡 "Funciona con datos mockeados" ya no describe cómo se construyó — se armó directo
+  contra el backend real (C2 real, SSE real) en vez de mocks del lado del frontend.
 
 ---
 

@@ -72,13 +72,30 @@ class FakeAnalyst:
             architecture_ref=f"{arch.agent.name}@a1b2c3",
             threats=[
                 Threat(id="threat.1", surface="tool.shell", threat_id="cmd_injection",
+                       threat_class="security",
                        taxonomy=["OWASP-AS106", "MITRE-ATLAS-T0051"],
-                       reasoning="User input reaches shell exec unsanitized (flow.1).",
+                       reasoning="El input del usuario llega a la ejecución de shell sin "
+                                 "sanitizar (flow.1).",
                        evidence_refs=["flow.1", "tool.shell"], confidence=0.9,
                        severity="critical",
-                       attack_hypothesis="Inject shell metacharacters via the user message.",
+                       attack_hypothesis="Inyectar metacaracteres de shell vía el mensaje "
+                                          "del usuario.",
                        recommended_modules=["cmd_injection"],
                        recommended_oracle=["syscall:execve", "canary_token"], priority=1),
+                # T3 (specs/05-performance-thesis.md, propuesta): riesgo de rendimiento, no
+                # de explotacion -> alimenta el 2do arbol del dashboard (Analisis).
+                Threat(id="threat.2", surface="mcp.notion + tool.shell",
+                       threat_id="wallet_dos", threat_class="performance",
+                       taxonomy=[],
+                       reasoning="agent_loop.max_iterations es null y budget_enforced es "
+                                 "false: el agente puede encadenar lecturas de mcp.notion con "
+                                 "llamadas a tool.shell sin ningún límite interno.",
+                       evidence_refs=["mcp.notion", "tool.shell"], confidence=0.7,
+                       severity="medium",
+                       attack_hypothesis="Enviar un pedido abierto que tiente al agente a "
+                                          "entrar en un loop de leer-y-actuar sin límite.",
+                       recommended_modules=["wallet_dos"],
+                       recommended_oracle=["iteration_budget_oracle"], priority=2),
             ],
         )
 
