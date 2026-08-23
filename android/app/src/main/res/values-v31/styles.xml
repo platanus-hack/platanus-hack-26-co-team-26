@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HELIUS" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:windowSplashScreenBackground">@color/helios_icon_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/helios_logo</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/helios_icon_background</item>
+    </style>
+</resources>

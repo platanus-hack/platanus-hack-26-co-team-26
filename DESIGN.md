@@ -1,39 +1,49 @@
-# Sistema visual HELIOS
+# Sistema visual HELIOS — Solar Cartography
 
-HELIOS comunica evidencia de emergencia con claridad operativa, sobriedad y una incertidumbre explícita. La dirección es **Adaptive Night**: superficies oscuras calmadas para operación y acentos cálidos para preparación.
+HELIOS comunica evidencia de emergencia con claridad operativa, sobriedad y una incertidumbre explícita. La dirección elegida es **Solar Cartography**: cartografía de baja saturación, señales cálidas y una red humana visible sin estética cyberpunk.
 
-## Design exploration
+## Design tournament
 
-| Direction | Readability | Operations | Accessibility | Premium restraint | Total / 20 |
+| Dirección | Lectura | Operación | Accesibilidad | Calma premium | Total / 20 |
 |---|---:|---:|---:|---:|---:|
-| Nordic Operations | 5 | 3 | 5 | 4 | 17 |
-| Dark Rescue Intelligence | 4 | 5 | 4 | 4 | 17 |
-| Hybrid Adaptive | 5 | 5 | 5 | 4 | **19** |
+| Solar Cartography | 5 | 5 | 5 | 5 | **20** |
+| Calm Rescue | 5 | 4 | 5 | 4 | 18 |
+| Signal Instrument | 4 | 5 | 4 | 4 | 17 |
 
-Hybrid Adaptive wins because the public experience benefits from warm, approachable daylight surfaces while incident maps gain clarity from dark neutral chrome. This is one semantic system with two modes, not two products.
+Solar Cartography gana porque une orientación espacial, señal y calidez sin saturar la interfaz. Calm Rescue aporta el lenguaje de reassurance para asistencia; Signal Instrument aporta la lectura de métricas en diagnóstico. Es un solo sistema semántico, no tres productos.
 
-## Tokens
+## Tokens semánticos
 
-| Role | Light | Dark |
+| Rol | Token | Valor |
 |---|---|---|
-| Canvas | `#F6F1E8` | `#07151D` |
-| Surface | `#FFFFFF` | `#0D2530` |
-| Elevated | `#FFFFFF` | `#143642` |
-| Border | `#D8DAD6` | `#2E3B3F` |
-| Primary text | `#182226` | `#EDF1ED` |
-| Secondary text | `#59686C` | `#AEB9B6` |
-| Rescue teal | `#31C7B5` | `#31C7B5` |
-| Signal blue | `#58C7E8` | `#58C7E8` |
-| Safe | `#63B98C` | `#63B98C` |
-| Warning | `#F0A84A` | `#F0A84A` |
-| Critical | `#E95D5D` | `#E95D5D` |
-| Estimated | `#9A83C7` | `#9A83C7` |
+| Fondo operativo | `HELIOS_INK` | `#07161E` |
+| Superficie | `DEEP_OCEAN` | `#0D252D` |
+| Elevada | `GRAPHITE_BLUE` | `#173741` |
+| Texto cálido | `WARM_CLOUD` | `#F4F1E9` |
+| Producto | `HELIOS_SOLAR` | `#F4B44A` |
+| Red activa | `AQUA_SIGNAL` | `#35C4B2` |
+| Ubicación | `LOCATION_SKY` | `#65C4E4` |
+| Seguro | `SAFE_MINT` | `#69BA8E` |
+| Asistencia | `SIGNAL_CORAL` | `#ED625E` |
+| Estimación | `EVIDENCE_VIOLET` | `#9A86C8` |
 
-Use neutral surfaces for 80–90% of a screen. Teal identifies the product and current GPS. Red is reserved for SOS and confirmed critical system states; movement is amber/neutral evidence, never green.
+Usa superficies neutrales en 80–90% de cada pantalla. Solar identifica el producto; aqua, la red; azul cielo, la geografía; coral, SOS; violeta, estimaciones. El movimiento es evidencia ámbar/neutral, nunca “vida”.
 
-## Typography and layout
+## Tipografía, layout y responsive
 
-Use Inter, Geist, or the system sans stack. Use JetBrains Mono/Consolas only for coordinates, timestamps, identifiers, RSSI, accuracy, and latency. Spacing follows `4, 8, 12, 16, 24, 32, 48, 64`. Controls use 8–10 px radii, panels 10–14 px. Minimum touch target is 44×44 px on mobile.
+Usa la sans del sistema con jerarquía fuerte; mono solo para coordenadas,
+timestamps, identificadores, RSSI, precisión y latencia. Spacing: `4, 8, 12,
+16, 24, 32, 48, 64`. Controles de 14–16 dp, paneles de 18–22 dp y touch target
+mínimo de 44×44 dp. En tablet, usa dos columnas para mapa/contexto cuando el
+ancho disponible supera aproximadamente 720 dp.
+
+## Helios Pulse y motion
+
+`HeliosPulse` es el elemento de marca circular. Solo pulsa cuando comunica una
+señal activa, búsqueda, alerta o captura; puede quedar estático para identidad y
+estado tranquilo. Motion estándar dura 120–180 ms; cambios de panel 180–260 ms;
+alertas y asistencia usan transiciones expresivas, pero no bloquean acciones.
+No se anima todo al mismo tiempo.
 
 ## Evidence semantics
 
@@ -45,9 +55,20 @@ Use Inter, Geist, or the system sans stack. Use JetBrains Mono/Consolas only for
 - Movement copy: “Recent device movement detected.” Never “alive”. Absence of movement never implies death.
 - Freshness: `LIVE ≤30 s`, `RECENT ≤2 min`, `AGING ≤30 min`, otherwise `STALE`.
 
-## Maps and charts
+## Mapa y marcadores
 
-Basemaps are low saturation. Stable layer identifiers are defined in `docs/design/map-semantics.md`. 2D is the default overview; 3D uses pitch, terrain, and building extrusion only where source data exists. Rendered heights are context, not certified structural measurements. Charts answer a single operational question, include units and an accessible text summary, and avoid decorative gradients or fake 3D.
+El shell Android usa una superficie de orientación local porque no hay
+MapLibre/Google Maps ni teselas configuradas en este checkout. La superficie no
+simula calles: solo muestra la lectura GPS real, su precisión y frescura. Cuando se
+configure un proveedor autorizado, mantén 2D como vista principal, agua en Deep
+Ocean, edificios Graphite Blue, carreteras azul grisáceo y labels Warm Cloud.
+Marcadores: tú Solar, personas Aqua, SOS Coral, estimación histórica Violet.
+
+## Identidad de aplicación
+
+El launcher, el splash de Android y las superficies de autenticación usan el logo
+oficial suministrado para HELIOS (`android/app/src/main/res/drawable/helios_logo.png`)
+mediante icono adaptativo y fallback legacy. El nombre visible es `HELIOS`.
 
 ## Motion and effects
 

@@ -5,18 +5,28 @@ HELIOS es una plataforma Android de evidencia para emergencias. Separa la eviden
 ## Modules
 
 - `:core`: Kotlin Multiplatform domain, ports, geo intelligence, DTN and signal processing. No Android dependencies in common code.
-- `:android:app`: Compose shell, local development auth, onboarding, permission entry points, home, emergency/motion/PPG/diagnostics/privacy surfaces.
+- `:android:app`: Compose shell, cuenta local offline persistente, onboarding, permisos, inicio, orientación GPS, emergencia/movimiento/PPG/diagnósticos y privacidad.
 - `:android:sensing`: Android `LocationSource` and `MotionSensorSource` adapters.
 - `:android:ppg`: CameraX frame acquisition; processing remains in `:core`.
 - `:android:transport`, `:android:storage`, `:android:power`, `:android:inference`: platform seams for future integrations.
 - `web`: simulación React/Vite para operadores y vista cartográfica.
 - `services`: shells Python/FastAPI y contratos compartidos.
 
-## Current milestone
+## Hito actual
 
-El estado actual es una base navegable y parcialmente offline, con fuentes locales de desarrollo y adaptadores reales de acelerómetro, giroscopio, ubicación y CameraX. La autenticación backend, persistencia cifrada, retransmisión BLE y sincronización de producción siguen parciales.
+El estado actual es una aplicación local offline verificable, con adaptadores
+reales de acelerómetro, giroscopio, ubicación y CameraX. La UI usa una máquina
+de estados única para alerta, apoyo y asistencia requerida. Nearby Connections
+anuncia y descubre en paralelo, mantiene varios peers, retransmite cargas nuevas,
+deduplica por hash, emite ACK técnicos y conserva la cola local. La cuenta local
+no pretende sustituir autenticación cloud; personas, alertas remotas y
+sincronización solo aparecen cuando exista un backend operativo.
 
 ## Local development rules
 
-Lee `DESIGN.md` antes de modificar UI. No subas credenciales. `usuario` / `123456` es una cuenta local de demo y debe sustituirse por autenticación backend con hash antes de publicar. No solicites todos los permisos al abrir. No guardes PPG crudo ni ubicación remota por defecto. Conserva los paquetes técnicos existentes; la marca visible HELIOS no justifica una migración masiva de namespaces.
+Lee `DESIGN.md` antes de modificar UI. No subas credenciales. `usuario` / `123456`
+solo se siembra en builds DEBUG; las cuentas locales usan hash con salt y sesión
+persistente. No solicites todos los permisos al abrir. No guardes PPG crudo ni
+ubicación remota por defecto. Conserva los paquetes técnicos existentes; la marca
+visible HELIOS no justifica una migración masiva de namespaces.
 

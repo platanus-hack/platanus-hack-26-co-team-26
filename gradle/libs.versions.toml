@@ -11,6 +11,7 @@ koin = "4.0.0"
 sqldelight = "2.0.2"
 protobuf = "4.35.1"
 litert = "1.0.1"
+play-services-nearby = "19.3.0"
 ktlint-gradle = "12.1.1"
 detekt = "1.23.7"
 konsist = "0.17.1"
@@ -37,6 +38,7 @@ protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "p
 protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 litert = { module = "com.google.ai.edge.litert:litert", version.ref = "litert" }
+play-services-nearby = { module = "com.google.android.gms:play-services-nearby", version.ref = "play-services-nearby" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

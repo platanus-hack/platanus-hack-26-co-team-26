@@ -36,7 +36,13 @@ sealed interface BundlePayload {
     data class Motion(val evidence: Any /* TODO(dueño=Alex): MotionEvidence generado desde motion.proto */) : BundlePayload
     data class Biomarker(val evidence: Any /* TODO(dueño=Alex): BiomarkerEvidence — NUNCA "vitals" */) : BundlePayload
     data class Observation(val peerObservation: PeerObservation) : BundlePayload
-    data class Raw(val chunk: ByteArray) : BundlePayload
+    /** Fragmento RAW; conserva metadatos protobuf para que DTN no pierda el reensamblado. */
+    data class Raw(
+        val chunk: ByteArray,
+        val tier: String = "T2",
+        val chunkIndex: Int = 0,
+        val chunkCount: Int = 0,
+    ) : BundlePayload
     data class Responder(val message: ByteArray /* DTN inversa, ver 8.6 */) : BundlePayload
 }
 

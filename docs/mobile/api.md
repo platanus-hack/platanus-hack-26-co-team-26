@@ -1,6 +1,9 @@
 # API y transporte
 
-**Estado: PARCIAL.** Los contratos OpenAPI/AsyncAPI y el backend FastAPI existen en el repositorio. `:android:transport` contiene el núcleo DTN, criptografía y GATT; falta cablear un único cliente de aplicación al shell Android y definir la URL por entorno.
+**Estado: PARCIAL.** Los contratos OpenAPI/AsyncAPI y el backend FastAPI existen en el repositorio. `:android:transport` contiene el núcleo DTN, criptografía, GATT y Nearby; falta cablear un único cliente de aplicación al shell Android y definir la URL por entorno.
 
 No se deben hardcodear secretos ni presentar una cola local como entrega confirmada. Los paquetes pendientes deben quedar encolados con estado visible.
+
+La API backend y el transporte dispositivo-a-dispositivo son conceptos distintos:
+el primero sincroniza cuando existe Internet; Nearby solo realiza proximidad local.
 

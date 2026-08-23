@@ -57,6 +57,11 @@ object BundleWireCodec {
             is BundlePayload.Raw -> builder.setRaw(
                 co.helius.core.protocol.v1.RawSensorChunk.newBuilder()
                     .setChunk(ByteString.copyFrom(p.chunk))
+                    .apply {
+                        if (p.tier.isNotEmpty()) setTier(p.tier)
+                        if (p.chunkIndex != 0) setChunkIndex(p.chunkIndex)
+                        if (p.chunkCount != 0) setChunkCount(p.chunkCount)
+                    }
                     .build(),
             )
             is BundlePayload.Responder -> builder.setResponder(
@@ -78,7 +83,12 @@ object BundleWireCodec {
     private fun WireBundle.toDomain(): DomainBundle {
         val payload: BundlePayload = when (payloadCase) {
             WireBundle.PayloadCase.STATUS -> BundlePayload.Status(status.toDomain())
-            WireBundle.PayloadCase.RAW -> BundlePayload.Raw(raw.chunk.toByteArray())
+            WireBundle.PayloadCase.RAW -> BundlePayload.Raw(
+                chunk = raw.chunk.toByteArray(),
+                tier = raw.tier,
+                chunkIndex = raw.chunkIndex,
+                chunkCount = raw.chunkCount,
+            )
             WireBundle.PayloadCase.RESPONDER -> BundlePayload.Responder(responder.ciphertext.toByteArray())
             WireBundle.PayloadCase.OBSERVATION -> BundlePayload.Observation(observation.toDomain())
             WireBundle.PayloadCase.MOTION, WireBundle.PayloadCase.BIOMARKER ->
@@ -117,11 +127,13 @@ object BundleWireCodec {
             clockEvidence = clock.toDomain(),
         )
 
-    private fun DomainClockEvidence.toWireMessage(): WireClockEvidence =
-        WireClockEvidence.newBuilder()
+    private fun DomainClockEvidence.toWireMessage(): WireClockEvidence {
+        val observedSkewMs = this.observedSkewMs
+        return WireClockEvidence.newBuilder()
             .setMonotonicMs(monotonicMs)
             .apply { observedSkewMs?.let { setObservedSkewMs(it) } }
             .build()
+    }
 
     private fun WireClockEvidence.toDomain(): DomainClockEvidence =
         DomainClockEvidence(monotonicMs = monotonicMs, observedSkewMs = if (hasObservedSkewMs()) observedSkewMs else null)
@@ -151,6 +163,9 @@ object BundleWireCodec {
         )
 
     private fun DomainGeoPoint.toWireGeoPointMessage(): WireGeoPoint {
+        val accuracyM = this.accuracyM
+        val altitudeM = this.altitudeM
+        val altitudeAccuracyM = this.altitudeAccuracyM
         val domainAltitudeSource = altitudeSource
         return WireGeoPoint.newBuilder()
             .setLat(lat)
@@ -189,8 +204,14 @@ object BundleWireCodec {
 
     private fun WireResponseState.toDomain(): DomainResponseState = DomainResponseState.entries[number]
 
-    private fun DomainPeerObservation.toWireMessage(): WirePeerObservation =
-        WirePeerObservation.newBuilder()
+    private fun DomainPeerObservation.toWireMessage(): WirePeerObservation {
+        val observerGeo = this.observerGeo
+        val observerAccM = this.observerAccM
+        val uwbElevationDeg = this.uwbElevationDeg
+        val uwbAzimuthDeg = this.uwbAzimuthDeg
+        val uwbDistanceM = this.uwbDistanceM
+        val barometricPressureHpa = this.barometricPressureHpa
+        return WirePeerObservation.newBuilder()
             .setIncidentId(ByteString.copyFrom(incidentId))
             .setNodeA(ByteString.copyFromUtf8(nodeA.value))
             .setNodeB(ByteString.copyFromUtf8(nodeB.value))
@@ -198,7 +219,7 @@ object BundleWireCodec {
             .setTransport(transport)
             .setObservedAt(observedAtMs.toLong())
             .apply {
-                observerGeo?.let { setObserverGeo(it.toWireMessage()) }
+                observerGeo?.let { setObserverGeo(it.toWireGeoPointMessage()) }
                 observerAccM?.let { setObserverAccM(it) }
                 uwbElevationDeg?.let { setUwbElevationDeg(it) }
                 uwbAzimuthDeg?.let { setUwbAzimuthDeg(it) }
@@ -206,6 +227,7 @@ object BundleWireCodec {
                 barometricPressureHpa?.let { setBarometricPressureHpa(it) }
             }
             .build()
+    }
 
     private fun WirePeerObservation.toDomain(): DomainPeerObservation =
         DomainPeerObservation(
