@@ -12,7 +12,7 @@ solo sus propios adaptadores.
 | Servicio | Responsabilidad | Dueño |
 |---|---|---|
 | `shared/src/api` | REST + WebSocket, auth, autorización por rol, agregaciones por vista | Miguel |
-| `alert_ingestor` | Polling/suscripción a fuentes (SGC/CAP/USGS), normalización a CAP interno, dedupe, decisión de activación | Miguel |
+| `alert_ingestor` | EMSC/USGS/SGC → evento interno, dedupe cruzado entre fuentes, decisión de activación | Miguel |
 | `bundle_ingestor` | Verificación de firmas, dedupe por `bundle_id`, reconstrucción de causalidad, fan-out | Miguel |
 | `localization` | Factor graph, zonas candidatas, heatmaps, recálculo incremental | Miguel |
 | `notifier` | FCM, canales de alerta, reintentos | Miguel |
@@ -21,4 +21,7 @@ solo sus propios adaptadores.
 **Regla de PII (Sección 12.3):** todo endpoint que devuelva PII escribe en
 `audit_log` **antes** de responder.
 
-**Etiqueta de madurez:** `ENGINEERING` (esqueleto generado).
+**Etiqueta de madurez:** `ENGINEERING` (esqueleto generado), salvo:
+- `alert_ingestor` — `APPLICATION` para EMSC/USGS (implementados, probados,
+  verificados contra las APIs reales), `ENGINEERING` para SGC (sin endpoint
+  público confirmado). Ver `services/alert_ingestor/README.md`.

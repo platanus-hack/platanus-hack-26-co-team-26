@@ -31,6 +31,13 @@ services:
     ports: ["8000:8000"]
     command: uvicorn src.api.bootstrap.main:app --host 0.0.0.0 --port 8000 --reload
 
+  alert_ingestor:
+    build:
+      context: ./services/alert_ingestor
+    environment:
+      ALERT_INGESTOR_POLL_INTERVAL_S: "15"
+    restart: unless-stopped
+
   # Observabilidad (OpenTelemetry → Grafana / Loki / Tempo), Sección 2.1.
   jaeger:
     image: jaegertracing/all-in-one:latest
