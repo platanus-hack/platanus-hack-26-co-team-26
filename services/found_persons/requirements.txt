@@ -1,0 +1,5 @@
+# Congelado mínimo para despliegue. El contrato completo está en pyproject.toml.
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pydantic>=2.9
+cryptography>=43

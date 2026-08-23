@@ -4,6 +4,16 @@ Objetivo: demostrar el **Slice 0** (el corazón) en video antes de la hora 72 �
 ver `docs/roadmap/VERTICAL-SLICES.md`. No se empieza por PPG, ni por ML, ni por
 UI bonita.
 
+> [!IMPORTANT]
+> `core/dtn`, `core/crypto`, `android/transport` y `core/protocol/BundleWireCodec.kt`
+> ya tienen implementación real (no `TODO`), pero **nunca se compilaron** — se
+> escribieron sin JDK/Android SDK disponible. La tarea de la hora 0–4 de
+> "monorepo generado, `./gradlew build` verde" no es un formalismo: es
+> literalmente la primera vez que este código pasa por un compilador. Léanse
+> `docs/validation/PHONE-READINESS.md` antes de tocar `android/transport` —
+> ahí está la lista de bugs ya encontrados por revisión manual y los que
+> probablemente aparezcan recién al compilar/correr en dispositivo.
+
 | Hora | Quién | Entregable |
 |---|---|---|
 | 0–4 | Todos | Monorepo generado, `./gradlew build` verde, `make up` funciona. |

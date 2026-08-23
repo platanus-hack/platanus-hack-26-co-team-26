@@ -5,7 +5,7 @@ criptografía, DSP de señal (PPG/movimiento), políticas y casos de uso. Kotlin
 Multiplatform con un único target activo (`androidMain`); `iosMain` declarado y
 vacío hasta la Fase 2.
 
-**Puertos que expone:** ver `src/commonMain/kotlin/co/sismomesh/core/application/ports/`
+**Puertos que expone:** ver `src/commonMain/kotlin/co/helius/core/application/ports/`
 (`TransportPort`, `BundleStorePort`, `LocationPort`, `MotionPort`, `PpgCaptureIPort`,
 `BiomarkerInferencePort`, `IdentityPort`, `PowerPolicyPort`, `CloudSyncPort`,
 `AlertReceiverPort`, `ClockPort`).

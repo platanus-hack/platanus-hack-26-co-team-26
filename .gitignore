@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Gradle local caches
 .gradle/
 .gradle-integration-home/
@@ -24,4 +25,75 @@ local.properties
 
 # Generated logs/artifacts
 *.log
+=======
+# Gradle / Kotlin / Android
+.gradle/
+build/
+*/build/
+**/build/
+local.properties
+.cxx/
+*.apk
+*.aab
+captures/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Node / web
+node_modules/
+web/dist/
+dist/
+.vite/
+
+# Modelos y datasets (nunca en git — ver docs/ppg/VALIDATION.md)
+ml/ppg/data/
+ml/ppg/datasets/
+ml/**/*.tflite
+services/ppg_model_registry/models/*/
+!services/ppg_model_registry/models/README.md
+
+# Bases de datos locales. Un .db de este proyecto contiene datos personales de
+# gente en una emergencia: no se versiona, no se comparte, no se sube a ningún sitio.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Secretos. Las claves de FOUND_PERSONS_MASTER_KEY y FOUND_PERSONS_SIGNING_SEED
+# viven en el gestor de secretos, nunca en el repositorio.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.keystore
+*.jks
+
+# Paquete de voz generado (binario derivado de tools/voice_pack/catalog.py —
+# ver tools/voice_pack/README.md; se regenera con la API de ElevenLabs, no se
+# versiona el audio en sí, sí catalog.py)
+assets/voice/**/*.mp3
+!assets/voice/**/manifest.json
+
+# OS
+.DS_Store
+Thumbs.db
+.android/
+.gradle-user-home/
+.gradle-integration-home/
+.kotlin/
+>>>>>>> 8bb416400cf253a3d1e8991e74bfdeaa1c577dbb
 *.tsbuildinfo

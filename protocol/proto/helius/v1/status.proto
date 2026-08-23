@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package helius.v1;
+
+option java_package = "co.helius.core.protocol.v1";
+option java_multiple_files = true;
+
+import "helius/v1/common.proto";
+
+message EmergencyStatus {
+  optional GeoPoint location = 1;
+  uint64 ts = 2;
+  string source = 3;
+  ResponseState response_state = 4;
+  uint32 battery = 5; // 0-100
+  string device_state = 6;
+  repeated string evidence_refs = 7;
+}

@@ -28,10 +28,18 @@
 - **Beacon:** HMAC truncado a 4 bytes con clave derivada de sesión del incidente.
 - **Base local:** SQLCipher, clave derivada y protegida por Keystore.
 
-**Break-glass:** el usuario define previamente una *Emergency Data Policy* — qué
-campos se cifran para la clave familiar y cuáles para la clave de la autoridad de
-rescate. En emergencia se emite un `EmergencyBundle` cifrado para esos
-destinatarios; los nodos intermedios lo transportan sin poder leerlo.
+**Break-glass (identidad):** ver ADR-0008. El usuario define previamente una
+`EmergencyDataPolicy` (`protocol/proto/helius/v1/identity.proto`) — qué
+campos (nombre, notas médicas, contacto de emergencia) se cifran para cada
+familiar vinculado y consentido, y cuáles para la autoridad de rescate del
+incidente. Son destinatarios **independientes**: un familiar puede ver el
+nombre sin que eso implique que la autoridad también lo vea, y viceversa. El
+contenido en claro (`IdentityProfilePlaintext`) solo existe dentro de un
+`EncryptedIdentityProfile` cifrado por destinatario; los nodos intermedios lo
+transportan como bytes opacos, sin poder leerlo. El beacon y los bundles de
+estado/pulso/movimiento **siguen sin nombre**, sin excepción — el perfil de
+identidad viaja por un canal separado (sync directo nodo→backend cuando hay
+conectividad, no hop-by-hop por la malla).
 
 ## Privacidad y cumplimiento
 

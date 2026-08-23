@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgis/postgis:16-3.4
     environment:
-      POSTGRES_DB: sismomesh
-      POSTGRES_USER: sismomesh
-      POSTGRES_PASSWORD: sismomesh_dev
+      POSTGRES_DB: helius
+      POSTGRES_USER: helius
+      POSTGRES_PASSWORD: helius_dev
     ports: ["5432:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
 
@@ -16,8 +16,8 @@ services:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: sismomesh
-      MINIO_ROOT_PASSWORD: sismomesh_dev
+      MINIO_ROOT_USER: helius
+      MINIO_ROOT_PASSWORD: helius_dev
     ports: ["9000:9000", "9001:9001"]
     volumes: ["miniodata:/data"]
 
@@ -26,10 +26,30 @@ services:
       context: ./services/shared
     depends_on: [postgres, redis, minio]
     environment:
-      DATABASE_URL: postgresql://sismomesh:sismomesh_dev@postgres:5432/sismomesh
+      DATABASE_URL: postgresql://helius:helius_dev@postgres:5432/helius
       REDIS_URL: redis://redis:6379/0
     ports: ["8000:8000"]
     command: uvicorn src.api.bootstrap.main:app --host 0.0.0.0 --port 8000 --reload
+
+  alert_ingestor:
+    build:
+      context: ./services/alert_ingestor
+    environment:
+      ALERT_INGESTOR_POLL_INTERVAL_S: "15"
+    restart: unless-stopped
+
+  found_persons:
+    build:
+      context: ./services/found_persons
+    ports: ["8010:8010"]
+    environment:
+      FOUND_PERSONS_DB: /data/found_persons.db
+      # Sin estas dos, el servicio arranca en modo desarrollo: los tokens de búsqueda
+      # serían predecibles y la clave de firma cambiaría en cada reinicio, invalidando
+      # todas las cápsulas ya emitidas. Definirlas antes de cualquier uso real.
+      FOUND_PERSONS_MASTER_KEY: ${FOUND_PERSONS_MASTER_KEY:-desarrollo-no-usar-en-produccion-0000}
+      FOUND_PERSONS_SIGNING_SEED: ${FOUND_PERSONS_SIGNING_SEED:-}
+    volumes: ["found_persons_data:/data"]
 
   # Observabilidad (OpenTelemetry → Grafana / Loki / Tempo), Sección 2.1.
   jaeger:
@@ -43,5 +63,6 @@ services:
 volumes:
   pgdata:
   miniodata:
+  found_persons_data:
 
 # Dueño: Miguel (backend) + Helmut (transporte/DTN) (observabilidad de transporte/DTN).

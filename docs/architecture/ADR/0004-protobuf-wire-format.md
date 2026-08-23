@@ -13,7 +13,7 @@ backend".
 
 ## Decisión
 
-`protocol/proto/sismomesh/v1/*.proto` (proto3) es la única fuente. Kotlin, Python
+`protocol/proto/helius/v1/*.proto` (proto3) es la única fuente. Kotlin, Python
 y TypeScript se generan con `make proto`; nadie edita el código generado a mano.
 El descubrimiento (beacon BLE) usa un formato binario compacto a medida —no
 protobuf— por presupuesto de 26 bytes; documentado en `protocol/beacon/BEACON_FORMAT.md`.

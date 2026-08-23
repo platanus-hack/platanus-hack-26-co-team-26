@@ -4,11 +4,18 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.transport"
+    namespace = "co.helius.android.transport"
     compileSdk = 35
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
     defaultConfig { minSdk = 26 }
+    kotlinOptions { jvmTarget = "21" }
 }
 
 dependencies {
     implementation(project(":core"))
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.kotlinx.coroutines.android)
 }

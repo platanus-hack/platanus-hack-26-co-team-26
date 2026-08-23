@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package helius.v1;
+
+option java_package = "co.helius.core.protocol.v1";
+option java_multiple_files = true;
+
+// Intercambio de inventarios Bloom filter durante el encuentro DTN — Sección 8.4.
+// Dueño: Helmut.
+message InventoryFilter {
+  uint32 bit_count = 1;  // m ≈ 8192
+  uint32 hash_count = 2; // k = 4
+  bytes bits = 3;
+}

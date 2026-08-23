@@ -1,0 +1,26 @@
+{
+  "biomarker": {
+    "model_version": "heuristic-fallback-v1",
+    "observed_at": "1755878395",
+    "pulse_bpm": 112.0,
+    "pulse_ci_high": 119.0,
+    "pulse_ci_low": 105.0,
+    "source": "camera_ppg",
+    "sqi": 0.86,
+    "window_ms": 12000
+  },
+  "header": {
+    "bundle_id": "AAECAwQFBgcICQoLDA0ODw==",
+    "clock": {
+      "monotonic_ms": "123456"
+    },
+    "created_at": "1755878400000",
+    "disaster_id": "helius-golden-2026",
+    "expires_at": "1755882000000",
+    "node_id": "AwMDAwMDAwM=",
+    "priority": "P2_STATUS",
+    "sequence": "1",
+    "version": 1
+  },
+  "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+}

@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package helius.v1;
+
+option java_package = "co.helius.core.protocol.v1";
+option java_multiple_files = true;
+
+// Break-glass de identidad — ver ADR-0008 y docs/security/THREAT-MODEL.md § Break-glass.
+// El beacon y el Bundle en claro NUNCA llevan nombre; el nombre solo existe
+// dentro de un EncryptedIdentityProfile, cifrado por separado para cada
+// destinatario que el usuario autorizó ANTES del desastre.
+
+// Definida por el usuario en modo "Preparación" (docs/architecture/OVERVIEW.md §1).
+// Determina qué campos del perfil son visibles para cada tipo de destinatario.
+message EmergencyDataPolicy {
+  bool share_name_with_family = 1;
+  bool share_name_with_authority = 2;
+  bool share_medical_notes_with_family = 3;
+  bool share_medical_notes_with_authority = 4;
+  repeated bytes family_recipient_public_keys = 5; // X25519, uno por familiar vinculado y consentido
+  bytes authority_public_key = 6;                  // de la autoridad del incidente activo
+}
+
+// Un blob cifrado por destinatario (nunca un único blob "para cualquiera").
+// El relay transporta bytes opacos; no puede leer ni el nombre ni el contenido.
+message EncryptedIdentityProfile {
+  enum RecipientClass {
+    UNKNOWN_RECIPIENT = 0;
+    FAMILY = 1;
+    RESCUE_AUTHORITY = 2;
+  }
+  RecipientClass recipient_class = 1;
+  bytes recipient_public_key = 2;   // a qué clave X25519 va cifrado este blob
+  bytes ciphertext = 3;             // AEAD sobre IdentityProfilePlaintext (ver docs/security/THREAT-MODEL.md)
+  uint64 policy_version = 4;
+}
+
+// Contenido en claro SOLO dentro del ciphertext de arriba — nunca en un mensaje
+// propio del protocolo, para que no pueda serializarse ni loguearse por error
+// en texto plano en ninguna capa intermedia.
+message IdentityProfilePlaintext {
+  string display_name = 1;
+  string medical_notes = 2;      // opcional; solo si share_medical_notes_with_* = true
+  string emergency_contact = 3;  // opcional
+}

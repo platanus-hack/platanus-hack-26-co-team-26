@@ -7,23 +7,25 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
     <!-- Wi-Fi Aware / UWB: android.hardware.wifi.aware, android.hardware.uwb — detección
          en runtime vía PackageManager.hasSystemFeature (Sección 7.1), NO required aquí. -->
 
     <application
-        android:name=".SismoMeshApp"
+        android:name=".HELIUSApp"
         android:allowBackup="false"
-        android:label="SismoMesh"
-        android:theme="@style/Theme.SismoMesh">
+        android:label="Helios"
+        android:theme="@style/Theme.HELIUS">
 
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>

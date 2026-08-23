@@ -5,7 +5,7 @@ Dueño: Miguel.
 
 from fastapi import FastAPI
 
-app = FastAPI(title="SismoMesh Cloud API", version="0.1.0")
+app = FastAPI(title="HELIUS Cloud API", version="0.1.0")
 
 
 @app.get("/health")
@@ -13,5 +13,5 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
-# TODO(dueño=Miguel): registrar routers de protocol/openapi/sismomesh-api.yaml,
+# TODO(dueño=Miguel): registrar routers de protocol/openapi/helius-api.yaml,
 # inyectar adaptadores reales (Postgres/PostGIS, Redis, S3), middleware de audit_log.

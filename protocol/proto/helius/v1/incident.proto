@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package helius.v1;
+
+option java_package = "co.helius.core.protocol.v1";
+option java_multiple_files = true;
+
+// Configuración de incidente que el gateway inyecta hacia la malla (DTN inversa,
+// Sección 8.6): IDs ya confirmados, pesos de prioridad, clave pública de la autoridad.
+// Dueño: Helmut.
+message IncidentConfig {
+  bytes incident_id = 1;
+  repeated bytes confirmed_bundle_ids = 2;
+  bytes priority_weights_json = 3; // ver protocol/docs/PRIORITIES.md
+  bytes authority_public_key = 4;
+  bytes safety_instructions_ciphertext = 5;
+}

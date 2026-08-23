@@ -13,8 +13,13 @@ jobs:
         run: make proto
       - name: Detectar drift (generado vs. commiteado)
         run: |
-          git diff --exit-code -- core/src/commonMain/kotlin/co/sismomesh/core/protocol \
+          git diff --exit-code -- core/src/androidMain/java/co/helius/core/protocol \
+            core/src/androidMain/kotlin/co/helius/core/protocol \
             services/shared/src/api/protocol web/src/domain/protocol || \
             (echo "::error::Código generado desactualizado — corre 'make proto' y commitea el resultado" && exit 1)
-      - name: Round-trip Kotlin <-> Python contra vectores dorados
-        run: echo "TODO(dueño=Helmut): comparar protocol/test-vectors/bundles/*.bin byte a byte"
+      - name: Round-trip Python contra vectores dorados
+        run: python3 protocol/test-vectors/verify_python_roundtrip.py
+      - uses: actions/setup-java@v4
+        with: { distribution: "temurin", java-version: "17" }
+      - name: Round-trip Kotlin contra vectores dorados
+        run: ./gradlew :core:testDebugUnitTest --tests "co.helius.core.protocol.BundleGoldenVectorTest"

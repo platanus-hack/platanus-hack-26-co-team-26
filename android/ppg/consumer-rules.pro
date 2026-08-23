@@ -1,0 +1,2 @@
+-keep class co.helius.android.ppg.** { *; }
+-keep class co.helius.core.signal.ppg.** { *; }

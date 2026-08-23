@@ -1,8 +1,8 @@
-# Arquitectura de SismoMesh
+# Arquitectura de HELIUS
 
 ## 1. Qué es el producto
 
-SismoMesh convierte smartphones en nodos oportunistas de evidencia, relevo y
+HELIUS convierte smartphones en nodos oportunistas de evidencia, relevo y
 localización cuando un sismo derriba la infraestructura de red.
 
 - **Antes del evento** (Promesa A — Preparación): preserva contexto de ubicación,
@@ -61,7 +61,7 @@ cobertura iOS mientras esté en standby (ADR-0002).
 FUENTES DE EVENTO SÍSMICO (SGC · CAP feeds · USGS · manual)
         │ Internet
         ▼
-SISMOMESH CLOUD (FastAPI, hexagonal)
+HELIUS CLOUD (FastAPI, hexagonal)
   alert-ingestor · bundle-ingestor · localization · notifier · analytics
   PostgreSQL+PostGIS · Redis · S3
         │
@@ -78,7 +78,7 @@ ADAPTIVE TRANSPORT LAYER (androidMain)
 Survivor Node ──store-carry-forward──▶ Relay Node
    │
    ▼
-Responder Gateway (teléfono de rescate) ──al recuperar red──▶ SismoMesh Cloud
+Responder Gateway (teléfono de rescate) ──al recuperar red──▶ HELIUS Cloud
 ```
 
 ### Los cinco flujos que definen el sistema
@@ -109,7 +109,7 @@ CLI              │  políticas·invariantes LiteRT
 - Verificado en CI: `:core:domain` no importa `android.*`/`androidx.*`/`io.ktor.*`
   (Konsist en Kotlin, `import-linter` en Python).
 
-Puertos completos: `core/src/commonMain/kotlin/co/sismomesh/core/application/ports/`
+Puertos completos: `core/src/commonMain/kotlin/co/helius/core/application/ports/`
 (app) y `services/shared/src/api/application/ports.py` (backend).
 
 ## 5. Contratos del protocolo (resumen — ver `protocol/docs/PROTOCOL.md`)
@@ -153,6 +153,16 @@ observador — la salida **siempre** es una zona candidata con radios de confian
 (68%/95%), nunca un punto exacto. Ver el estado del arte completo de RF/FEC/DTN
 en el `README.md` raíz.
 
+**Eje vertical (mapa 3D, ADR-0009):** el factor graph se extiende con un tercer
+eje —piso/profundidad— alimentado *solo* por fuentes que aportan información
+vertical real: elevación UWB, diferencial de barómetro (calibrado por
+edificio) y GNSS como *prior* débil. Nunca se infiere profundidad a partir de
+RSSI puro. `GeoPoint` lleva `altitude_m`/`altitude_source`;
+`PeerObservation` lleva los campos crudos de UWB/barómetro
+(`protocol/proto/helius/v1/status.proto`, `observation.proto`). La salida
+mantiene el mismo espíritu que en 2D: zona candidata + piso estimado, ambos con
+incertidumbre explícita — nunca "profundidad exacta".
+
 ## 9. Motor de evidencia de actividad (Evidence of Life / Activity Engine)
 
 Pipeline de acelerómetro (50–100 Hz en ráfagas) → magnitud → remoción de gravedad
@@ -193,8 +203,16 @@ endpoint que devuelva PII escribe en `audit_log` **antes** de responder.
 
 Tres vistas con tres niveles de datos — ver ADR-0007 y `web/README.md`. Capas
 deck.gl: `ScatterplotLayer` (nodos), `HeatmapLayer`/`ContourLayer`
-(verosimilitud), `ArcLayer` (grafo de encuentros), `TripsLayer` (recorrido de
-rescatistas), `PolygonLayer` (zonas).
+(verosimilitud, con corte por piso cuando hay dato vertical — ADR-0009),
+`ArcLayer` (grafo de encuentros), `TripsLayer` (recorrido de rescatistas),
+`PolygonLayer` (zonas).
+
+**Identidad por vista (ADR-0008):** `/mapa` nunca muestra nombre. `/familia`
+puede mostrar el nombre real si el usuario lo autorizó en su
+`EmergencyDataPolicy` y el vínculo está consentido — el backend le entrega solo
+el `EncryptedIdentityProfile` cifrado para la clave de ese familiar. `/ops`
+recibe, análogamente, solo lo que la política autorizó para la autoridad de
+rescate — no necesariamente lo mismo que ve la familia.
 
 ## 13. Seguridad y modelo de amenazas
 

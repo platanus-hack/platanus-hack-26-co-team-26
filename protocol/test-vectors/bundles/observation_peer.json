@@ -1,0 +1,24 @@
+{
+  "header": {
+    "bundle_id": "AAECAwQFBgcICQoLDA0ODw==",
+    "clock": {
+      "monotonic_ms": "123456"
+    },
+    "created_at": "1755878400000",
+    "disaster_id": "helius-golden-2026",
+    "expires_at": "1755882000000",
+    "node_id": "BAQEBAQEBAQ=",
+    "priority": "P3_NETWORK_OBS",
+    "sequence": "1",
+    "version": 1
+  },
+  "observation": {
+    "incident_id": "aW5jaWRlbnQtMjAyNi0wMDE=",
+    "node_a": "AQEBAQEBAQE=",
+    "node_b": "AgICAgICAgI=",
+    "observed_at": "1755878396",
+    "rssi_dbm": -78.0,
+    "transport": "BLE"
+  },
+  "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+}
