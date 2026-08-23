@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Ni acelerómetro ni giroscopio requieren permiso runtime en Android.
+         required="false": varios equipos gama baja/tablets no traen
+         giroscopio, y eso no debe bloquear la instalación -- MotionPort
+         degrada por capacidades, no por ausencia de hardware. -->
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.gyroscope" android:required="false" />
+</manifest>

@@ -2,6 +2,7 @@ package co.helius.core.application.ports
 
 import co.helius.core.domain.model.Bundle
 import co.helius.core.domain.vo.BundleId
+import co.helius.core.signal.motion.MotionWindow
 import kotlinx.coroutines.flow.Flow
 
 /** Persistencia local de bundles. Dueño: Helmut. Adaptadores: SqlDelightStore, InMemoryStore. */
@@ -17,7 +18,7 @@ interface LocationPort {
     fun observeLocation(): Flow<Any /* TODO: LocationSample */>
 }
 
-/** Ventanas de acelerómetro/giroscopio. Dueño: Alex. Adaptadores: SensorManagerAdapter, ReplayFake. */
+/** Ventanas de acelerómetro/giroscopio. Dueño: Alex. Adaptadores: SensorManagerMotionAdapter (android/sensing), ReplayFake. */
 interface MotionPort {
-    fun observeMotionWindows(): Flow<Any /* TODO: MotionWindow, ver core/signal */>
+    fun observeMotionWindows(): Flow<MotionWindow>
 }
