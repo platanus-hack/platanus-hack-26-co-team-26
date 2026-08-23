@@ -31,6 +31,19 @@ services:
     ports: ["8000:8000"]
     command: uvicorn src.api.bootstrap.main:app --host 0.0.0.0 --port 8000 --reload
 
+  found_persons:
+    build:
+      context: ./services/found_persons
+    ports: ["8010:8010"]
+    environment:
+      FOUND_PERSONS_DB: /data/found_persons.db
+      # Sin estas dos, el servicio arranca en modo desarrollo: los tokens de búsqueda
+      # serían predecibles y la clave de firma cambiaría en cada reinicio, invalidando
+      # todas las cápsulas ya emitidas. Definirlas antes de cualquier uso real.
+      FOUND_PERSONS_MASTER_KEY: ${FOUND_PERSONS_MASTER_KEY:-desarrollo-no-usar-en-produccion-0000}
+      FOUND_PERSONS_SIGNING_SEED: ${FOUND_PERSONS_SIGNING_SEED:-}
+    volumes: ["found_persons_data:/data"]
+
   # Observabilidad (OpenTelemetry → Grafana / Loki / Tempo), Sección 2.1.
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -43,5 +56,6 @@ services:
 volumes:
   pgdata:
   miniodata:
+  found_persons_data:
 
 # Dueño: Miguel (backend) + Helmut (transporte/DTN) (observabilidad de transporte/DTN).

@@ -17,8 +17,12 @@ solo sus propios adaptadores.
 | `localization` | Factor graph, zonas candidatas, heatmaps, recálculo incremental | Miguel |
 | `notifier` | FCM, canales de alerta, reintentos | Miguel |
 | `analytics` | Métricas operativas, exportes, datasets de investigación | Miguel |
+| `found_persons` | Personas localizadas: CRUD, consulta entre dispositivos y ejercicio de derechos bajo la Ley 1581 | Miguel |
 
 **Regla de PII (Sección 12.3):** todo endpoint que devuelva PII escribe en
 `audit_log` **antes** de responder.
 
-**Etiqueta de madurez:** `ENGINEERING` (esqueleto generado).
+**Etiqueta de madurez:** `ENGINEERING` (esqueleto generado), salvo `found_persons`,
+que está en `APPLICATION` — implementado y probado, sobre SQLite. Ver
+[ADR-0008](../docs/architecture/ADR/0008-found-persons-habeas-data.md) y
+[`docs/privacy/HABEAS-DATA.md`](../docs/privacy/HABEAS-DATA.md).

@@ -1,8 +1,17 @@
 [importlinter]
-root_package = services
+# `include_external_packages` es obligatorio cuando un contrato prohíbe paquetes de
+# terceros (fastapi, sqlalchemy...). Sin él import-linter aborta antes de evaluar nada.
+include_external_packages = True
+root_packages =
+    services
+    found_persons
+
+# --------------------------------------------------------------------------- #
+# services/shared — kernel común del backend                                   #
+# --------------------------------------------------------------------------- #
 
 [importlinter:contract:1]
-name = domain no importa framework
+name = shared: domain no importa framework
 type = forbidden
 source_modules =
     services.shared.src.api.domain
@@ -12,9 +21,63 @@ forbidden_modules =
     redis
 
 [importlinter:contract:2]
-name = application solo importa domain y sus propios puertos
+name = shared: application solo importa domain y sus propios puertos
 type = layers
+# `adapters/` todavía no existe en shared (el esqueleto solo trae `bootstrap/`), así
+# que va entre paréntesis: import-linter la trata como capa opcional en vez de
+# abortar. Cuando Miguel la cree, el contrato empieza a exigirla sin más cambios.
 layers =
-    services.shared.src.api.adapters
+    services.shared.src.api.bootstrap
+    (services.shared.src.api.adapters)
     services.shared.src.api.application
     services.shared.src.api.domain
+
+# --------------------------------------------------------------------------- #
+# found_persons — API de personas localizadas (ADR-0008)                       #
+# --------------------------------------------------------------------------- #
+
+[importlinter:contract:3]
+name = found_persons: el dominio no conoce ningún framework
+type = forbidden
+source_modules =
+    found_persons.domain
+forbidden_modules =
+    fastapi
+    starlette
+    pydantic
+    sqlalchemy
+    sqlite3
+    redis
+    cryptography
+
+[importlinter:contract:4]
+name = found_persons: la capa de aplicación no conoce infraestructura
+type = forbidden
+source_modules =
+    found_persons.application
+forbidden_modules =
+    fastapi
+    starlette
+    pydantic
+    sqlalchemy
+    sqlite3
+    redis
+    cryptography
+
+[importlinter:contract:5]
+name = found_persons: capas hexagonales (ADR-0001)
+type = layers
+layers =
+    found_persons.bootstrap
+    found_persons.adapters
+    found_persons.application
+    found_persons.domain
+
+[importlinter:contract:6]
+name = found_persons: la política de divulgación es el único camino de salida
+type = forbidden
+source_modules =
+    found_persons.adapters.http.mapping
+    found_persons.adapters.persistence.codec
+forbidden_modules =
+    found_persons.adapters.http.routers

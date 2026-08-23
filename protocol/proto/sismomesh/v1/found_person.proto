@@ -1,0 +1,179 @@
+syntax = "proto3";
+
+package sismomesh.v1;
+
+option java_package = "co.sismomesh.core.protocol.v1";
+option java_multiple_files = true;
+
+
+// Personas localizadas: consulta entre dispositivos y cápsula de divulgación.
+// Contrato de la API en protocol/openapi/, implementación en services/found_persons.
+// Decisión de diseño y marco legal: docs/architecture/ADR/0008 y docs/privacy/HABEAS-DATA.md.
+//
+// Regenerar con `make proto`. No editar el código generado a mano.
+//
+// Dueño: Miguel. Revisor obligatorio: Helmut (firma, sellado y transporte DTN).
+//
+// NOTA para el dueño de protocol/ (Helmut): este archivo NO importa status.proto,
+// aunque reutilizar su `GeoPoint` sería lo correcto. Motivo: hoy status.proto y
+// bundle.proto se importan mutuamente (`ResponseState` vive en bundle.proto y
+// status.proto lo necesita), y protoc rechaza el ciclo — con lo que status.proto,
+// bundle.proto y observation.proto tampoco compilan. Mientras eso siga así, aquí se
+// usan `lat`/`lon` planos, que además es exactamente lo que expone la API HTTP.
+// Al romper el ciclo, sustituir por `GeoPoint` e importar status.proto.
+
+// Situación de una persona ya localizada.
+// Enum cerrado. NUNCA agregar ALIVE/DEAD/INJURED ni equivalentes: el sistema no
+// declara el estado vital de nadie (docs/glossary.md, restricción no negociable 6).
+enum SituationStatus {
+  SITUATION_UNSPECIFIED = 0;
+  SITUATION_LOCATED_NO_CONTACT = 1;
+  SITUATION_LOCATED_CONTACT_ESTABLISHED = 2;
+  SITUATION_AT_ASSEMBLY_POINT = 3;
+  SITUATION_IN_TRANSFER = 4;         // revela dato de salud (Ley 1581 art. 5)
+  SITUATION_AT_CARE_FACILITY = 5;    // revela dato de salud (Ley 1581 art. 5)
+  SITUATION_REUNIFIED = 6;
+}
+
+enum VerificationLevel {
+  VERIFICATION_UNSPECIFIED = 0;
+  VERIFICATION_THIRD_PARTY_REPORTED = 1;
+  VERIFICATION_SELF_REPORTED = 2;
+  VERIFICATION_RESPONDER_VERIFIED = 3;
+  VERIFICATION_AUTHORITY_VERIFIED = 4;
+}
+
+// Nivel de exposición. Espeja las tres vistas del ADR-0007 más la autoridad.
+enum DisclosureScope {
+  SCOPE_UNSPECIFIED = 0;
+  SCOPE_PUBLIC = 1;      // cero PII
+  SCOPE_FAMILY = 2;
+  SCOPE_RESPONDER = 3;
+  SCOPE_AUTHORITY = 4;
+}
+
+// Finalidad del Tratamiento (Ley 1581 art. 4 lit. b). Viaja firmada dentro de la
+// consulta: firmar solo el token permitiría reciclarla con otro propósito.
+enum DisclosurePurpose {
+  PURPOSE_UNSPECIFIED = 0;
+  PURPOSE_FAMILY_REUNIFICATION = 1;
+  PURPOSE_RESPONSE_COORDINATION = 2;
+  PURPOSE_AUTHORITY_NOTIFICATION = 3;
+  PURPOSE_ANONYMIZED_STATISTICS = 4;
+}
+
+// Consulta firmada de dispositivo a servicio.
+//
+// `lookup_token` es HMAC-SHA256(clave_del_incidente, documento_normalizado)
+// truncado a 16 bytes. Un dispositivo solo puede preguntar por alguien cuyo
+// documento ya conoce: no hay enumeración ni búsqueda por nombre.
+message DeviceQuery {
+  string device_id = 1;
+  string incident_id = 2;
+  bytes lookup_token = 3;
+  DisclosurePurpose purpose = 4;
+  string justification = 5;  // va literal al audit_log; el Titular puede leerla
+  bytes nonce = 6;           // anti-replay
+  uint64 issued_at = 7;
+  uint64 expires_at = 8;     // vigencia máxima 15 min (credencial, no permiso)
+  bytes signature = 9;       // Ed25519 sobre la forma canónica sin este campo
+}
+
+// Respuesta autocontenida, minimizada, sellada y con caducidad.
+//
+// Autocontenida porque quien la recibe puede estar a varios saltos del servicio.
+// Sellada porque los saltos intermedios no son de confianza. Caducada porque un
+// dato de emergencia que sobrevive a la emergencia deja de ser proporcionado.
+message DisclosureCapsule {
+  string capsule_id = 1;
+  string incident_id = 2;
+  string audience_device_id = 3;  // único destinatario legítimo
+  DisclosureScope scope = 4;
+  DisclosurePurpose purpose = 5;
+  CapsuleOutcome outcome = 6;
+  uint64 issued_at = 7;
+  uint64 expires_at = 8;
+
+  // DisclosureView serializada. Texto cifrado (X25519 + HKDF + ChaCha20-Poly1305)
+  // hacia la clave del destinatario si `payload_encrypted`; si no, proto en claro.
+  bytes payload = 9;
+  bool payload_encrypted = 10;
+
+  optional string record_id = 11;
+  optional uint32 record_version = 12;  // descarta copias viejas de otra ruta
+  repeated string reasons = 13;         // por qué se negó o qué se recortó
+  string audit_id = 14;
+  uint32 max_hops = 15;
+  bool retransmit_allowed = 16;
+  bytes signature = 17;                 // Ed25519 del servicio
+}
+
+enum CapsuleOutcome {
+  OUTCOME_UNSPECIFIED = 0;
+  OUTCOME_GRANTED = 1;
+  OUTCOME_DENIED = 2;
+  OUTCOME_NOT_FOUND = 3;
+  OUTCOME_ERASED = 4;
+  // Respuesta única de los ámbitos PUBLIC y FAMILY. Deliberadamente incapaz de
+  // distinguir "no existe" de "existe pero no te corresponde": si se distinguieran,
+  // la consulta sería un oráculo para averiguar si alguien está registrado.
+  OUTCOME_NO_DISCLOSURE = 5;
+}
+
+// Contenido de la cápsula. Cada campo opcional está ausente porque su categoría no
+// fue concedida — la ausencia también es información honesta.
+message DisclosureView {
+  string record_id = 1;
+  string incident_id = 2;
+  SituationStatus status = 3;
+  VerificationLevel verification = 4;
+  uint64 found_at = 5;
+  uint64 updated_at = 6;
+  uint32 version = 7;
+  DisclosureScope scope = 8;
+  repeated string categories_disclosed = 9;
+  repeated string withheld_categories = 10;
+
+  optional string display_name = 11;
+  optional string initials = 12;
+  optional string document_type = 13;
+  optional string document_number = 14;
+  bool is_minor = 15;
+
+  optional string site_name = 16;
+  optional string site_type = 17;
+  optional string municipality = 18;
+  optional string address = 19;
+  optional double lat = 20;
+  optional double lon = 24;
+
+  repeated ContactChannel contacts = 21;
+  optional string care_notes = 22;    // dato sensible; NUNCA una valoración clínica
+  optional string biometric_ref = 23; // dato sensible
+}
+
+message ContactChannel {
+  string kind = 1;
+  string value = 2;
+  string belongs_to = 3;
+}
+
+// Lápida de supresión. Se propaga por la malla para que los teléfonos borren sus
+// copias: sin este canal, el derecho de supresión no alcanzaría fuera del servidor.
+// No lleva PII — un dispositivo sin cápsula de ese registro no aprende nada.
+message Tombstone {
+  string record_id = 1;
+  string incident_id = 2;
+  uint64 issued_at = 3;
+  TombstoneReason reason = 4;
+  uint64 sequence = 5;   // monótono por incidente; permite sincronizar solo lo nuevo
+  bytes signature = 6;   // Ed25519 del servicio
+}
+
+enum TombstoneReason {
+  TOMBSTONE_UNSPECIFIED = 0;
+  TOMBSTONE_ERASURE_REQUESTED = 1;   // Ley 1581 art. 8 lit. e
+  TOMBSTONE_CONSENT_REVOKED = 2;     // Ley 1581 art. 8 lit. e
+  TOMBSTONE_RETENTION_EXPIRED = 3;   // Ley 1581 art. 4 lit. c
+  TOMBSTONE_RECTIFIED = 4;           // Ley 1581 art. 8 lit. a
+}

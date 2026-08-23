@@ -18,6 +18,9 @@
 /services/bundle_ingestor/          @EclipseIDEHater
 /services/notifier/                 @EclipseIDEHater
 /services/analytics/                @EclipseIDEHater
+# found_persons trata datos sensibles y datos de NNA: además del dueño, revisan
+# Helmut (firma y sellado de las cápsulas) y Laura (vocabulario e interés del NNA).
+/services/found_persons/            @EclipseIDEHater @hchaps404 @laura-martinez-galindo
 /web/                                @EclipseIDEHater
 /docs/privacy/                       @EclipseIDEHater
 /docs/security/                      @hchaps404

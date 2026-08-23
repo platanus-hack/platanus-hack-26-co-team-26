@@ -12,6 +12,10 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install -e services/shared[dev] || pip install -e services/shared
+      # found_persons es un hexágono propio con sus propias dependencias; sin
+      # instalarlo, lint-imports no puede resolver sus módulos y los contratos 3 a 6
+      # de .importlinter fallarían por "módulo inexistente", no por una violación real.
+      - run: pip install -e "services/found_persons[dev]"
       - run: ruff check services/
       - run: lint-imports # .importlinter
       - run: pytest services/

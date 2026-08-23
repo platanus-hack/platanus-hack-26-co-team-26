@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Bases de datos locales. Un .db de este proyecto contiene datos personales de
+# gente en una emergencia: no se versiona, no se comparte, no se sube a ningún sitio.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Secretos. Las claves de FOUND_PERSONS_MASTER_KEY y FOUND_PERSONS_SIGNING_SEED
+# viven en el gestor de secretos, nunca en el repositorio.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Kotlin / Android / Gradle
+.gradle/
+build/
+local.properties
+*.apk
+*.aab
+
+# Node
+node_modules/
+dist/
+
+# Editores y sistema operativo
+.idea/
+.vscode/
+.DS_Store
