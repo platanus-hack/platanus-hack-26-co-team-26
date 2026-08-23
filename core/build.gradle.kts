@@ -30,6 +30,10 @@ kotlin {
 android {
     namespace = "co.sismomesh.core"
     compileSdk = 35
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
     defaultConfig {
         minSdk = 26
     }

@@ -6,9 +6,14 @@ plugins {
 android {
     namespace = "co.sismomesh.android.sensing"
     compileSdk = 35
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
     defaultConfig { minSdk = 26 }
 }
 
 dependencies {
     implementation(project(":core"))
+    implementation(libs.kotlinx.coroutines.core)
 }

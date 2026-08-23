@@ -1,13 +1,24 @@
 package co.sismomesh.core.application.ports
 
 import kotlinx.coroutines.flow.Flow
+import co.sismomesh.core.signal.PulseEstimate
 
 /**
  * Frames y señal PPG cruda. Dueño: Laura + Jorge (app Android + captura AIB).
  * Adaptadores: CameraXAdapter, VideoReplayFake.
  */
-interface PpgCaptureIPort {
-    fun captureSession(durationS: Int): Flow<Any /* TODO: PpgFrame, ver core/signal */>
+data class PpgFrame(
+    val timestampEpochMillis: Long,
+    val red: Double,
+    val green: Double,
+    val blue: Double,
+    val opticalContactScore: Double,
+)
+
+data class PpgWindow(val frames: List<PpgFrame>, val sampleRateHz: Double)
+
+interface PpgCapturePort {
+    fun captureSession(durationS: Int): Flow<PpgFrame>
 }
 
 /**
@@ -16,5 +27,5 @@ interface PpgCaptureIPort {
  * debe funcionar sin ML, ver docs/architecture/OVERVIEW.md § AIB).
  */
 interface BiomarkerInferencePort {
-    suspend fun infer(window: Any /* PpgWindow */): Any /* PulseEstimate con incertidumbre */
+    suspend fun infer(window: PpgWindow): PulseEstimate
 }

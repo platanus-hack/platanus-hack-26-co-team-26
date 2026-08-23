@@ -6,6 +6,10 @@ plugins {
 android {
     namespace = "co.sismomesh.android.inference"
     compileSdk = 35
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
     defaultConfig { minSdk = 26 }
 }
 

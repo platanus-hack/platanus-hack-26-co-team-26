@@ -2,11 +2,16 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "co.sismomesh"
     compileSdk = 35
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
     defaultConfig {
         applicationId = "co.sismomesh"
         minSdk = 26 // API 26 mínimo (Sección 2.1)
@@ -16,6 +21,12 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(project(":core"))
     implementation(project(":android:transport"))
     implementation(project(":android:sensing"))

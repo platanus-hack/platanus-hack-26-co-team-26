@@ -1,0 +1,26 @@
+# Generated dependencies and build output
+node_modules/
+dist/
+build/
+.gradle/
+.gradle-user-home/
+*.tsbuildinfo
+
+# Local Python environments and caches
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+local.properties
+
+# IDE and OS files
+.idea/
+.vscode/
+.android/
+.DS_Store
+Thumbs.db

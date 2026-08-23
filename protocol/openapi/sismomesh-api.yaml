@@ -33,6 +33,12 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmergencyDevice"
   /v1/nodes/{id}/estimate:
     get:
       summary: Zona candidata + confianza
@@ -71,6 +77,46 @@ paths:
         "200":
           description: OK
 components:
+  schemas:
+    GeoPoint:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        latitude: { type: number, format: double, minimum: -90, maximum: 90 }
+        longitude: { type: number, format: double, minimum: -180, maximum: 180 }
+        altitudeMeters: { type: number, format: double, nullable: true }
+    LocationEvidenceType:
+      type: string
+      enum: [CURRENT_GPS, LAST_KNOWN, HISTORICAL_ESTIMATE, MANUAL, RELAY_OBSERVATION]
+    FreshnessState:
+      type: string
+      enum: [LIVE, RECENT, AGING, STALE]
+    MotionState:
+      type: string
+      enum: [UNKNOWN, STATIONARY, MOVING, RAPID_MOVEMENT]
+    EmergencyLocationSnapshot:
+      type: object
+      required: [deviceId, evidenceType, recentMovementDetected, sourceDeviceTimestamp]
+      properties:
+        deviceId: { type: string }
+        point: { $ref: "#/components/schemas/GeoPoint" }
+        accuracyMeters: { type: number, minimum: 0, nullable: true }
+        evidenceType: { $ref: "#/components/schemas/LocationEvidenceType" }
+        locationTimestamp: { type: string, format: date-time, nullable: true }
+        recentMovementDetected: { type: boolean, description: Device evidence only; never proof of life. }
+        lastMovementTimestamp: { type: string, format: date-time, nullable: true }
+        motionConfidence: { type: number, minimum: 0, maximum: 1, nullable: true }
+        batteryPercent: { type: integer, minimum: 0, maximum: 100, nullable: true }
+        sourceDeviceTimestamp: { type: string, format: date-time }
+    EmergencyDevice:
+      allOf:
+        - $ref: "#/components/schemas/EmergencyLocationSnapshot"
+        - type: object
+          required: [freshness, networkSource, relayHops]
+          properties:
+            freshness: { $ref: "#/components/schemas/FreshnessState" }
+            networkSource: { type: string, enum: [INTERNET, BLE_RELAY, WIFI_AWARE] }
+            relayHops: { type: integer, minimum: 0 }
   parameters:
     IncidentId:
       name: id
@@ -83,4 +129,4 @@ components:
       type: http
       scheme: bearer
 
-# TODO(dueño=Miguel): completar schemas de request/response desde protocol/proto/.
+# Wire-efficient mesh payloads remain protobuf; these JSON schemas define API projections.
