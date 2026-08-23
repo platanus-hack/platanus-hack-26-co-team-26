@@ -1,0 +1,17 @@
+[project]
+name = "ppg-physio-assessment-training"
+version = "0.1.0"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "numpy>=2.0,<3",
+  "scipy>=1.14,<2",
+  "pandas>=2.2,<3",
+  "scikit-learn>=1.6,<2",
+  "tensorflow>=2.18,<2.22",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

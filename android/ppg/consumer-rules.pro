@@ -1,0 +1,2 @@
+-keep class co.sismomesh.android.ppg.** { *; }
+-keep class co.sismomesh.core.signal.ppg.** { *; }

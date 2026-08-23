@@ -1,0 +1,46 @@
+# Gradle / Kotlin / Android
+.gradle/
+build/
+*/build/
+**/build/
+local.properties
+.cxx/
+*.apk
+*.aab
+captures/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Node / web
+node_modules/
+web/dist/
+.vite/
+
+# Modelos y datasets (nunca en git — ver docs/ppg/VALIDATION.md)
+ml/ppg/data/
+ml/ppg/datasets/
+ml/**/*.tflite
+services/ppg_model_registry/models/*/
+!services/ppg_model_registry/models/README.md
+
+# Secretos / entorno local
+.env
+.env.*
+*.keystore
+*.jks
+
+# OS
+.DS_Store
+Thumbs.db

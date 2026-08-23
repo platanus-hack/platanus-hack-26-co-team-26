@@ -31,6 +31,7 @@ make bootstrap && make proto && make up && make test
 - **Seguridad y modelo de amenazas:** [`docs/security/THREAT-MODEL.md`](docs/security/THREAT-MODEL.md)
 - **Validación y métricas:** [`docs/validation/VALIDATION.md`](docs/validation/VALIDATION.md)
 - **Vocabulario obligatorio/prohibido:** [`docs/glossary.md`](docs/glossary.md)
+- **Módulo PPG (captura + DSP + entrenamiento):** [`docs/ppg/README.md`](docs/ppg/README.md)
 - **Decisiones de arquitectura (ADRs):** [`docs/architecture/ADR/`](docs/architecture/ADR/)
 
 La formulación técnico-científica completa (comunicaciones, PPG/EMG) está en las

@@ -2,9 +2,11 @@
 # Cambios en protocol/ o en core/domain requieren ADR aprobado (docs/architecture/ADR/).
 
 /protocol/                          @hchaps404
+/protocol/ppg/                       @laura-martinez-galindo @jorgeb-py
 /core/src/commonMain/kotlin/co/sismomesh/core/dtn/       @hchaps404
 /core/src/commonMain/kotlin/co/sismomesh/core/crypto/    @hchaps404
 /core/src/commonMain/kotlin/co/sismomesh/core/signal/    @alexbzal
+/core/src/commonMain/kotlin/co/sismomesh/core/signal/ppg/ @laura-martinez-galindo @jorgeb-py
 /core/src/commonMain/kotlin/co/sismomesh/core/domain/policy/ @alexbzal
 /android/transport/                 @hchaps404
 /android/storage/                   @hchaps404
@@ -18,6 +20,8 @@
 /services/bundle_ingestor/          @EclipseIDEHater
 /services/notifier/                 @EclipseIDEHater
 /services/analytics/                @EclipseIDEHater
+/services/ppg_model_registry/       @alexbzal
+/ml/ppg/                             @alexbzal
 /web/                                @EclipseIDEHater
 /docs/privacy/                       @EclipseIDEHater
 /docs/security/                      @hchaps404
