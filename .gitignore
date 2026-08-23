@@ -1,0 +1,27 @@
+# Gradle local caches
+.gradle/
+.gradle-integration-home/
+.gradle-user-home/
+
+# Local build artifacts
+*.tsbuildinfo
+
+# Kotlin local errors/cache
+.kotlin/
+*.log
+# Android / Gradle generated files
+.gradle/
+.gradle-*/
+.gradle-integration-home/
+.gradle-user-home/
+**/build/
+
+# Kotlin generated/cache
+.kotlin/
+
+# Local machine configuration
+local.properties
+
+# Generated logs/artifacts
+*.log
+*.tsbuildinfo
