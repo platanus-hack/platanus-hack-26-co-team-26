@@ -1,8 +1,8 @@
 # team-26 Platanus Hack 26: Bogotá Project
 
-**Current project logo:** project-logo.png
+**Current project logo:** project-logo.jpg
 
-<img src="./project-logo.png" alt="Project Logo" width="200" />
+<img src="./project-logo.jpg" alt="Project Logo" width="200" />
 
 Track: 🚨Emergencies
 
