@@ -76,6 +76,239 @@ paths:
       responses:
         "200":
           description: OK
+  # --------------------------------------------------------------------- #
+  # Personas localizadas — services/found_persons (ADR-0010)               #
+  # Resumen. El contrato ejecutable es GET /openapi.json del propio         #
+  # servicio, generado desde los modelos Pydantic.                          #
+  # --------------------------------------------------------------------- #
+  /v1/hallazgos:
+    post:
+      summary: Registrar una persona localizada
+      description: >-
+        Exige X-Purpose y X-Justification. Escribe en audit_log antes de responder.
+        Devuelve 422 si el registro no sería legal de conservar (Ley 1581 art. 6).
+      operationId: createFoundPerson
+      tags: [hallazgos]
+      parameters:
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+      responses:
+        "201":
+          description: Creado
+        "409":
+          description: Ya existe un registro activo para esa persona
+        "422":
+          description: Incumple el régimen de protección de datos
+    get:
+      summary: Listar hallazgos, minimizados según el ámbito del solicitante
+      description: >-
+        Sin filtro por nombre ni por documento, a propósito. La única búsqueda por
+        persona es por token ciego, en /v1/malla/consultas.
+      operationId: listFoundPersons
+      tags: [hallazgos]
+      parameters:
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+        - name: incident_id
+          in: query
+          schema:
+            type: string
+        - name: situation
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /v1/hallazgos/{record_id}:
+    get:
+      summary: Consultar un hallazgo
+      operationId: getFoundPerson
+      tags: [hallazgos]
+      parameters:
+        - $ref: "#/components/parameters/RecordId"
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+      responses:
+        "200":
+          description: Vista minimizada según ámbito y autorización
+        "403":
+          description: La divulgación no está habilitada para este solicitante
+        "410":
+          description: Suprimido a petición del Titular; elimine su copia local
+    put:
+      summary: Rectificar el hallazgo (reemplazo completo, art. 8 lit. a)
+      description: >-
+        Incrementa version y emite una lápida para invalidar las copias que ya
+        viajan por la malla.
+      operationId: replaceFoundPerson
+      tags: [hallazgos]
+      parameters:
+        - $ref: "#/components/parameters/RecordId"
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+      responses:
+        "200":
+          description: Rectificado
+        "410":
+          description: Suprimido; no se repuebla con datos personales
+    delete:
+      summary: Suprimir el hallazgo (art. 8 lit. e)
+      description: >-
+        No borra la fila: redacta los datos personales, conserva un esqueleto
+        auditable y emite una lápida firmada. Devuelve 409 si hay retención legal,
+        con el motivo, que es la respuesta que la ley exige darle al Titular.
+      operationId: eraseFoundPerson
+      tags: [hallazgos]
+      parameters:
+        - $ref: "#/components/parameters/RecordId"
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+        - name: reason
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Suprimido
+        "409":
+          description: Retención legal vigente; la supresión no procede
+  /v1/hallazgos/{record_id}/accesos:
+    get:
+      summary: Quién accedió a este registro (art. 8 lit. c)
+      description: Incluye los accesos denegados. Funciona sobre registros suprimidos.
+      operationId: getFoundPersonAccessLog
+      tags: [habeas-data]
+      parameters:
+        - $ref: "#/components/parameters/RecordId"
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+      responses:
+        "200":
+          description: OK
+  /v1/hallazgos/{record_id}/autorizacion:
+    get:
+      summary: Prueba de la autorización otorgada (art. 8 lit. b)
+      operationId: getConsentProof
+      tags: [habeas-data]
+      parameters:
+        - $ref: "#/components/parameters/RecordId"
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+      responses:
+        "200":
+          description: OK
+    put:
+      summary: Ajustar la autorización granular
+      operationId: updateConsent
+      tags: [habeas-data]
+      parameters:
+        - $ref: "#/components/parameters/RecordId"
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+      responses:
+        "200":
+          description: OK
+  /v1/hallazgos/{record_id}/revocacion:
+    post:
+      summary: Revocar la autorización (art. 8 lit. e)
+      operationId: revokeConsent
+      tags: [habeas-data]
+      parameters:
+        - $ref: "#/components/parameters/RecordId"
+        - $ref: "#/components/parameters/Purpose"
+        - $ref: "#/components/parameters/Justification"
+      responses:
+        "200":
+          description: Revocada; se emitió lápida para la malla
+  /v1/habeas-data/peticiones:
+    post:
+      summary: Radicar una consulta (art. 14) o un reclamo (art. 15)
+      description: >-
+        Sin autenticación: quien reclama puede ser justamente alguien sin
+        credenciales que descubrió que sus datos están aquí. El plazo legal se
+        calcula y persiste al radicar.
+      operationId: fileHabeasDataClaim
+      tags: [habeas-data]
+      responses:
+        "201":
+          description: Radicada, con vencimiento en días hábiles
+  /v1/habeas-data/aviso-de-privacidad:
+    get:
+      summary: Aviso de privacidad (Decreto 1074 art. 2.2.2.25.3.2)
+      description: Público y sin credencial, por definición.
+      operationId: getPrivacyNotice
+      tags: [habeas-data]
+      responses:
+        "200":
+          description: OK
+  /v1/malla/dispositivos:
+    post:
+      summary: Acreditar un dispositivo para consultar por malla
+      description: >-
+        Solo la autoridad del incidente. Un teléfono nunca recibe ámbito authority:
+        un aparato extraviado no debe llevar consigo el acceso total al incidente.
+      operationId: registerMeshDevice
+      tags: [malla]
+      responses:
+        "201":
+          description: Acreditado
+        "403":
+          description: Solo la autoridad del incidente acredita dispositivos
+  /v1/malla/consultas:
+    post:
+      summary: Consulta firmada por token ciego; devuelve una cápsula sellada
+      description: >-
+        El dispositivo se autentica firmando la propia consulta con su identidad
+        Ed25519, no con bearer. Pregunta por HMAC(clave_del_incidente, documento),
+        nunca por nombre. En los ámbitos public y family la respuesta negativa es
+        uniforme (no_disclosure) exista o no el registro, para que la ruta no sea un
+        oráculo que permita averiguar si una persona está en el sistema.
+      operationId: queryFoundPersonByToken
+      tags: [malla]
+      responses:
+        "200":
+          description: Cápsula firmada, minimizada, sellada y con caducidad
+        "401":
+          description: Dispositivo no acreditado o firma inválida
+        "409":
+          description: Nonce repetido, consulta caducada o vigencia excesiva
+        "429":
+          description: Límite de consultas por hora superado
+  /v1/malla/capsulas/verificar:
+    post:
+      summary: Revalidar una cápsula recibida por la malla
+      description: >-
+        Comprueba firma, vigencia y si el dato fue suprimido o rectificado después.
+        Primera llamada que un teléfono debería hacer al recuperar conectividad.
+      operationId: verifyDisclosureCapsule
+      tags: [malla]
+      responses:
+        "200":
+          description: Veredicto y secuencia actual de lápidas
+  /v1/malla/lapidas:
+    get:
+      summary: Lápidas de supresión a propagar por la malla
+      description: >-
+        Sincronización incremental por secuencia. Sin PII: solo identificadores y
+        motivo. Es lo que hace que el derecho de supresión alcance a los teléfonos
+        que ya tenían copia.
+      operationId: listTombstones
+      tags: [malla]
+      parameters:
+        - name: incident_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: since_sequence
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: OK
 components:
   schemas:
     GeoPoint:
@@ -124,9 +357,42 @@ components:
       required: true
       schema:
         type: string
+    Purpose:
+      name: X-Purpose
+      in: header
+      required: true
+      description: Finalidad del acceso (Ley 1581 art. 4 lit. b).
+      schema:
+        type: string
+        enum:
+          - family_reunification
+          - response_coordination
+          - authority_notification
+          - anonymized_statistics
+    Justification:
+      name: X-Justification
+      in: header
+      required: true
+      description: >-
+        Por qué se accede. Se guarda literal en audit_log y el Titular puede leerla
+        (art. 4 lit. e). Percent-encoded UTF-8, porque las cabeceras HTTP no
+        transportan tildes. No va como parámetro de consulta: una justificación real
+        es PII y en la URL acabaría en el log de acceso de cada proxy del camino.
+      schema:
+        type: string
+        minLength: 10
+        maxLength: 1500
+    RecordId:
+      name: record_id
+      in: path
+      required: true
+      schema:
+        type: string
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
 
 # Wire-efficient mesh payloads remain protobuf; these JSON schemas define API projections.
+# TODO(dueño=Miguel): completar schemas de request/response de /v1/hallazgos* y /v1/malla/*
+# desde protocol/proto/helius/v1/found_person.proto.

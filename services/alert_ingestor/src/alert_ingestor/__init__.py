@@ -1,4 +1,4 @@
-"""SismoMesh — alert_ingestor: fuentes sísmicas externas → evento interno.
+"""HELIUS — alert_ingestor: fuentes sísmicas externas → evento interno.
 
 Hexágono independiente (ADR-0001), autocontenido. No importa `services/shared`
 todavía: hoy mismo `pip install -e services/shared` falla (gtsam pineado a

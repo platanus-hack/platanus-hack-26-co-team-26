@@ -23,6 +23,9 @@
 /services/analytics/                @EclipseIDEHater
 /services/ppg_model_registry/       @alexbzal
 /ml/ppg/                             @alexbzal
+# found_persons trata datos sensibles y datos de NNA: además del dueño, revisan
+# Helmut (firma y sellado de las cápsulas) y Laura (vocabulario e interés del NNA).
+/services/found_persons/            @EclipseIDEHater @hchaps404 @laura-martinez-galindo
 /web/                                @EclipseIDEHater
 /docs/privacy/                       @EclipseIDEHater
 /docs/security/                      @hchaps404

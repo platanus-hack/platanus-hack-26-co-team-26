@@ -13,7 +13,7 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 RUN pip install --no-cache-dir .
 
-RUN useradd --create-home --uid 10001 sismomesh
-USER sismomesh
+RUN useradd --create-home --uid 10001 helius
+USER helius
 
 CMD ["python", "-m", "alert_ingestor.bootstrap.main"]

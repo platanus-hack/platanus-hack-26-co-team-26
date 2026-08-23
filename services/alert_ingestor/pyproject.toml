@@ -1,5 +1,5 @@
 [project]
-name = "sismomesh-alert-ingestor"
+name = "helius-alert-ingestor"
 version = "0.1.0"
 description = "Ingesta de alertas sísmicas (EMSC/USGS/SGC), dedupe y decisión de activación"
 requires-python = ">=3.12"

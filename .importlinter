@@ -1,11 +1,12 @@
 [importlinter]
 # `include_external_packages` es obligatorio cuando un contrato prohíbe paquetes de
-# terceros (fastapi, httpx, websockets...). Sin él import-linter aborta antes de
-# evaluar nada — bug preexistente en el esqueleto original, corregido de paso.
+# terceros (fastapi, httpx, websockets, sqlalchemy...). Sin él import-linter aborta
+# antes de evaluar nada — bug preexistente en el esqueleto original, corregido de paso.
 include_external_packages = True
 root_packages =
     services
     alert_ingestor
+    found_persons
 
 # --------------------------------------------------------------------------- #
 # services/shared — kernel común del backend                                   #
@@ -64,3 +65,53 @@ layers =
     alert_ingestor.adapters
     alert_ingestor.application
     alert_ingestor.domain
+
+# --------------------------------------------------------------------------- #
+# found_persons — API de personas localizadas (ADR-0010)                       #
+# --------------------------------------------------------------------------- #
+
+[importlinter:contract:6]
+name = found_persons: el dominio no conoce ningún framework
+type = forbidden
+source_modules =
+    found_persons.domain
+forbidden_modules =
+    fastapi
+    starlette
+    pydantic
+    sqlalchemy
+    sqlite3
+    redis
+    cryptography
+
+[importlinter:contract:7]
+name = found_persons: la capa de aplicación no conoce infraestructura
+type = forbidden
+source_modules =
+    found_persons.application
+forbidden_modules =
+    fastapi
+    starlette
+    pydantic
+    sqlalchemy
+    sqlite3
+    redis
+    cryptography
+
+[importlinter:contract:8]
+name = found_persons: capas hexagonales (ADR-0001)
+type = layers
+layers =
+    found_persons.bootstrap
+    found_persons.adapters
+    found_persons.application
+    found_persons.domain
+
+[importlinter:contract:9]
+name = found_persons: la política de divulgación es el único camino de salida
+type = forbidden
+source_modules =
+    found_persons.adapters.http.mapping
+    found_persons.adapters.persistence.codec
+forbidden_modules =
+    found_persons.adapters.http.routers
