@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ApplicationInfo
 import android.net.wifi.WifiManager
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,6 +50,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -103,7 +106,10 @@ private enum class Route { LOGIN, REGISTER, LOCATION_ONBOARDING, HOME, MAP, EMER
 fun HeliosMobile() {
     val context = LocalContext.current
     val auth = remember { LocalAccountRepository(context) }
-    var route by remember { mutableStateOf(if (auth.currentSession() == null) Route.LOGIN else Route.HOME) }
+    // rememberSaveable (no remember): sobrevive a la rotación de pantalla -- sin esto,
+    // Android recrea la Activity al rotar y la ruta vuelve a su valor inicial,
+    // que se ve como "se devuelve a la pestaña anterior".
+    var route by rememberSaveable { mutableStateOf(if (auth.currentSession() == null) Route.LOGIN else Route.HOME) }
     val nearbyTransport = remember { NearbyConnectionsTransport(context) }
     val emergencyController = remember { EmergencyController() }
     val emergencyMode by emergencyController.mode.collectAsState()
@@ -273,6 +279,10 @@ private fun MainScaffold(
     onEmergencyEvent: (EmergencyEvent) -> HeliosOperationalMode,
 ) {
     val showNavigation = emergencyMode is HeliosOperationalMode.Normal || emergencyMode is HeliosOperationalMode.EmergencySupport
+    // El botón/gesto de retroceso del sistema debe volver a la pantalla anterior
+    // dentro de la app, no cerrarla -- sin esto, cualquier pantalla que no tenga
+    // su propio "Volver" en pantalla queda sin forma de regresar.
+    BackHandler(enabled = route != Route.HOME) { onRoute(Route.HOME) }
     Scaffold(containerColor = Canvas, bottomBar = { if (showNavigation) BottomNav(route, onRoute) }) { padding ->
         Box(Modifier.padding(padding).statusBarsPadding().fillMaxSize()) {
             when (emergencyMode) {
@@ -310,14 +320,16 @@ private fun MainScaffold(
                     Route.HOME -> HomeScreen(permission, onRoute, onEmergencyEvent)
                     Route.MAP -> MapExperienceScreen(permission, onBack = { onRoute(Route.HOME) })
                     Route.EMERGENCY -> EmergencyOverviewScreen(onNeedsHelp = { onEmergencyEvent(EmergencyEvent.ManualSos(localIncident(IncidentSource.MANUAL_SOS))) }, onDemo = { onEmergencyEvent(EmergencyEvent.EarthquakeDetected(localIncident(IncidentSource.DEMO))) })
-                    Route.MOTION -> MotionScreen()
-                    Route.PPG -> PpgScreen()
+                    Route.MOTION -> MotionScreen(onBack = { onRoute(Route.HOME) })
+                    // La captura PPG solo se ofrece durante una emergencia activa
+                    // (ver HeliosOperationalMode.EmergencySupport/AssistanceRequired
+                    // más abajo) -- en modo Normal no hay motivo para pedir la cámara.
                     Route.NEARBY -> NearbyNetworkScreen(transport = nearbyTransport, onBack = { onRoute(Route.HOME) })
                     Route.TRUSTED_CONTACTS -> PeopleScreen(onBack = { onRoute(Route.HOME) })
                     Route.REPORTS -> OperationalListScreen("Reportes", "Observaciones con fuente, hora y nivel de confianza", "No hay reportes pendientes", onBack = { onRoute(Route.HOME) })
                     Route.ALERTS -> OperationalListScreen("Alertas recibidas", "Señales directas o retransmitidas, sin borrar evidencia", "No has recibido señales de asistencia", onBack = { onRoute(Route.HOME) })
                     Route.PERMISSIONS -> PermissionsScreen(permission, onRoute)
-                    Route.DIAGNOSTICS -> DiagnosticsScreen(nearbyTransport = nearbyTransport, onOpenLab = { onRoute(Route.NETWORK_LAB) })
+                    Route.DIAGNOSTICS -> DiagnosticsScreen(nearbyTransport = nearbyTransport, onOpenLab = { onRoute(Route.NETWORK_LAB) }, onBack = { onRoute(Route.HOME) })
                     Route.NETWORK_LAB -> NetworkLabScreen(nearbyTransport, onBack = { onRoute(Route.DIAGNOSTICS) })
                     Route.SETTINGS -> SettingsScreen(onSignOut)
                     else -> HomeScreen(permission, onRoute, onEmergencyEvent)
@@ -351,24 +363,12 @@ private fun HomeScreen(
             }
             item { MapPreviewCard(permission, currentLocation, onOpen = { onRoute(Route.MAP) }) }
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ReadinessMetric("Ubicación", when (permission) { is LocationPermissionState.Precise -> "Precisa"; is LocationPermissionState.Approximate -> "Aproximada"; else -> "Pendiente" }, if (permission is LocationPermissionState.NotRequested || permission is LocationPermissionState.Denied) Warning else LocationSky, Modifier.weight(1f))
-                    ReadinessMetric("Red Helios", "Lista para buscar", AquaSignal, Modifier.weight(1f))
-                    ReadinessMetric("Batería", "No disponible", Warning, Modifier.weight(1f))
-                }
-            }
-            item {
                 Button(onClick = { onEmergencyEvent(EmergencyEvent.ManualSos(localIncident(IncidentSource.MANUAL_SOS))) }, Modifier.fillMaxWidth().height(58.dp), colors = ButtonDefaults.buttonColors(containerColor = SignalCoral, contentColor = PureWarm), shape = RoundedCornerShape(16.dp)) { Text("NECESITO AYUDA", style = MaterialTheme.typography.labelLarge) }
             }
             item { Text("Acciones rápidas", color = TextSecondary, style = MaterialTheme.typography.labelMedium) }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     ActionTile("Movimiento", "Acelerómetro + giroscopio", { onRoute(Route.MOTION) }, Modifier.weight(1f))
-                    ActionTile("Fisiología", "Registro PPG", { onRoute(Route.PPG) }, Modifier.weight(1f))
-                }
-            }
-            item {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     ActionTile("Red Helios", "Dispositivos cercanos y relay", { onRoute(Route.NEARBY) }, Modifier.weight(1f))
                     ActionTile("Permisos", "Privacidad y capacidades", { onRoute(Route.PERMISSIONS) }, Modifier.weight(1f))
                 }
@@ -573,7 +573,7 @@ private fun PermissionsScreen(permission: LocationPermissionState, onRoute: (Rou
         Text("HELIOS solicita cada capacidad cuando la necesitas. Rechazar una no cancela las demás evidencias.", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
         StatusPanel("Ubicación", when (permission) { is LocationPermissionState.Precise -> "PRECISA"; is LocationPermissionState.Approximate -> "APROXIMADA"; is LocationPermissionState.Denied -> "RECHAZADA"; else -> "NO SOLICITADA" }, "La solicitud aparece durante el primer acceso o al usar Mapa", if (permission is LocationPermissionState.Precise || permission is LocationPermissionState.Approximate) LocationSky else Warning)
         ActionTile("Dispositivos cercanos", "Permisos Bluetooth/BLE y Wi‑Fi local", { onRoute(Route.NEARBY) })
-        ActionTile("Cámara y fisiología", "La cámara se solicita al iniciar PPG", { onRoute(Route.PPG) })
+        StatusPanel("Cámara y fisiología", "SOLO EN EMERGENCIA", "La cámara se solicita únicamente si activas asistencia; no se pide en uso normal", EvidenceViolet)
         ActionTile("Diagnóstico", "Comprueba sensores y capacidades sin activar nada", { onRoute(Route.DIAGNOSTICS) })
     }
 }
@@ -687,7 +687,7 @@ private fun AssistanceRequiredScreen(
 }
 
 @Composable
-private fun MotionScreen() {
+private fun MotionScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var sample by remember { mutableStateOf<MotionSample?>(null) }
     var evidence by remember { mutableStateOf<MotionClassification?>(null) }
@@ -704,6 +704,7 @@ private fun MotionScreen() {
         }
     }
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        TextButton(onClick = onBack) { Text("Volver", color = RescueTeal) }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Eyebrow("SEÑAL DEL DISPOSITIVO")
@@ -807,7 +808,8 @@ private fun PpgScreen(onBack: (() -> Unit)? = null) {
                     VerificationStatus.SECOND_VERIFICATION_REQUIRED, VerificationStatus.INCONCLUSIVE_RECHECK -> Warning
                     VerificationStatus.ACCEPTED -> SafeMint
                 }
-                StatusPanel("Frecuencia cardíaca estimada", "${observation.bpm.toInt()} BPM", "${checked.status.name} · calidad ${(observation.sqi * 100).toInt()}% · ${observation.method}", color)
+                val bpmLabel = if (observation.bpm > 0.0) "${observation.bpm.toInt()} BPM" else "Sin lectura válida"
+                StatusPanel("Frecuencia cardíaca estimada", bpmLabel, "${checked.status.name} · calidad ${(observation.sqi * 100).toInt()}% · ${observation.method}", color)
                 Text(checked.message, color = color, style = MaterialTheme.typography.bodyMedium)
                 if (checked.status == VerificationStatus.REPEATED_ANOMALY) {
                     Text("Las lecturas anómalas repetidas son solo una señal de prueba; no confirman bradicardia ni otra condición.", color = TextSecondary, style = MaterialTheme.typography.labelMedium)
@@ -965,7 +967,7 @@ private fun NearbyNetworkScreen(transport: NearbyConnectionsTransport, onBack: (
 }
 
 @Composable
-private fun DiagnosticsScreen(nearbyTransport: NearbyConnectionsTransport, onOpenLab: () -> Unit) {
+private fun DiagnosticsScreen(nearbyTransport: NearbyConnectionsTransport, onOpenLab: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val manager = remember { context.getSystemService(Context.SENSOR_SERVICE) as android.hardware.SensorManager }
     val packageManager = context.packageManager
@@ -977,6 +979,7 @@ private fun DiagnosticsScreen(nearbyTransport: NearbyConnectionsTransport, onOpe
         "Bluetooth LE" to packageManager.hasSystemFeature("android.hardware.bluetooth_le"),
     )
     LazyColumn(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        item { TextButton(onClick = onBack) { Text("Volver", color = RescueTeal) } }
         item { Text("Capacidades del dispositivo", color = TextPrimary, fontSize = 26.sp); Text("No se asume hardware; los sensores no disponibles degradan de forma segura.", color = TextSecondary) }
         items(capabilities.size) { index -> StatusPanel(capabilities[index].first, if (capabilities[index].second) "DISPONIBLE" else "NO DISPONIBLE", "Capacidad en tiempo de ejecución", if (capabilities[index].second) RescueTeal else Warning) }
         if ((context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
@@ -1024,15 +1027,71 @@ private fun SettingsScreen(onSignOut: () -> Unit) {
     }
 }
 
+/** Los 4 destinos raíz, en forma minimalista (línea, sin relleno) para no depender de una librería de íconos nueva. */
+private enum class NavIcon { HOME, MAP, NETWORK, PROFILE }
+
+@Composable
+private fun NavIconGlyph(icon: NavIcon, tint: Color, modifier: Modifier = Modifier) {
+    ComposeCanvas(modifier) {
+        val stroke = Stroke(width = 1.8.dp.toPx())
+        val w = size.width
+        val h = size.height
+        when (icon) {
+            NavIcon.HOME -> {
+                val roof = Path().apply {
+                    moveTo(w * 0.06f, h * 0.48f)
+                    lineTo(w * 0.5f, h * 0.06f)
+                    lineTo(w * 0.94f, h * 0.48f)
+                }
+                drawPath(roof, tint, style = stroke)
+                drawRect(tint, topLeft = androidx.compose.ui.geometry.Offset(w * 0.2f, h * 0.44f), size = androidx.compose.ui.geometry.Size(w * 0.6f, h * 0.5f), style = stroke)
+                drawRect(tint, topLeft = androidx.compose.ui.geometry.Offset(w * 0.42f, h * 0.64f), size = androidx.compose.ui.geometry.Size(w * 0.16f, h * 0.3f), style = stroke)
+            }
+            NavIcon.MAP -> {
+                val cx = w / 2f
+                val cy = h * 0.38f
+                val r = size.minDimension * 0.26f
+                val pin = Path().apply {
+                    moveTo(cx - r, cy)
+                    cubicTo(cx - r, cy - r * 1.6f, cx + r, cy - r * 1.6f, cx + r, cy)
+                    cubicTo(cx + r, cy + r * 0.5f, cx, h * 0.92f, cx, h * 0.92f)
+                    cubicTo(cx, h * 0.92f, cx - r, cy + r * 0.5f, cx - r, cy)
+                    close()
+                }
+                drawPath(pin, tint, style = stroke)
+                drawCircle(tint, radius = r * 0.4f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.1f))
+            }
+            NavIcon.NETWORK -> {
+                val a = androidx.compose.ui.geometry.Offset(w * 0.22f, h * 0.26f)
+                val b = androidx.compose.ui.geometry.Offset(w * 0.78f, h * 0.22f)
+                val c = androidx.compose.ui.geometry.Offset(w * 0.5f, h * 0.8f)
+                drawLine(tint.copy(alpha = .8f), a, b, strokeWidth = stroke.width)
+                drawLine(tint.copy(alpha = .8f), b, c, strokeWidth = stroke.width)
+                drawLine(tint.copy(alpha = .8f), a, c, strokeWidth = stroke.width)
+                val dot = size.minDimension * 0.11f
+                listOf(a, b, c).forEach { drawCircle(tint, radius = dot, center = it) }
+            }
+            NavIcon.PROFILE -> {
+                drawCircle(tint, radius = size.minDimension * 0.17f, center = androidx.compose.ui.geometry.Offset(w / 2f, h * 0.3f), style = stroke)
+                val shoulders = Path().apply {
+                    moveTo(w * 0.14f, h * 0.92f)
+                    cubicTo(w * 0.14f, h * 0.58f, w * 0.86f, h * 0.58f, w * 0.86f, h * 0.92f)
+                }
+                drawPath(shoulders, tint, style = stroke)
+            }
+        }
+    }
+}
+
 @Composable
 private fun BottomNav(route: Route, onRoute: (Route) -> Unit) {
-    Row(Modifier.fillMaxWidth().background(DeepOcean).navigationBarsPadding().padding(horizontal = 6.dp, vertical = 7.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-        listOf(Route.HOME to "Inicio", Route.MAP to "Mapa", Route.NEARBY to "Red", Route.SETTINGS to "Perfil").forEach { (target, label) ->
+    Row(Modifier.fillMaxWidth().background(DeepOcean).navigationBarsPadding().padding(horizontal = 8.dp, vertical = 6.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+        listOf(Route.HOME to NavIcon.HOME, Route.MAP to NavIcon.MAP, Route.NEARBY to NavIcon.NETWORK, Route.SETTINGS to NavIcon.PROFILE).forEach { (target, icon) ->
             val selected = route == target
-            TextButton(onClick = { onRoute(target) }, Modifier.weight(1f).height(58.dp)) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text(label, color = if (selected) WarmCloud else TextSecondary, style = MaterialTheme.typography.labelMedium)
-                    Box(Modifier.widthIn(min = 24.dp).height(3.dp).background(if (selected) HeliosSolar else Color.Transparent, RoundedCornerShape(3.dp)))
+            TextButton(onClick = { onRoute(target) }, Modifier.weight(1f).height(68.dp)) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    NavIconGlyph(icon, tint = if (selected) HeliosSolar else TextSecondary, modifier = Modifier.size(30.dp))
+                    Box(Modifier.widthIn(min = 22.dp).height(3.dp).background(if (selected) HeliosSolar else Color.Transparent, RoundedCornerShape(3.dp)))
                 }
             }
         }
