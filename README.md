@@ -4,8 +4,7 @@
 
 <img src="./project-logo.png" alt="Project Logo" width="200" />
 
-Track: 🛡️ AI Security
-
+Track: 🛡️ Emergencies
 team-26
 
 - Alex Barraza Aristizábal ([@alexbzal](https://github.com/alexbzal))
