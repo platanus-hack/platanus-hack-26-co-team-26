@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Gradle local caches
 .gradle/
 .gradle-integration-home/
@@ -25,7 +24,6 @@ local.properties
 
 # Generated logs/artifacts
 *.log
-=======
 # Gradle / Kotlin / Android
 .gradle/
 build/
@@ -95,5 +93,4 @@ Thumbs.db
 .gradle-user-home/
 .gradle-integration-home/
 .kotlin/
->>>>>>> 8bb416400cf253a3d1e8991e74bfdeaa1c577dbb
 *.tsbuildinfo
