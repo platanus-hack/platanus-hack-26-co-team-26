@@ -17,4 +17,7 @@ dependencies {
     implementation(project(":core"))
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
+    // LocationManagerCompat / ContextCompat: backport de getCurrentLocation (API 30)
+    // y getMainExecutor (API 28) hasta el minSdk 26 del proyecto.
+    implementation(libs.androidx.core.ktx)
 }

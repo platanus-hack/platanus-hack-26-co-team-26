@@ -6,6 +6,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import co.helius.core.application.ports.PpgCapturePort
 import co.helius.core.application.ports.PpgFrame
@@ -30,7 +31,7 @@ class CameraPpgCaptureSource(
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
         val startedAt = System.currentTimeMillis()
-        analysis.setAnalyzer(appContext.mainExecutor) { image ->
+        analysis.setAnalyzer(ContextCompat.getMainExecutor(appContext)) { image ->
             val frame = image.toPpgFrame()
             image.close()
             if (frame != null && System.currentTimeMillis() - startedAt <= durationS * 1_000L) trySend(frame)
@@ -51,7 +52,7 @@ class CameraPpgCaptureSource(
                 else provider?.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, analysis)
                 camera?.cameraControl?.enableTorch(true)
             }.onFailure { close(it) }
-        }, appContext.mainExecutor)
+        }, ContextCompat.getMainExecutor(appContext))
         awaitClose {
             camera?.cameraControl?.enableTorch(false)
             provider?.unbind(analysis)

@@ -2,6 +2,7 @@ package co.helius.core.crypto
 
 import co.helius.core.application.ports.IdentityPort
 import co.helius.core.platform.secureRandomBytes
+import androidx.annotation.RequiresApi
 import java.security.KeyFactory
 
 import java.security.KeyPairGenerator
@@ -83,18 +84,62 @@ object PseudonymDeriver {
  * (evita que un shared secret crudo se use directo como clave).
  */
 class X25519Handshake {
-    fun generateEphemeralKeyPair(): java.security.KeyPair =
-        KeyPairGenerator.getInstance("X25519").generateKeyPair()
+
+    companion object {
+        /**
+         * El proveedor JCA de Android (Conscrypt) expone X25519/XDH **solo desde
+         * API 33**. El `minSdk` del proyecto es 26, así que en cualquier equipo con
+         * Android 12 o anterior este handshake no puede funcionar: antes de esta
+         * guarda fallaba con `NoClassDefFoundError` sobre `XECPublicKeySpec` o con
+         * `NoSuchAlgorithmException` desde `getInstance("X25519")` — errores que no
+         * dicen nada al que los ve en un log de campo.
+         *
+         * Los `getInstance` por nombre no los puede detectar el lint estático, así
+         * que la guarda es explícita en los tres puntos de entrada, no solo donde
+         * lint señala.
+         */
+        const val MIN_SDK_FOR_X25519 = 33
+
+        /**
+         * Se sondea el proveedor JCA en vez de comparar `Build.VERSION.SDK_INT`, y
+         * la diferencia importa: los tests del motor corren en JVM de escritorio
+         * (ADR-0001), donde X25519 existe desde JDK 15 y `SDK_INT` vale 0. Un
+         * chequeo por nivel de API daría "no soportado" justo donde sí funciona.
+         * El sondeo es correcto en ambos lados y además cubriría automáticamente
+         * el caso de un BouncyCastle registrado como proveedor extra.
+         */
+        fun isSupported(): Boolean = runCatching {
+            KeyPairGenerator.getInstance("X25519")
+        }.isSuccess
+
+        private fun unsupported(): Nothing = throw UnsupportedOperationException(
+            "Este dispositivo no expone X25519/XDH en su proveedor JCA. En Android eso " +
+                "significa API < $MIN_SDK_FOR_X25519 (anterior a Android 13). Mitigación " +
+                "documentada en el encabezado de este archivo: sumar BouncyCastle como " +
+                "proveedor JCA adicional (decisión de dependencia pendiente, " +
+                "dueño=Helmut). No reimplementar la primitiva.",
+        )
+    }
+
+    @RequiresApi(MIN_SDK_FOR_X25519)
+    fun generateEphemeralKeyPair(): java.security.KeyPair {
+        if (!isSupported()) unsupported()
+        return KeyPairGenerator.getInstance("X25519").generateKeyPair()
+    }
 
     /** Reconstruye una clave pública X25519 desde 32 bytes crudos (u-coordinate). */
+    @RequiresApi(MIN_SDK_FOR_X25519) // en Android; en JVM de test el sondeo de abajo es el que manda
     fun publicKeyFromRaw(raw: ByteArray): PublicKey {
         require(raw.size == 32) { "X25519 public key debe ser 32 bytes" }
+        if (!isSupported()) unsupported()
         val u = java.math.BigInteger(1, raw.reversedArray()) // little-endian -> BigInteger
         val spec = XECPublicKeySpec(NamedParameterSpec.X25519, u)
         return KeyFactory.getInstance("X25519").generatePublic(spec)
     }
 
+    @RequiresApi(MIN_SDK_FOR_X25519)
     fun sharedSecret(ownPrivate: PrivateKey, remotePublic: PublicKey): ByteArray {
+        if (!isSupported()) unsupported()
         // "XDH" (no "X25519") es el nombre de algoritmo documentado para KeyAgreement
         // desde JDK 11 (JEP 324); la curva ya queda fijada por las claves (NamedParameterSpec.X25519).
         val ka = javax.crypto.KeyAgreement.getInstance("XDH")
@@ -129,6 +174,7 @@ class X25519Handshake {
      * consume por ahora. `perform()` (abajo) queda como atajo de una sola
      * llamada cuando no hace falta la pública propia (p. ej. tests).
      */
+    @RequiresApi(MIN_SDK_FOR_X25519)
     fun performReturningOwnPublic(remotePublicKeyRaw: ByteArray): Pair<ByteArray, ByteArray> {
         val ephemeral = generateEphemeralKeyPair()
         val ownPublicRaw = rawPublicKey(ephemeral.public)
@@ -138,6 +184,7 @@ class X25519Handshake {
         return ownPublicRaw to sessionKey
     }
 
+    @RequiresApi(MIN_SDK_FOR_X25519)
     fun perform(remotePublicKeyRaw: ByteArray): ByteArray = performReturningOwnPublic(remotePublicKeyRaw).second
 }
 

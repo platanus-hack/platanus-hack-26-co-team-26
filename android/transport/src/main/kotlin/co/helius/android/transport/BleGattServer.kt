@@ -1,5 +1,6 @@
 package co.helius.android.transport
 
+import android.Manifest
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
@@ -8,6 +9,7 @@ import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import androidx.annotation.RequiresPermission
 import co.helius.core.application.ports.BundleStorePort
 import co.helius.core.dtn.InventoryBloom
 import co.helius.core.dtn.outboxSnapshot
@@ -45,6 +47,7 @@ class BleGattServer(
     private val nextMessageId = AtomicInteger(1)
     private val subscribedDevices = mutableSetOf<String>()
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun start() {
         val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val server = manager.openGattServer(context, callback)
@@ -52,6 +55,7 @@ class BleGattServer(
         gattServer = server
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun stop() {
         gattServer?.close()
         gattServer = null
@@ -72,6 +76,7 @@ class BleGattServer(
             effectiveMtu[device.address] = mtu
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onDescriptorWriteRequest(
             device: BluetoothDevice,
             requestId: Int,
@@ -89,6 +94,7 @@ class BleGattServer(
             }
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onCharacteristicWriteRequest(
             device: BluetoothDevice,
             requestId: Int,
@@ -127,6 +133,7 @@ class BleGattServer(
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun onClientInventoryReceived(device: BluetoothDevice, clientBloomBytes: ByteArray) {
         val clientBloom = InventoryBloom()
         clientBloom.mergeFrom(clientBloomBytes)
@@ -159,6 +166,7 @@ class BleGattServer(
      * hardware real (a diferencia de un bucle síncrono, que "funciona" en
      * cualquier mock/emulador sin BLE real detrás).
      */
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private suspend fun notifyChunked(device: BluetoothDevice, characteristicUuid: java.util.UUID, payload: ByteArray) {
         val server = gattServer ?: return
         if (device.address !in subscribedDevices) return // el cliente no habilitó notificaciones todavía

@@ -17,7 +17,16 @@ class AltitudeFusionTest {
 
         assertEquals(0.0, estimate.altitudeM, absoluteTolerance = 0.01)
         assertEquals(AltitudeSource.BAROMETRIC, estimate.source)
-        assertEquals(0, estimate.estimatedFloor)
+
+        // Estar EN el punto de referencia no autoriza a reportar el piso: con pisos
+        // de 3 m y la incertidumbre base de 3 m, el margen (1.5 m) no alcanza, y la
+        // regla de ADR-0009 no tiene excepción para el caso "altitud = 0". Es la
+        // misma frontera que verifica `floor number requires enough certainty`.
+        assertNull(estimate.estimatedFloor)
+
+        // Con pisos más altos, el mismo margen sí alcanza y entonces sí es 0.
+        val roomier = BarometricCalibration(referencePressureHpa = 1013.25, floorHeightM = 6.0)
+        assertEquals(0, AltitudeFusion.fromBarometric(1013.25, roomier).estimatedFloor)
     }
 
     @Test
