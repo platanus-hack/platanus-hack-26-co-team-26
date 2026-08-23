@@ -14,15 +14,29 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.protobuf.kotlin.lite)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
-        val androidMain by getting
+        val androidMain by getting {
+            dependencies {
+                // Código generado por protobuf (java_out + kotlin_out) es JVM-only,
+                // vive en androidMain — ver core/src/androidMain/kotlin/co/sismomesh/core/protocol/README.md.
+                implementation(libs.protobuf.java)
+                implementation(libs.protobuf.kotlin)
+            }
+        }
+        val androidUnitTest by getting {
+            dependencies {
+                // Corre en la JVM local (no Robolectric): valida core/crypto,
+                // core/protocol/* y el resto de androidMain sin ningún teléfono.
+                implementation(kotlin("test"))
+            }
+        }
         // val iosMain by getting // vacío, comentado — ver nota arriba
     }
 }
@@ -32,6 +46,12 @@ android {
     compileSdk = 35
     defaultConfig {
         minSdk = 26
+    }
+    sourceSets {
+        getByName("main") {
+            // Clases Java generadas por protoc (protocol/codegen/gen_kotlin.sh --java_out).
+            java.srcDir("src/androidMain/java")
+        }
     }
 }
 

@@ -5,6 +5,7 @@ package sismomesh.v1;
 option java_package = "co.sismomesh.core.protocol.v1";
 option java_multiple_files = true;
 
+import "sismomesh/v1/common.proto";
 import "sismomesh/v1/status.proto";
 import "sismomesh/v1/motion.proto";
 import "sismomesh/v1/biomarker.proto";
@@ -44,24 +45,7 @@ message ClockEvidence {
   optional int64 observed_skew_ms = 2;
 }
 
-enum Priority {
-  P0_LIFE_CRITICAL = 0;
-  P1_LOCATION = 1;
-  P2_STATUS = 2;
-  P3_NETWORK_OBS = 3;
-  P4_RAW_SENSOR = 4;
-  P5_DIAGNOSTIC = 5;
-}
-
-enum ResponseState {
-  UNKNOWN = 0;
-  SAFE = 1;
-  NEEDS_HELP = 2;
-  TRAPPED = 3;
-  UNCONFIRMED = 4;
-  NO_RECENT_EVIDENCE = 5;
-  // Prohibido agregar DEAD/ALIVE/INJURED — ver Sección 1.3 y docs/glossary.md.
-}
+// Priority y ResponseState viven en common.proto (evita el ciclo bundle<->status).
 
 message RawSensorChunk {
   string tier = 1; // "T2"

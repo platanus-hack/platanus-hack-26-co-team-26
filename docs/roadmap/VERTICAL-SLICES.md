@@ -30,6 +30,10 @@ con el modelo LiteRT. Dueño: Laura/Jorge (captura) + Alex (modelo).
 Tres rescatistas detectan al nodo A; el dashboard publica zona candidata con
 radios de 68% y 95%. Dueño: Miguel.
 
+**Extensión 3D (ADR-0009, después de que 2D funcione):** sumar piso/profundidad
+estimado a partir de elevación UWB y barómetro, con su propia incertidumbre.
+No bloquea el Slice 3 base — es una mejora de precisión, dueño Helmut (mediciones) + Miguel (factor graph).
+
 ## Slice 4 — Demo extremo a extremo
 
 `evento sísmico simulado → activación → UI de emergencia → caída de red → DTN →

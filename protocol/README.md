@@ -3,7 +3,9 @@
 Kotlin, Python y TypeScript **se generan** desde `proto/sismomesh/v1/*.proto`
 (`make proto`); nunca se escriben a mano. Ver `docs/PROTOCOL.md`.
 
-- `proto/` — definiciones `.proto3` (Bundle, Status, Motion, Biomarker, Observation, Inventory, Incident).
+- `proto/` — definiciones `.proto3` (Bundle, Status, Motion, Biomarker, Observation,
+  Inventory, Incident, Identity). `Identity` (break-glass, ADR-0008) viaja
+  fuera del `Bundle` — sync directo nodo→backend, nunca hop-by-hop por la malla.
 - `beacon/BEACON_FORMAT.md` — layout de bytes del anuncio BLE (no es protobuf).
 - `openapi/` — contrato REST del backend.
 - `asyncapi/` — contrato del canal WebSocket en tiempo real.

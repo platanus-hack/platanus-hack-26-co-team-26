@@ -30,6 +30,7 @@ make bootstrap && make proto && make up && make test
 - **Cómo contribuir (branching, Definition of Done):** [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - **Seguridad y modelo de amenazas:** [`docs/security/THREAT-MODEL.md`](docs/security/THREAT-MODEL.md)
 - **Validación y métricas:** [`docs/validation/VALIDATION.md`](docs/validation/VALIDATION.md)
+- **Criterio de "listo para teléfono" (L0-L3):** [`docs/validation/PHONE-READINESS.md`](docs/validation/PHONE-READINESS.md)
 - **Vocabulario obligatorio/prohibido:** [`docs/glossary.md`](docs/glossary.md)
 - **Módulo PPG (captura + DSP + entrenamiento):** [`docs/ppg/README.md`](docs/ppg/README.md)
 - **Decisiones de arquitectura (ADRs):** [`docs/architecture/ADR/`](docs/architecture/ADR/)

@@ -17,7 +17,17 @@ value class Rssi(val dbm: Int)
 @JvmInline
 value class Battery(val percent: Int)
 
-data class GeoPoint(val lat: Double, val lon: Double, val accuracyM: Double? = null)
+/** Ver ADR-0009: altitude solo se llena con fuente real (UWB/barómetro/GNSS), nunca inferida de RSSI. */
+data class GeoPoint(
+    val lat: Double,
+    val lon: Double,
+    val accuracyM: Double? = null,
+    val altitudeM: Double? = null,
+    val altitudeAccuracyM: Double? = null,
+    val altitudeSource: AltitudeSource = AltitudeSource.UNKNOWN,
+)
+
+enum class AltitudeSource { UNKNOWN, GNSS, BAROMETRIC, UWB_ELEVATION, FUSED }
 
 enum class Priority { P0_LIFE_CRITICAL, P1_LOCATION, P2_STATUS, P3_NETWORK_OBS, P4_RAW_SENSOR, P5_DIAGNOSTIC }
 

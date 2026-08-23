@@ -5,7 +5,7 @@ compose-bom = "2024.12.01"
 coroutines = "1.9.0"
 koin = "4.0.0"
 sqldelight = "2.0.2"
-protobuf = "3.25.5"
+protobuf = "4.29.3"
 litert = "1.0.1"
 camerax = "1.5.3"
 core-ktx = "1.16.0"
@@ -16,10 +16,12 @@ konsist = "0.17.1"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-sqlcipher-driver = { module = "app.cash.sqldelight:sqlcipher-driver", version.ref = "sqldelight" }
-protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
 litert = { module = "com.google.ai.edge.litert:litert", version.ref = "litert" }
 androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }

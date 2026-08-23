@@ -5,10 +5,11 @@ package sismomesh.v1;
 option java_package = "co.sismomesh.core.protocol.v1";
 option java_multiple_files = true;
 
-import "sismomesh/v1/status.proto";
+import "sismomesh/v1/common.proto";
 
 // PeerObservation: lo que un nodo registra al ver a otro (RSSI, transporte, timestamp) —
-// alimenta la localización probabilística (Sección 9). Dueño: Helmut (captura) / Miguel (backend).
+// alimenta la localización probabilística 2D/3D (Sección 9, ADR-0009).
+// Dueño: Helmut (captura) / Miguel (backend, factor graph).
 message PeerObservation {
   bytes incident_id = 1;
   bytes node_a = 2;
@@ -18,4 +19,12 @@ message PeerObservation {
   optional GeoPoint observer_geo = 6;
   optional double observer_acc_m = 7;
   uint64 observed_at = 8;
+
+  // Aporte vertical opcional para el factor graph 3D (ADR-0009). Solo se llena
+  // cuando el transporte es UWB (azimuth/elevation reales) o cuando el
+  // dispositivo tiene barómetro calibrado. NUNCA inferir profundidad solo de RSSI.
+  optional double uwb_elevation_deg = 9;
+  optional double uwb_azimuth_deg = 10;
+  optional double uwb_distance_m = 11;
+  optional double barometric_pressure_hpa = 12;
 }

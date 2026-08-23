@@ -42,3 +42,18 @@ sealed interface BundlePayload {
 
 /** ResponseState — enum cerrado, NUNCA agregar DEAD/ALIVE/INJURED (Anexo B, vocabulario prohibido). */
 enum class ResponseState { UNKNOWN, SAFE, NEEDS_HELP, TRAPPED, UNCONFIRMED, NO_RECENT_EVIDENCE }
+
+/** Tiers de tamaño del protocolo (protocol/docs/PROTOCOL.md § Tiers). T0 nunca se descarta antes que T2 (core/dtn/BundleStore.kt). */
+enum class Tier { T0, T1, T2 }
+
+val BundlePayload.tier: Tier
+    get() = when (this) {
+        is BundlePayload.Status -> Tier.T0
+        is BundlePayload.Responder -> Tier.T0
+        is BundlePayload.Motion -> Tier.T1
+        is BundlePayload.Biomarker -> Tier.T1
+        is BundlePayload.Observation -> Tier.T1
+        is BundlePayload.Raw -> Tier.T2
+    }
+
+val Bundle.tier: Tier get() = payload.tier

@@ -12,6 +12,11 @@ Median Position Error, P95 Position Error, y **calibración de confianza** (¿el
 68% declarado contiene realmente al 68% de los casos?), desglosado por LOS,
 NLOS, hormigón, hormigón armado y escombro mixto.
 
+**Eje vertical (ADR-0009):** Median/P95 Floor Error (en pisos, no en metros —
+la altura de piso varía por edificio) y calibración de confianza vertical,
+reportado por separado según la fuente disponible (solo GNSS / +UWB / +barómetro).
+Sin dato UWB ni barométrico, no se reporta eje vertical — nunca inferirlo de RSSI.
+
 ## Matriz experimental de RF (con mediciones propias — plantilla)
 
 | Material | Grosor | Distancia | BLE detect | Wi-Fi detect | RSSI medio | Entrega |

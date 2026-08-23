@@ -1,0 +1,22 @@
+{
+  "header": {
+    "bundle_id": "AAECAwQFBgcICQoLDA0ODw==",
+    "clock": {
+      "monotonic_ms": "123456"
+    },
+    "created_at": "1755878400000",
+    "disaster_id": "sismomesh-golden-2026",
+    "expires_at": "1755882000000",
+    "node_id": "AgICAgICAgI=",
+    "priority": "P1_LOCATION",
+    "sequence": "1",
+    "version": 1
+  },
+  "motion": {
+    "activity_state": "PURPOSEFUL_MOTION",
+    "last_motion_ts": "1755878390",
+    "pattern": "3-3",
+    "purposeful_motion_confidence": 0.91
+  },
+  "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+}

@@ -1,0 +1,28 @@
+{
+  "header": {
+    "bundle_id": "AAECAwQFBgcICQoLDA0ODw==",
+    "clock": {
+      "monotonic_ms": "123456"
+    },
+    "created_at": "1755878400000",
+    "disaster_id": "sismomesh-golden-2026",
+    "expires_at": "1755882000000",
+    "node_id": "AQEBAQEBAQE=",
+    "priority": "P1_LOCATION",
+    "sequence": "1",
+    "version": 1
+  },
+  "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+  "status": {
+    "battery": 42,
+    "device_state": "foreground_service",
+    "location": {
+      "acc_m": 12.5,
+      "lat": 4.65123,
+      "lon": -74.08291
+    },
+    "response_state": "TRAPPED",
+    "source": "gnss",
+    "ts": "1755878400"
+  }
+}

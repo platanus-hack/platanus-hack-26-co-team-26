@@ -29,6 +29,7 @@ make arch-check  # arch-guard: Konsist + import-linter + vocabulario prohibido
 - [ ] Sin PII en logs (linter de logging).
 - [ ] Impacto en batería medido si toca radios o sensores.
 - [ ] Si toca transporte: probado en al menos 3 fabricantes distintos (ver `docs/validation/`).
+- [ ] Si toca radios/hardware/cripto: pasa los 4 niveles de `docs/validation/PHONE-READINESS.md` (L0 compila, L1 tests JVM, L2 instrumented test, L3 campo) — no basta con "revisado por inspección".
 
 ## Estrategia de ramas y commits
 

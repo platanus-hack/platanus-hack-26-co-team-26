@@ -4,7 +4,8 @@
 /protocol/                          @hchaps404
 /protocol/ppg/                       @laura-martinez-galindo @jorgeb-py
 /core/src/commonMain/kotlin/co/sismomesh/core/dtn/       @hchaps404
-/core/src/commonMain/kotlin/co/sismomesh/core/crypto/    @hchaps404
+/core/src/androidMain/kotlin/co/sismomesh/core/crypto/   @hchaps404
+/core/src/androidMain/kotlin/co/sismomesh/core/protocol/ @hchaps404
 /core/src/commonMain/kotlin/co/sismomesh/core/signal/    @alexbzal
 /core/src/commonMain/kotlin/co/sismomesh/core/signal/ppg/ @laura-martinez-galindo @jorgeb-py
 /core/src/commonMain/kotlin/co/sismomesh/core/domain/policy/ @alexbzal

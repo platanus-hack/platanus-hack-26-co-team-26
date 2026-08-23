@@ -5,13 +5,7 @@ package sismomesh.v1;
 option java_package = "co.sismomesh.core.protocol.v1";
 option java_multiple_files = true;
 
-import "sismomesh/v1/bundle.proto";
-
-message GeoPoint {
-  double lat = 1;
-  double lon = 2;
-  optional double acc_m = 3;
-}
+import "sismomesh/v1/common.proto";
 
 message EmergencyStatus {
   optional GeoPoint location = 1;
