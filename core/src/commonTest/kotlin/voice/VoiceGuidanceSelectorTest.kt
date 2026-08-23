@@ -35,9 +35,14 @@ class VoiceGuidanceSelectorTest {
     }
 
     @Test
-    fun trappedWithUnknownMobilityNeverGuesses() {
-        assertNull(VoiceGuidanceSelector.select(PowerMode.TRAPPED, TrappedMobility.UNKNOWN))
-        assertNull(VoiceGuidanceSelector.select(PowerMode.TRAPPED))
+    fun trappedWithUnknownMobilityAsksInsteadOfGuessing() {
+        // Ya no es null: en vez de callar, MOBILITY_CHECK es lo que resuelve
+        // UNKNOWN a un valor real -- nunca asume MOBILE por defecto.
+        assertEquals(
+            VoiceGuidanceCase.MOBILITY_CHECK,
+            VoiceGuidanceSelector.select(PowerMode.TRAPPED, TrappedMobility.UNKNOWN),
+        )
+        assertEquals(VoiceGuidanceCase.MOBILITY_CHECK, VoiceGuidanceSelector.select(PowerMode.TRAPPED))
     }
 
     @Test
@@ -47,8 +52,26 @@ class VoiceGuidanceSelectorTest {
     }
 
     @Test
+    fun onlyTrappedMobileGetsTheSosPatternReminder() {
+        assertEquals(
+            VoiceGuidanceCase.GYRO_SOS_PATTERN,
+            VoiceGuidanceSelector.reminder(PowerMode.TRAPPED, TrappedMobility.MOBILE),
+        )
+        assertNull(VoiceGuidanceSelector.reminder(PowerMode.TRAPPED, TrappedMobility.IMMOBILE))
+        assertNull(VoiceGuidanceSelector.reminder(PowerMode.TRAPPED, TrappedMobility.UNKNOWN))
+        assertNull(VoiceGuidanceSelector.reminder(PowerMode.RESCUER, TrappedMobility.UNKNOWN))
+    }
+
+    @Test
     fun everyCaseAssetIdMatchesVoicePackCatalogNaming() {
-        val expected = setOf("rescuer_instructions", "trapped_calm", "trapped_actionable")
+        val expected = setOf(
+            "rescuer_instructions",
+            "trapped_calm",
+            "trapped_actionable",
+            "mobility_check",
+            "ppg_finger_placement",
+            "gyro_sos_pattern",
+        )
         val actual = VoiceGuidanceCase.entries.map { it.assetId }.toSet()
         assertEquals(expected, actual)
     }

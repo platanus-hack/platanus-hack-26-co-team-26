@@ -87,4 +87,55 @@ TRAPPED_ACTIONABLE = VoiceEntry(
     voice_settings=VoiceSettings(stability=0.6, similarity_boost=0.75, style=0.25),
 )
 
-CATALOG: list[VoiceEntry] = [RESCUER_INSTRUCTIONS, TRAPPED_CALM, TRAPPED_ACTIONABLE]
+MOBILITY_CHECK = VoiceEntry(
+    case_id="mobility_check",
+    text=(
+        "Necesito saber si puedes moverte un poco. No hagas ningún esfuerzo "
+        "grande, ni te pongas en riesgo. Intenta algo pequeño: mover los "
+        "dedos de una mano, girar la muñeca, o levantar el teléfono unos "
+        "centímetros si lo tienes cerca. Tómate el tiempo que necesites. El "
+        "teléfono va a sentir ese movimiento con sus sensores, y con eso "
+        "vamos a saber cómo ayudarte mejor a partir de ahora. Si no puedes "
+        "moverte, o moverte te causa dolor o te pone en riesgo, no te "
+        "fuerces — quédate quieto, eso también es información válida. Voy "
+        "a esperar."
+    ),
+    voice_settings=VoiceSettings(stability=0.75, similarity_boost=0.8, style=0.15),
+)
+
+PPG_FINGER_PLACEMENT = VoiceEntry(
+    case_id="ppg_finger_placement",
+    text=(
+        "Vamos a intentar medir tu pulso con la cámara del teléfono. Cubre "
+        "completamente la cámara trasera y la luz junto a ella con la yema "
+        "de tu dedo índice, sin apretar fuerte, solo apoyarlo. Mantén el "
+        "dedo quieto ahí, sin moverlo, durante unos quince segundos. Si ves "
+        "que la luz se enciende, es normal, es parte de la medición. Si el "
+        "teléfono te pide repetir la lectura, no es un error, es solo para "
+        "confirmar el resultado. Esto no es un diagnóstico médico, es una "
+        "señal más que se suma a lo que ya sabemos de ti."
+    ),
+    voice_settings=VoiceSettings(stability=0.6, similarity_boost=0.75, style=0.25),
+)
+
+GYRO_SOS_PATTERN = VoiceEntry(
+    case_id="gyro_sos_pattern",
+    text=(
+        "Si puedes, mueve o golpea el teléfono suavemente: tres veces, una "
+        "pausa, tres veces más. Ese patrón es el que el teléfono reconoce "
+        "como una señal tuya, consciente y deliberada, no un golpe "
+        "accidental. Puedes repetirlo cada tanto mientras esperas. No "
+        "necesitas hacerlo fuerte ni rápido, solo con ese ritmo de tres y "
+        "tres."
+    ),
+    voice_settings=VoiceSettings(stability=0.55, similarity_boost=0.75, style=0.3),
+)
+
+CATALOG: list[VoiceEntry] = [
+    RESCUER_INSTRUCTIONS,
+    TRAPPED_CALM,
+    TRAPPED_ACTIONABLE,
+    MOBILITY_CHECK,
+    PPG_FINGER_PLACEMENT,
+    GYRO_SOS_PATTERN,
+]
