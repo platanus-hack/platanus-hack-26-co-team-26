@@ -17,6 +17,7 @@ captures/
 # Python
 __pycache__/
 *.pyc
+*.py[cod]
 .venv/
 venv/
 *.egg-info/
@@ -26,6 +27,7 @@ venv/
 # Node / web
 node_modules/
 web/dist/
+dist/
 .vite/
 
 # Modelos y datasets (nunca en git — ver docs/ppg/VALIDATION.md)
@@ -35,9 +37,16 @@ ml/**/*.tflite
 services/ppg_model_registry/models/*/
 !services/ppg_model_registry/models/README.md
 
-# Secretos / entorno local
+# Bases de datos locales y secretos — nunca al repositorio.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
 .env
 .env.*
+!.env.example
+*.pem
+*.key
 *.keystore
 *.jks
 
@@ -54,5 +63,4 @@ Thumbs.db
 .gradle-user-home/
 .gradle-integration-home/
 .kotlin/
-.android/
 *.tsbuildinfo

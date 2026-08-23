@@ -12,6 +12,10 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install -e services/shared[dev] || pip install -e services/shared
+      # alert_ingestor es un hexágono propio (services/shared no instala hoy: gtsam
+      # pineado a numpy<2 choca con el numpy>=2.1 del kernel — ver su README). Sin
+      # instalarlo, lint-imports no resolvería sus módulos.
+      - run: pip install -e "services/alert_ingestor[dev]"
       - run: ruff check services/
       - run: lint-imports # .importlinter
       - run: pytest services/

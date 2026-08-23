@@ -1,8 +1,18 @@
 [importlinter]
-root_package = services
+# `include_external_packages` es obligatorio cuando un contrato prohíbe paquetes de
+# terceros (fastapi, httpx, websockets...). Sin él import-linter aborta antes de
+# evaluar nada — bug preexistente en el esqueleto original, corregido de paso.
+include_external_packages = True
+root_packages =
+    services
+    alert_ingestor
+
+# --------------------------------------------------------------------------- #
+# services/shared — kernel común del backend                                   #
+# --------------------------------------------------------------------------- #
 
 [importlinter:contract:1]
-name = domain no importa framework
+name = shared: domain no importa framework
 type = forbidden
 source_modules =
     services.shared.src.api.domain
@@ -12,9 +22,45 @@ forbidden_modules =
     redis
 
 [importlinter:contract:2]
-name = application solo importa domain y sus propios puertos
+name = shared: application solo importa domain y sus propios puertos
 type = layers
+# `adapters/` todavía no existe en shared (el esqueleto solo trae `bootstrap/`), así
+# que va entre paréntesis: import-linter la trata como capa opcional en vez de
+# abortar. Cuando Miguel la cree, el contrato empieza a exigirla sin más cambios.
 layers =
-    services.shared.src.api.adapters
+    services.shared.src.api.bootstrap
+    (services.shared.src.api.adapters)
     services.shared.src.api.application
     services.shared.src.api.domain
+
+# --------------------------------------------------------------------------- #
+# alert_ingestor — EMSC/USGS/SGC → evento interno (dedupe + activación)        #
+# --------------------------------------------------------------------------- #
+
+[importlinter:contract:3]
+name = alert_ingestor: el dominio no conoce ningún framework
+type = forbidden
+source_modules =
+    alert_ingestor.domain
+forbidden_modules =
+    httpx
+    websockets
+    asyncio
+
+[importlinter:contract:4]
+name = alert_ingestor: la capa de aplicación no conoce infraestructura
+type = forbidden
+source_modules =
+    alert_ingestor.application
+forbidden_modules =
+    httpx
+    websockets
+
+[importlinter:contract:5]
+name = alert_ingestor: capas hexagonales (ADR-0001)
+type = layers
+layers =
+    alert_ingestor.bootstrap
+    alert_ingestor.adapters
+    alert_ingestor.application
+    alert_ingestor.domain
