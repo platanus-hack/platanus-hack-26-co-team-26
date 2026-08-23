@@ -43,6 +43,10 @@ cobertura iOS mientras esté en standby (ADR-0002).
 
 ## 2. Decisiones tecnológicas (ver `docs/architecture/ADR/`)
 
+> Esta tabla registra la **decisión**. Para las versiones exactas instaladas, qué
+> módulo consume cada dependencia y qué sigue declarado pero sin cablear, ver
+> [STACK-E-INTEGRACIONES.md](STACK-E-INTEGRACIONES.md).
+
 | Componente | Tecnología | ADR |
 |---|---|---|
 | App móvil | Kotlin + Jetpack Compose, API 26 mínimo, objetivo API 35 | ADR-0002 |

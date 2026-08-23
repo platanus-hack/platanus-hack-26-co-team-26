@@ -23,6 +23,7 @@ make bootstrap && make proto && make up && make test
 ```
 
 - **Arquitectura completa:** [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md)
+- **Stack tecnológico e integraciones (versiones reales, qué está cableado y qué no):** [`docs/architecture/STACK-E-INTEGRACIONES.md`](docs/architecture/STACK-E-INTEGRACIONES.md)
 - **Quién hace qué y cómo se sincroniza el equipo:** [`docs/team/DIVISION-DE-TRABAJO.md`](docs/team/DIVISION-DE-TRABAJO.md)
 - **Primeras 72 horas:** [`docs/onboarding/FIRST-72-HOURS.md`](docs/onboarding/FIRST-72-HOURS.md)
 - **Roadmap por vertical slices:** [`docs/roadmap/VERTICAL-SLICES.md`](docs/roadmap/VERTICAL-SLICES.md)
@@ -32,7 +33,9 @@ make bootstrap && make proto && make up && make test
 - **Criterio de "listo para teléfono" (L0-L3):** [`docs/validation/PHONE-READINESS.md`](docs/validation/PHONE-READINESS.md)
 - **Vocabulario obligatorio/prohibido:** [`docs/glossary.md`](docs/glossary.md)
 - **Módulo PPG (captura + DSP + entrenamiento):** [`docs/ppg/README.md`](docs/ppg/README.md)
-- **Guía de voz asistida offline (ElevenLabs, generado, no en vivo):** [`docs/voice/VOICE-GUIDANCE.md`](docs/voice/VOICE-GUIDANCE.md)
+- **Guía de voz asistida offline (ElevenLabs, generado, no en vivo):** [`docs/voice/VOICE-GUIDANCE.md`](docs/voice/VOICE-GUIDANCE.md) — fundamento en Primeros Auxilios Psicológicos: [`docs/voice/PSYCHOLOGICAL-FIRST-AID-EVIDENCE.md`](docs/voice/PSYCHOLOGICAL-FIRST-AID-EVIDENCE.md)
+- **Localización 3D (piso/profundidad), estado del arte:** [`docs/architecture/LOCALIZATION-3D-STATE-OF-THE-ART.md`](docs/architecture/LOCALIZATION-3D-STATE-OF-THE-ART.md)
+- **Habeas data / `found_persons`:** [`docs/privacy/HABEAS-DATA.md`](docs/privacy/HABEAS-DATA.md) — fundamentación jurídica y referencias: [`docs/privacy/HABEAS-DATA-FUNDAMENTACION-JURIDICA.md`](docs/privacy/HABEAS-DATA-FUNDAMENTACION-JURIDICA.md)
 - **Decisiones de arquitectura (ADRs):** [`docs/architecture/ADR/`](docs/architecture/ADR/)
 
 La formulación técnico-científica completa (comunicaciones, PPG/EMG) está en las
@@ -42,7 +45,7 @@ Before Submitting:
 
 - [ ] Fill in the project metadata in platanus-hack-project.jsonc — name/oneliner/description done, `deploy-url` still pending (no build published yet)
 - [x] Replace the contents of project-description.md with your project description in markdown
-- [x] Provide a 1000x1000 png project logo, max 500kb (verified: 1000×1000, 16 KB)
+- [x] Provide a 1000x1000 png project logo, max 500kb (verified: 1000×1000, 74 KB)
 - [x] Provide a concise and to the point readme.
 
 ## Deploying & integrations (Vercel, Render, etc.)
