@@ -4,6 +4,8 @@
 **Fecha:** 2026-08-22
 **Dueño:** Miguel (API). **Revisores:** Helmut (firma y sellado), Laura (NNA y vocabulario).
 
+**Fundamentación jurídica y referencias:** [HABEAS-DATA-FUNDAMENTACION-JURIDICA.md](../../privacy/HABEAS-DATA-FUNDAMENTACION-JURIDICA.md)
+
 ## Contexto
 
 Falta la contraparte de todo el sistema: HELIUS mueve señales de que alguien

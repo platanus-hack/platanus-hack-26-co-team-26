@@ -3,6 +3,10 @@
 **Ámbito:** `services/found_persons` (API de personas localizadas).
 **Dueño:** Miguel. **Revisor obligatorio:** Helmut (cifrado break-glass) y Laura (NNA).
 
+**Fundamento jurídico:** ver [`HABEAS-DATA-FUNDAMENTACION-JURIDICA.md`](HABEAS-DATA-FUNDAMENTACION-JURIDICA.md)
+para por qué el interés vital es la única causal disponible en el caso central, qué
+condiciones le impone la doctrina humanitaria, y hasta dónde llega esa lectura.
+
 Este documento existe para que cualquiera —un revisor de PR, un abogado, un auditor
 de la SIC— pueda ir de un artículo de la ley al archivo que lo implementa y al test
 que lo verifica. Si una fila de estas tablas queda sin test, el cumplimiento vuelve a
@@ -16,9 +20,32 @@ ser una declaración de intenciones.
 | Ley 1581 de 2012 | Régimen general de protección de datos personales |
 | Decreto 1074 de 2015 | Compila el Decreto 1377 de 2013 (reglamentario) |
 | Sentencia C-748 de 2011 | Control previo de la Ley 1581; interés superior del NNA |
+| Ley 1523 de 2012 | Crea el SNGRD; define qué autoridad territorial responde en un desastre (y por tanto quién puede ser `Controller`) |
 
 Autoridad: Superintendencia de Industria y Comercio. Registro Nacional de Bases de
 Datos (art. 25) — el radicado se declara en `Controller.rnbd_registration`.
+
+## Referencias normativas
+
+*Verificado al 23 de agosto de 2026 — cada URL se abrió y se confirmó que corresponde
+al texto real de la fuente antes de ponerla aquí.*
+
+| Fuente | URL | Tipo |
+|---|---|---|
+| Constitución Política de Colombia, art. 15 (derecho a la intimidad y habeas data) | https://www.mincit.gov.co/ministerio/normograma-sig/procesos-estrategicos/gestion-de-informacion-y-comunicacion/constitucion-politica/derechos/articulo-15.aspx | Oficial |
+| Ley 1581 de 2012 — texto completo | https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=49981 | Oficial |
+| Decreto 1074 de 2015 — Decreto Único Reglamentario del Sector Comercio, Industria y Turismo (protección de datos: Título 2, Cap. 25-26) | https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=62508 | Oficial |
+| Sentencia C-748 de 2011, Corte Constitucional — control previo de la ley estatutaria | https://www.corteconstitucional.gov.co/relatoria/2011/c-748-11.htm | Oficial |
+| Registro Nacional de Bases de Datos (RNBD), SIC | https://www.sic.gov.co/registro-nacional-de-bases-de-datos | Oficial |
+| Circular Única SIC, Título V — Protección de Datos Personales | https://www.sic.gov.co/circular-unica | Oficial |
+| Águeda-Muñoz del-Carpio-Toia et al. (2023). "Protección de datos de salud: el reto de la armonización legislativa en América Latina." *Rev. Cuerpo Médico HNAAA* — datos sensibles de salud bajo condiciones de emergencia/crisis en Colombia y la región, contexto relevante para el art. 6 de este documento | https://pmc.ncbi.nlm.nih.gov/articles/PMC11349313/ | Secundaria (académica) |
+
+Las fuentes canónicas de texto legal colombiano (`funcionpublica.gov.co`,
+`secretariasenado.gov.co`) fallan por certificado TLS, así que se usaron espejos
+oficiales equivalentes con el mismo número de norma. El detalle del alcance de cada
+verificación, incluidas las fuentes que no se pudieron recuperar y las que se
+descartaron por no haberlas podido leer, está en la nota de verificación de
+[`HABEAS-DATA-FUNDAMENTACION-JURIDICA.md`](HABEAS-DATA-FUNDAMENTACION-JURIDICA.md).
 
 ## Roles
 
@@ -107,10 +134,11 @@ solicitante que eso es todo lo que hay.
 **Revocar no es suprimir.** Revocar detiene toda divulgación futura pero el registro
 sobrevive por si hay deberes de conservación. Suprimir redacta el contenido.
 
-**La supresión no es absoluta.** El Decreto 1074 art. 2.2.2.25.2.5 la excluye cuando
-eliminar el dato obstruye una actuación judicial o administrativa. Eso es
-`Retention.legal_hold`, que exige motivo — y el motivo es lo que se le responde al
-Titular en el 409.
+**La supresión no es absoluta.** El Decreto 1074 art. 2.2.2.25.2.6, que compila el art. 9
+del Decreto 1377 de 2013, dispone que la solicitud de supresión y la revocatoria "no
+procederán cuando el Titular tenga un deber legal o contractual de permanecer en la base
+de datos". Eso es `Retention.legal_hold`. Lo que el campo debe nombrar es **ese deber**,
+no un motivo genérico, porque es exactamente lo que se le responde al Titular en el 409.
 
 ## Plazos (art. 14 y 15)
 
@@ -168,4 +196,16 @@ completo:
       editar. Necesita volcado a almacenamiento con object lock.
 - [ ] **Política de retención del propio `audit_log`**: hoy crece sin límite.
 - [ ] **Notificación al Titular** cuando se entró por causal excepcional y la persona
-      recupera la capacidad de decidir. El art. 12 lo exige y hoy no hay canal.
+      recupera la capacidad de decidir. Hoy no hay canal, y es el pendiente de mayor
+      riesgo jurídico de esta lista: que el Titular pueda conocer el Tratamiento y
+      oponerse es una de las condiciones bajo las que se admite apoyarse en el interés
+      vital, no un añadido posterior (§5 de la fundamentación jurídica).
+- [ ] **Decidir y motivar el acceso a Salud del ámbito `responder`.** La doctrina del CICR
+      restringe los datos de salud al personal sanitario o expresamente delegado; la tabla
+      de arriba se los concede al rescatista. Puede haber razón operativa para mantenerlo,
+      pero tiene que quedar como decisión motivada (§6).
+- [ ] **Constancia de interés superior del NNA** en el asiento de auditoría. Hoy se guarda
+      quién autorizó; lo que habilita el Tratamiento según C-748 es que responda al
+      interés superior, y eso es lo que no queda registrado (§8).
+- [ ] **Acotar `Controller`** al conjunto de autoridades que la Ley 1523 de 2012 habilita
+      en el territorio, en vez de admitir cualquier valor (§7).
