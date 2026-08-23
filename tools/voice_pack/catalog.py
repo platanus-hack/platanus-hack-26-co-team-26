@@ -6,6 +6,12 @@ editar este catálogo y volver a correr generate_voice_pack.py.
 
 Vocabulario: ver docs/glossary.md — ningún texto de aquí puede prometer
 encontrar/rescatar a alguien ni usar lenguaje clínico/diagnóstico.
+
+Voz elegida por el equipo (escuchando muestras reales, no por la descripción
+de catálogo): Daniela, ElevenLabs voice_id "tOyBjc1xwZQ2wFR7GLaO" — español
+latinoamericano. Los `stability`/`style` de cada entrada abajo se calibraron
+sobre esa voz específica; si el equipo cambia de voz, hay que reescuchar y
+recalibrar, no asumir que los mismos números suenan igual en otra voz.
 """
 
 from dataclasses import dataclass, field
@@ -46,7 +52,7 @@ RESCUER_INSTRUCTIONS = VoiceEntry(
         "te alejes de inmediato — la conexión BLE es intermitente por "
         "diseño, espera unos segundos antes de asumir que no hay nadie."
     ),
-    voice_settings=VoiceSettings(stability=0.5, similarity_boost=0.75, style=0.3),
+    voice_settings=VoiceSettings(stability=0.45, similarity_boost=0.78, style=0.3),
 )
 
 TRAPPED_CALM = VoiceEntry(
@@ -64,7 +70,7 @@ TRAPPED_CALM = VoiceEntry(
         "tu energía. Vamos a repetir la respiración las veces que "
         "necesites: inhala... sostén... exhala. Estoy aquí."
     ),
-    voice_settings=VoiceSettings(stability=0.85, similarity_boost=0.8, style=0.1),
+    voice_settings=VoiceSettings(stability=0.42, similarity_boost=0.78, style=0.35),
 )
 
 TRAPPED_ACTIONABLE = VoiceEntry(
@@ -84,7 +90,7 @@ TRAPPED_ACTIONABLE = VoiceEntry(
         "también hay que cuidar la energía de quien está ahí contigo, tú "
         "mismo."
     ),
-    voice_settings=VoiceSettings(stability=0.6, similarity_boost=0.75, style=0.25),
+    voice_settings=VoiceSettings(stability=0.45, similarity_boost=0.78, style=0.32),
 )
 
 MOBILITY_CHECK = VoiceEntry(
@@ -100,7 +106,7 @@ MOBILITY_CHECK = VoiceEntry(
         "fuerces — quédate quieto, eso también es información válida. Voy "
         "a esperar."
     ),
-    voice_settings=VoiceSettings(stability=0.75, similarity_boost=0.8, style=0.15),
+    voice_settings=VoiceSettings(stability=0.42, similarity_boost=0.78, style=0.33),
 )
 
 PPG_FINGER_PLACEMENT = VoiceEntry(
@@ -115,7 +121,7 @@ PPG_FINGER_PLACEMENT = VoiceEntry(
         "confirmar el resultado. Esto no es un diagnóstico médico, es una "
         "señal más que se suma a lo que ya sabemos de ti."
     ),
-    voice_settings=VoiceSettings(stability=0.6, similarity_boost=0.75, style=0.25),
+    voice_settings=VoiceSettings(stability=0.48, similarity_boost=0.78, style=0.28),
 )
 
 GYRO_SOS_PATTERN = VoiceEntry(
@@ -128,7 +134,7 @@ GYRO_SOS_PATTERN = VoiceEntry(
         "necesitas hacerlo fuerte ni rápido, solo con ese ritmo de tres y "
         "tres."
     ),
-    voice_settings=VoiceSettings(stability=0.55, similarity_boost=0.75, style=0.3),
+    voice_settings=VoiceSettings(stability=0.42, similarity_boost=0.78, style=0.35),
 )
 
 CATALOG: list[VoiceEntry] = [

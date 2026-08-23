@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-08-23T09:28:13.698224+00:00",
+  "locale": "es",
+  "entries": [
+    {
+      "case_id": "rescuer_instructions",
+      "locale": "es",
+      "file": "rescuer_instructions.mp3",
+      "sha256": "9cb93ec64edf1d9a3f3c34b34cd0707c8ece89321027a9b9b3c85b7b4fae6a1e",
+      "bytes": 1042016,
+      "chars": 806,
+      "voice_id": "tOyBjc1xwZQ2wFR7GLaO",
+      "model_id": "eleven_multilingual_v2"
+    },
+    {
+      "case_id": "trapped_calm",
+      "locale": "es",
+      "file": "trapped_calm.mp3",
+      "sha256": "cf15fe18710ae79f889c805d1b812a1983cdeaf8e600267f2b0e59fac41a554b",
+      "bytes": 952155,
+      "chars": 653,
+      "voice_id": "tOyBjc1xwZQ2wFR7GLaO",
+      "model_id": "eleven_multilingual_v2"
+    },
+    {
+      "case_id": "trapped_actionable",
+      "locale": "es",
+      "file": "trapped_actionable.mp3",
+      "sha256": "04f08178e066a11cd8cf44a446702749bc260a9859334b06afced86eb18ab1ba",
+      "bytes": 1000638,
+      "chars": 746,
+      "voice_id": "tOyBjc1xwZQ2wFR7GLaO",
+      "model_id": "eleven_multilingual_v2"
+    },
+    {
+      "case_id": "mobility_check",
+      "locale": "es",
+      "file": "mobility_check.mp3",
+      "sha256": "468d19a88131b1cc57b7467bdcd4233b7ec19b9149cd21a57f0743a9add894c9",
+      "bytes": 682989,
+      "chars": 528,
+      "voice_id": "tOyBjc1xwZQ2wFR7GLaO",
+      "model_id": "eleven_multilingual_v2"
+    },
+    {
+      "case_id": "ppg_finger_placement",
+      "locale": "es",
+      "file": "ppg_finger_placement.mp3",
+      "sha256": "05e3e461f3a1d6c9659d0b3715080f9d6b9429d49007e5d5b091e91fd0c48358",
+      "bytes": 677973,
+      "chars": 508,
+      "voice_id": "tOyBjc1xwZQ2wFR7GLaO",
+      "model_id": "eleven_multilingual_v2"
+    },
+    {
+      "case_id": "gyro_sos_pattern",
+      "locale": "es",
+      "file": "gyro_sos_pattern.mp3",
+      "sha256": "5a85a788042a32310c935d9651e972d25bd06e09b37659b14e2fa10f4ea4f532",
+      "bytes": 405464,
+      "chars": 320,
+      "voice_id": "tOyBjc1xwZQ2wFR7GLaO",
+      "model_id": "eleven_multilingual_v2"
+    }
+  ]
+}
