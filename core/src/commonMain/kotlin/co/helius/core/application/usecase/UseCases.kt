@@ -41,7 +41,7 @@ class EvaluateActivityEvidence(
 }
 
 /** Corre una sesión de captura + inferencia AIB (pulso, SQI). Dueño: Laura (captura) + Alex (inferencia). */
-class RunBiomarkerSession(private val ppg: PpgCaptureIPort, private val inference: BiomarkerInferencePort) {
+class RunBiomarkerSession(private val ppg: PpgCapturePort, private val inference: BiomarkerInferencePort) {
     suspend operator fun invoke() { TODO("dueño=Laura/Alex — frontera contractual: BiomarkerInferencePort") }
 }
 

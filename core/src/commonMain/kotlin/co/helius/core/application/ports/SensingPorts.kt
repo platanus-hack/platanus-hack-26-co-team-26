@@ -1,6 +1,7 @@
 package co.helius.core.application.ports
 
 import kotlinx.coroutines.flow.Flow
+import co.sismomesh.core.signal.PulseEstimate
 
 /**
  * Frames y señal PPG cruda. Dueño: Laura + Jorge (app Android + captura AIB).
@@ -9,9 +10,22 @@ import kotlinx.coroutines.flow.Flow
  * TODO(dueño=Laura/Jorge): cablear CameraXPpgEngine detrás de este puerto —
  * ver android/ppg/README.md § Pendiente de integración.
  */
-interface PpgCaptureIPort {
-    fun captureSession(durationS: Int): Flow<Any /* TODO: PpgFrame, ver core/signal/ppg/Models.kt::FrameSample */>
+data class PpgFrame(
+    val timestampEpochMillis: Long,
+    val red: Double,
+    val green: Double,
+    val blue: Double,
+    val opticalContactScore: Double,
+)
+
+data class PpgWindow(val frames: List<PpgFrame>, val sampleRateHz: Double)
+
+interface PpgCapturePort {
+    fun captureSession(durationS: Int): Flow<PpgFrame>
 }
+
+/** Compatibility alias for older application use cases; one canonical capture port. */
+typealias PpgCaptureIPort = PpgCapturePort
 
 /**
  * Inferencia del modelo AIB (frecuencia de pulso + SQI, nunca "diagnóstico").
@@ -21,5 +35,5 @@ interface PpgCaptureIPort {
  * obligatorio: el pipeline debe funcionar sin ML, ver docs/architecture/OVERVIEW.md § AIB.
  */
 interface BiomarkerInferencePort {
-    suspend fun infer(window: Any /* PpgWindow */): Any /* PulseEstimate con incertidumbre */
+    suspend fun infer(window: PpgWindow): PulseEstimate
 }

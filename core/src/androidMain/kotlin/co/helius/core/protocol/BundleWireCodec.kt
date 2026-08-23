@@ -98,7 +98,7 @@ object BundleWireCodec {
             .setCreatedAt(createdAtMs.toLong())
             .setExpiresAt(expiresAtMs.toLong())
             .setHopCount(hopCount)
-            .setPriority(priority.toWire())
+            .setPriority(priority.toWirePriority())
             .setClock(clockEvidence.toWireMessage())
             .build()
 
@@ -125,16 +125,18 @@ object BundleWireCodec {
     private fun WireClockEvidence.toDomain(): DomainClockEvidence =
         DomainClockEvidence(monotonicMs = monotonicMs, observedSkewMs = if (hasObservedSkewMs()) observedSkewMs else null)
 
-    private fun DomainEmergencyStatus.toWireMessage(): WireEmergencyStatus =
-        WireEmergencyStatus.newBuilder()
-            .apply { location?.let { setLocation(it.toWireMessage()) } }
+    private fun DomainEmergencyStatus.toWireMessage(): WireEmergencyStatus {
+        val domainLocation = location
+        return WireEmergencyStatus.newBuilder()
+            .apply { domainLocation?.let { setLocation(it.toWireGeoPointMessage()) } }
             .setTs(timestampMs.toLong())
             .setSource(source)
-            .setResponseState(responseState.toWire())
+            .setResponseState(responseState.toWireResponseState())
             .setBattery(battery.percent)
             .setDeviceState(deviceState)
             .addAllEvidenceRefs(evidenceRefs)
             .build()
+    }
 
     private fun WireEmergencyStatus.toDomain(): DomainEmergencyStatus =
         DomainEmergencyStatus(
@@ -147,17 +149,19 @@ object BundleWireCodec {
             evidenceRefs = evidenceRefsList,
         )
 
-    private fun DomainGeoPoint.toWireMessage(): WireGeoPoint =
-        WireGeoPoint.newBuilder()
+    private fun DomainGeoPoint.toWireGeoPointMessage(): WireGeoPoint {
+        val domainAltitudeSource = altitudeSource
+        return WireGeoPoint.newBuilder()
             .setLat(lat)
             .setLon(lon)
             .apply {
                 accuracyM?.let { setAccM(it) }
                 altitudeM?.let { setAltitudeM(it) }
                 altitudeAccuracyM?.let { setAltitudeAccM(it) }
-                if (altitudeSource != DomainAltitudeSource.UNKNOWN) setAltitudeSource(altitudeSource.toWire())
+                if (domainAltitudeSource != DomainAltitudeSource.UNKNOWN) setAltitudeSource(domainAltitudeSource.toWireAltitudeSource())
             }
             .build()
+    }
 
     private fun WireGeoPoint.toDomain(): DomainGeoPoint =
         DomainGeoPoint(
@@ -169,17 +173,17 @@ object BundleWireCodec {
             altitudeSource = if (hasAltitudeSource()) altitudeSource.toDomain() else DomainAltitudeSource.UNKNOWN,
         )
 
-    private fun DomainAltitudeSource.toWire(): WireAltitudeSource = WireAltitudeSource.forNumber(ordinal)
+    private fun DomainAltitudeSource.toWireAltitudeSource(): WireAltitudeSource = WireAltitudeSource.forNumber(ordinal)
         ?: error("AltitudeSource sin mapeo wire: $this")
 
     private fun WireAltitudeSource.toDomain(): DomainAltitudeSource = DomainAltitudeSource.entries[number]
 
-    private fun DomainPriority.toWire(): WirePriority = WirePriority.forNumber(ordinal)
+    private fun DomainPriority.toWirePriority(): WirePriority = WirePriority.forNumber(ordinal)
         ?: error("Priority sin mapeo wire: $this")
 
     private fun WirePriority.toDomain(): DomainPriority = DomainPriority.entries[number]
 
-    private fun DomainResponseState.toWire(): WireResponseState = WireResponseState.forNumber(ordinal)
+    private fun DomainResponseState.toWireResponseState(): WireResponseState = WireResponseState.forNumber(ordinal)
         ?: error("ResponseState sin mapeo wire: $this")
 
     private fun WireResponseState.toDomain(): DomainResponseState = DomainResponseState.entries[number]

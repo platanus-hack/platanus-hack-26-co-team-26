@@ -13,7 +13,7 @@ internal object Hkdf {
 
     fun extract(salt: ByteArray, ikm: ByteArray): ByteArray {
         val mac = Mac.getInstance(ALGO)
-        mac.init(SecretKeySpec(salt.ifEmpty { ByteArray(HASH_LEN) }, ALGO))
+        mac.init(SecretKeySpec(if (salt.isEmpty()) ByteArray(HASH_LEN) else salt, ALGO))
         return mac.doFinal(ikm)
     }
 

@@ -44,3 +44,9 @@ services/ppg_model_registry/models/*/
 # OS
 .DS_Store
 Thumbs.db
+.android/
+.gradle-user-home/
+.gradle-integration-home/
+.kotlin/
+.android/
+*.tsbuildinfo

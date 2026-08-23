@@ -16,10 +16,46 @@ channels:
       message:
         oneOf:
           - $ref: "#/components/messages/NodeUpdated"
+          - $ref: "#/components/messages/DeviceLocation"
+          - $ref: "#/components/messages/DeviceMotion"
+          - $ref: "#/components/messages/DeviceSos"
+          - $ref: "#/components/messages/RescuerLocation"
           - $ref: "#/components/messages/HeatmapUpdated"
           - $ref: "#/components/messages/AlertActivated"
 components:
   messages:
+    DeviceLocation:
+      name: device.location
+      payload:
+        $ref: "../openapi/sismomesh-api.yaml#/components/schemas/EmergencyLocationSnapshot"
+    DeviceMotion:
+      name: device.motion
+      payload:
+        type: object
+        required: [deviceId, motionState, observedAt]
+        properties:
+          deviceId: { type: string }
+          motionState: { type: string, enum: [UNKNOWN, STATIONARY, MOVING, RAPID_MOVEMENT] }
+          confidence: { type: number, minimum: 0, maximum: 1 }
+          observedAt: { type: string, format: date-time }
+    DeviceSos:
+      name: device.sos
+      payload:
+        type: object
+        required: [deviceId, observedAt]
+        properties:
+          deviceId: { type: string }
+          observedAt: { type: string, format: date-time }
+    RescuerLocation:
+      name: rescuer.location
+      payload:
+        type: object
+        required: [unitId, latitude, longitude, observedAt]
+        properties:
+          unitId: { type: string }
+          latitude: { type: number }
+          longitude: { type: number }
+          observedAt: { type: string, format: date-time }
     NodeUpdated:
       payload:
         type: object

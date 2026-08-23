@@ -32,12 +32,12 @@ object MotionPatternDetector {
 
     private fun findPeaks(samples: List<MotionSample>, threshold: Double): List<Long> {
         val peaks = mutableListOf<Long>()
-        var lastPeakMs = Long.MIN_VALUE
+        var lastPeakMs: Long? = null
         for (i in 1 until samples.size - 1) {
             val s = samples[i]
             if (s.magnitude < threshold) continue
             if (s.magnitude < samples[i - 1].magnitude || s.magnitude < samples[i + 1].magnitude) continue
-            if (s.timestampMs - lastPeakMs < MIN_PEAK_GAP_MS) continue
+            if (lastPeakMs != null && s.timestampMs - lastPeakMs!! < MIN_PEAK_GAP_MS) continue
             peaks.add(s.timestampMs)
             lastPeakMs = s.timestampMs
         }

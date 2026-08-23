@@ -6,8 +6,12 @@ plugins {
 android {
     namespace = "co.helius.android.transport"
     compileSdk = 35
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
     defaultConfig { minSdk = 26 }
-    kotlinOptions { jvmTarget = "17" }
+    kotlinOptions { jvmTarget = "21" }
 }
 
 dependencies {

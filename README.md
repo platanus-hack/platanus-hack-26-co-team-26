@@ -1,11 +1,10 @@
-# HELIUS — team-26, Platanus Hack 26: Bogotá
+# HELIOS — team-26, Platanus Hack 26: Bogotá
 
 **Current project logo:** project-logo.png
 
 <img src="./project-logo.png" alt="Project Logo" width="200" />
 
-Track: AI Security
-
+Track: 🛡️ Emergencies
 team-26
 
 - Alex Barraza Aristizábal ([@alexbzal](https://github.com/alexbzal))
