@@ -41,6 +41,12 @@ services/ppg_model_registry/models/*/
 *.keystore
 *.jks
 
+# Paquete de voz generado (binario derivado de tools/voice_pack/catalog.py —
+# ver tools/voice_pack/README.md; se regenera con la API de ElevenLabs, no se
+# versiona el audio en sí, sí catalog.py)
+assets/voice/**/*.mp3
+!assets/voice/**/manifest.json
+
 # OS
 .DS_Store
 Thumbs.db

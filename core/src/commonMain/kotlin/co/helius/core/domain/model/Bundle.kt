@@ -35,7 +35,7 @@ sealed interface BundlePayload {
     data class Status(val evidence: EmergencyStatus) : BundlePayload
     data class Motion(val evidence: Any /* TODO(dueño=Alex): MotionEvidence generado desde motion.proto */) : BundlePayload
     data class Biomarker(val evidence: Any /* TODO(dueño=Alex): BiomarkerEvidence — NUNCA "vitals" */) : BundlePayload
-    data class Observation(val peerObservation: Any /* TODO(dueño=Helmut): PeerObservation */) : BundlePayload
+    data class Observation(val peerObservation: PeerObservation) : BundlePayload
     data class Raw(val chunk: ByteArray) : BundlePayload
     data class Responder(val message: ByteArray /* DTN inversa, ver 8.6 */) : BundlePayload
 }

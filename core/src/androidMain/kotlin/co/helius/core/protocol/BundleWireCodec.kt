@@ -5,6 +5,7 @@ import co.helius.core.domain.model.BundleHeader as DomainBundleHeader
 import co.helius.core.domain.model.BundlePayload
 import co.helius.core.domain.model.ClockEvidence as DomainClockEvidence
 import co.helius.core.domain.model.EmergencyStatus as DomainEmergencyStatus
+import co.helius.core.domain.model.PeerObservation as DomainPeerObservation
 import co.helius.core.domain.model.ResponseState as DomainResponseState
 import co.helius.core.domain.vo.AltitudeSource as DomainAltitudeSource
 import co.helius.core.domain.vo.Battery
@@ -18,6 +19,7 @@ import co.helius.core.protocol.v1.BundleHeader as WireBundleHeader
 import co.helius.core.protocol.v1.ClockEvidence as WireClockEvidence
 import co.helius.core.protocol.v1.EmergencyStatus as WireEmergencyStatus
 import co.helius.core.protocol.v1.GeoPoint as WireGeoPoint
+import co.helius.core.protocol.v1.PeerObservation as WirePeerObservation
 import co.helius.core.protocol.v1.Priority as WirePriority
 import co.helius.core.protocol.v1.ResponseState as WireResponseState
 import com.google.protobuf.ByteString
@@ -29,13 +31,13 @@ import com.google.protobuf.ByteString
  * transmitirse por ningún transporte — es la pieza que faltaba para que
  * `BleGattClient`/`BleGattServer` muevan datos de verdad.
  *
- * **Cobertura actual: solo el payload `Status`** (evidencia de emergencia) —
- * es el que necesita el Slice 0 ("NECESITO AYUDA" A→B→C→R,
- * docs/roadmap/VERTICAL-SLICES.md). `Motion`/`Biomarker`/`Observation` en
- * `core/domain/model/Bundle.kt` siguen siendo `Any` de relleno (TODO de
- * Alex/Helmut) — hasta que tengan un tipo real, `toWire()`/`fromWire()`
- * lanzan `NotImplementedError` para esos casos en vez de fingir que
- * funcionan. `Raw` sí está cubierto (es solo bytes).
+ * **Cobertura actual:** `Status` (evidencia de emergencia, necesario para el
+ * Slice 0 — docs/roadmap/VERTICAL-SLICES.md), `Observation` (`PeerObservation`,
+ * alimenta la localización probabilística), `Raw` y `Responder` (ambos solo
+ * bytes). `Motion`/`Biomarker` siguen siendo `Any` de relleno en
+ * `core/domain/model/Bundle.kt` (TODO de Alex) — hasta que tengan un tipo
+ * real, `toWire()`/`fromWire()` lanzan `NotImplementedError` en vez de fingir
+ * que funcionan.
  *
  * Dueño: Helmut. Revisor obligatorio: Alex (cuando defina MotionEvidence/BiomarkerEvidence reales).
  */
@@ -68,9 +70,7 @@ object BundleWireCodec {
             is BundlePayload.Biomarker -> throw NotImplementedError(
                 "BundleWireCodec: BiomarkerEvidence real pendiente (dueño=Alex) — ver core/domain/model/Bundle.kt",
             )
-            is BundlePayload.Observation -> throw NotImplementedError(
-                "BundleWireCodec: PeerObservation real pendiente (dueño=Helmut) — ver core/domain/model/Bundle.kt",
-            )
+            is BundlePayload.Observation -> builder.setObservation(p.peerObservation.toWireMessage())
         }
         return builder.build()
     }
@@ -80,7 +80,8 @@ object BundleWireCodec {
             WireBundle.PayloadCase.STATUS -> BundlePayload.Status(status.toDomain())
             WireBundle.PayloadCase.RAW -> BundlePayload.Raw(raw.chunk.toByteArray())
             WireBundle.PayloadCase.RESPONDER -> BundlePayload.Responder(responder.ciphertext.toByteArray())
-            WireBundle.PayloadCase.MOTION, WireBundle.PayloadCase.BIOMARKER, WireBundle.PayloadCase.OBSERVATION ->
+            WireBundle.PayloadCase.OBSERVATION -> BundlePayload.Observation(observation.toDomain())
+            WireBundle.PayloadCase.MOTION, WireBundle.PayloadCase.BIOMARKER ->
                 throw NotImplementedError("BundleWireCodec: payload '$payloadCase' aún no tiene tipo de dominio real")
             WireBundle.PayloadCase.PAYLOAD_NOT_SET, null ->
                 throw IllegalArgumentException("Bundle recibido sin payload")
@@ -187,4 +188,38 @@ object BundleWireCodec {
         ?: error("ResponseState sin mapeo wire: $this")
 
     private fun WireResponseState.toDomain(): DomainResponseState = DomainResponseState.entries[number]
+
+    private fun DomainPeerObservation.toWireMessage(): WirePeerObservation =
+        WirePeerObservation.newBuilder()
+            .setIncidentId(ByteString.copyFrom(incidentId))
+            .setNodeA(ByteString.copyFromUtf8(nodeA.value))
+            .setNodeB(ByteString.copyFromUtf8(nodeB.value))
+            .setRssiDbm(rssiDbm)
+            .setTransport(transport)
+            .setObservedAt(observedAtMs.toLong())
+            .apply {
+                observerGeo?.let { setObserverGeo(it.toWireMessage()) }
+                observerAccM?.let { setObserverAccM(it) }
+                uwbElevationDeg?.let { setUwbElevationDeg(it) }
+                uwbAzimuthDeg?.let { setUwbAzimuthDeg(it) }
+                uwbDistanceM?.let { setUwbDistanceM(it) }
+                barometricPressureHpa?.let { setBarometricPressureHpa(it) }
+            }
+            .build()
+
+    private fun WirePeerObservation.toDomain(): DomainPeerObservation =
+        DomainPeerObservation(
+            incidentId = incidentId.toByteArray(),
+            nodeA = NodeId(nodeA.toStringUtf8()),
+            nodeB = NodeId(nodeB.toStringUtf8()),
+            rssiDbm = rssiDbm,
+            transport = transport,
+            observedAtMs = observedAt.toULong(),
+            observerGeo = if (hasObserverGeo()) observerGeo.toDomain() else null,
+            observerAccM = if (hasObserverAccM()) observerAccM else null,
+            uwbElevationDeg = if (hasUwbElevationDeg()) uwbElevationDeg else null,
+            uwbAzimuthDeg = if (hasUwbAzimuthDeg()) uwbAzimuthDeg else null,
+            uwbDistanceM = if (hasUwbDistanceM()) uwbDistanceM else null,
+            barometricPressureHpa = if (hasBarometricPressureHpa()) barometricPressureHpa else null,
+        )
 }

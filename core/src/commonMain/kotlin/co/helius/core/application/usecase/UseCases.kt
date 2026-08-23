@@ -1,6 +1,8 @@
 package co.helius.core.application.usecase
 
 import co.helius.core.application.ports.*
+import co.helius.core.domain.vo.PeerId
+import co.helius.core.domain.vo.PeerLink
 import co.helius.core.signal.motion.ActivityEvidenceClassifier
 import co.helius.core.signal.motion.DeterministicActivityClassifier
 import co.helius.core.signal.motion.MotionClassification
@@ -22,9 +24,18 @@ class RecordUserResponse(private val store: BundleStorePort, private val identit
     suspend operator fun invoke(state: Any) { TODO("dueño=Laura") }
 }
 
-/** Orquesta un encuentro DTN completo con un peer. Dueño: Helmut. */
-class ExchangeWithPeer(private val transport: TransportPort, private val store: BundleStorePort) {
-    suspend operator fun invoke(peer: Any) { TODO("dueño=Helmut") }
+/**
+ * Orquesta un encuentro DTN completo con un peer. Para el adaptador BLE,
+ * `TransportPort.connect()` ya incluye la sincronización completa de
+ * inventario/bundles (ver android/transport/BleTransport.kt +
+ * BleGattClient.kt) — por eso este caso de uso es solo un paso-a-través hoy.
+ * Si un transporte futuro (Wi-Fi Aware, UWB) NO hace la sincronización
+ * dentro de `connect()`, este caso de uso es el lugar para invocar
+ * `EncounterStateMachine.exchange()` explícitamente contra el store local y
+ * uno remoto expuesto por ese transporte. Dueño: Helmut.
+ */
+class ExchangeWithPeer(private val transport: TransportPort) {
+    suspend operator fun invoke(peer: PeerId): PeerLink = transport.connect(peer)
 }
 
 /**
@@ -50,7 +61,21 @@ class SyncGateway(private val cloud: CloudSyncPort) {
     suspend operator fun invoke() { TODO("dueño=Miguel") }
 }
 
-/** Transición READY/ALERT/TRAPPED/RESCUER (Sección 7.3-7.4). Dueño: Helmut. */
+/**
+ * Transición READY/ALERT/TRAPPED/RESCUER (Sección 7.3-7.4). Delega la
+ * decisión de "cómo" (advertising/scan/foreground service) al adaptador real
+ * (`:android:power`, aún sin implementar) — este caso de uso solo valida que
+ * el modo pedido tenga sentido dado el estado actual antes de pedir la
+ * transición. Nunca se pasa de `RESCUER` a `READY` directamente (debe pasar
+ * por una desactivación explícita del incidente, no por este caso de uso).
+ * Dueño: Helmut.
+ */
 class EnterPowerMode(private val powerPolicy: PowerPolicyPort) {
-    suspend operator fun invoke(mode: Any) { TODO("dueño=Helmut") }
+    suspend operator fun invoke(mode: PowerMode) {
+        val current = powerPolicy.currentMode()
+        require(!(current == PowerMode.RESCUER && mode == PowerMode.READY)) {
+            "No se permite RESCUER -> READY directo; requiere desactivación explícita del incidente"
+        }
+        powerPolicy.enterMode(mode)
+    }
 }

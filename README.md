@@ -32,6 +32,7 @@ make bootstrap && make proto && make up && make test
 - **Criterio de "listo para teléfono" (L0-L3):** [`docs/validation/PHONE-READINESS.md`](docs/validation/PHONE-READINESS.md)
 - **Vocabulario obligatorio/prohibido:** [`docs/glossary.md`](docs/glossary.md)
 - **Módulo PPG (captura + DSP + entrenamiento):** [`docs/ppg/README.md`](docs/ppg/README.md)
+- **Guía de voz asistida offline (ElevenLabs, generado, no en vivo):** [`docs/voice/VOICE-GUIDANCE.md`](docs/voice/VOICE-GUIDANCE.md)
 - **Decisiones de arquitectura (ADRs):** [`docs/architecture/ADR/`](docs/architecture/ADR/)
 
 La formulación técnico-científica completa (comunicaciones, PPG/EMG) está en las

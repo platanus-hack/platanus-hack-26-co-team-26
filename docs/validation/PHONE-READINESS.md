@@ -45,9 +45,11 @@ inspección, no ejecutado**.
 
 ### Obligatorio antes de una demo con usuarios reales (Slice 0)
 
-- [ ] Transferencia real de bundles sobre la conexión GATT — hoy `connect()` solo entrega el `PeerLink`; no hay servicio/característica GATT que mueva bytes. Sin esto, `EncounterStateMachine.exchange()` (que sí funciona) nunca se dispara con datos reales.
-- [ ] UUID de servicio BLE propio registrado (no el de desarrollo que hay ahora).
-- [ ] Corrida del escenario A→B→C→R con tres teléfonos físicos, no solo el test en JVM.
+- [x] Transferencia real de bundles sobre la conexión GATT — `BleGattServer`/`BleGattClient` implementados (protocolo simétrico de Bloom filter + push de bundles). **Sin verificar en dispositivo todavía.**
+- [ ] UUID de servicio BLE propio registrado (no el de desarrollo que hay ahora) — trámite administrativo, no código.
+- [ ] `gatt.requestMtu()` — hoy siempre usa el MTU mínimo (23 B); funciona pero es más lento de lo necesario.
+- [ ] `BleGattServer` soporta un solo peer conectado a la vez — con más de una conexión GATT simultánea los chunks de distintos peers se mezclarían.
+- [ ] Corrida del escenario A→B→C→R con tres teléfonos físicos, no solo el test en JVM. Antes de eso: `docs/validation/BLE-INTERCONNECTION-TEST.md` (dos teléfonos, checklist paso a paso).
 - [ ] Medición de batería del ciclo READY/ALERT (`docs/architecture/OVERVIEW.md` § 6) — sin medir, no se sabe si el foreground service sobrevive las horas que promete el spec.
 
 ### Nunca debe pasar a producción así esté "verde" en tests

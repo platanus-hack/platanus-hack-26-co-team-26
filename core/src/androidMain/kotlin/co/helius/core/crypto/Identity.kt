@@ -120,13 +120,14 @@ class X25519Handshake {
     /**
      * Handshake completo de un lado: genera par efímero propio, deriva la
      * clave de sesión contra la pública remota. Devuelve (miPúblicaEfímeraRaw,
-     * claveDeSesión) — el llamador (EncounterStateMachine) debe enviar la
-     * primera al peer para que éste pueda derivar la misma clave de sesión.
+     * claveDeSesión) — el llamador (BleGattClient) envía la primera al peer
+     * para que éste derive la misma clave de sesión.
      *
-     * TODO(dueño=Helmut): `IdentityPort`/`Handshake` en
-     * core/application/ports/SystemPorts.kt declara `perform(): ByteArray`
-     * (solo la clave de sesión) — ampliar el puerto para exponer también la
-     * pública efímera propia, o resolverlo en el llamador con este método.
+     * NOTA: `X25519Handshake` es una clase concreta de androidMain, no un
+     * puerto de `core/application/ports` — no existe (ni se necesita) una
+     * abstracción de handshake ahí, porque nadie más que el transporte BLE lo
+     * consume por ahora. `perform()` (abajo) queda como atajo de una sola
+     * llamada cuando no hace falta la pública propia (p. ej. tests).
      */
     fun performReturningOwnPublic(remotePublicKeyRaw: ByteArray): Pair<ByteArray, ByteArray> {
         val ephemeral = generateEphemeralKeyPair()

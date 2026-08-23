@@ -6,9 +6,13 @@ interface IdentityPort {
     suspend fun sign(data: ByteArray): ByteArray
 }
 
+/** Ciclo de trabajo por modo — docs/architecture/OVERVIEW.md § 6. */
+enum class PowerMode { READY, ALERT, TRAPPED, RESCUER }
+
 /** Modos de energía y ciclo de trabajo (Sección 7.4-7.5). Dueño: Helmut. Adaptadores: AndroidPowerAdapter, FixedPolicyFake. */
 interface PowerPolicyPort {
-    fun currentMode(): Any /* READY | ALERT | TRAPPED | RESCUER */
+    fun currentMode(): PowerMode
+    suspend fun enterMode(mode: PowerMode)
     fun batteryPercent(): Int
 }
 
