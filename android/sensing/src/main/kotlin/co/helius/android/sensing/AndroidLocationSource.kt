@@ -7,7 +7,9 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.CancellationSignal
+import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
+import androidx.core.os.CancellationSignal
 import co.helius.core.application.ports.LocationAccuracy
 import co.helius.core.application.ports.LocationSource
 import co.helius.core.location.LocalGeoPoint
@@ -30,10 +32,22 @@ class AndroidLocationSource(context: Context) : LocationSource {
     override suspend fun getCurrentLocation(accuracy: LocationAccuracy): LocationSample? {
         if (!hasPermission(accuracy)) return null
         val provider = providerFor(accuracy) ?: return null
+        // LocationManagerCompat + ContextCompat en vez de las APIs de plataforma:
+        // LocationManager#getCurrentLocation es API 30 y Context#mainExecutor es API 28,
+        // pero el minSdk del proyecto es 26 (ADR-0002). Usarlas directo compilaba y
+        // reventaba en ejecución con NoSuchMethodError en cualquier equipo con
+        // Android 8/9/10 — justo la gama baja que el proyecto se compromete a
+        // soportar. Las versiones Compat hacen el backport y no cambian el
+        // comportamiento en equipos nuevos.
         return suspendCancellableCoroutine { continuation ->
             val cancellation = CancellationSignal()
             continuation.invokeOnCancellation { cancellation.cancel() }
-            manager.getCurrentLocation(provider, cancellation, appContext.mainExecutor) { location ->
+            LocationManagerCompat.getCurrentLocation(
+                manager,
+                provider,
+                cancellation,
+                ContextCompat.getMainExecutor(appContext),
+            ) { location ->
                 continuation.resume(location?.toSample(LocationTrackingProfile.NORMAL))
             }
         }

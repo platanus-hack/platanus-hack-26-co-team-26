@@ -19,4 +19,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.play.services.nearby)
+    // @RequiresPermission: declara el permiso en la firma para que el lint de AGP
+    // lo verifique en el llamador, en vez de silenciarlo con @SuppressLint.
+    implementation(libs.androidx.annotation)
 }

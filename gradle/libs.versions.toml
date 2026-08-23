@@ -7,6 +7,7 @@ activity-compose = "1.10.0"
 camerax = "1.5.3"
 lifecycle = "2.9.3"
 core-ktx = "1.16.0"
+annotation = "1.9.1"
 koin = "4.0.0"
 sqldelight = "2.0.2"
 protobuf = "4.35.1"
@@ -29,6 +30,7 @@ androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.r
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

@@ -157,14 +157,7 @@ class CameraXPpgEngine(
             } catch (t: Throwable) {
                 throw PpgEngineException(PpgErrorCode.TORCH_UNAVAILABLE, "No fue posible encender el flash", t)
             }
-            lockExposure = {
-                runCatching {
-                    val options = CaptureRequestOptions.Builder()
-                        .setCaptureRequestOption(CaptureRequest.CONTROL_AE_LOCK, true)
-                        .build()
-                    Camera2CameraControl.from(localCamera.cameraControl).setCaptureRequestOptions(options)
-                }
-            }
+            lockExposure = { lockAutoExposure(localCamera) }
 
             withTimeout(config.sessionTimeoutSeconds * 1000L) { completion.await() }
             cleanup()
@@ -206,6 +199,33 @@ class CameraXPpgEngine(
             throw t
         } finally {
             activeCompletion = null
+        }
+    }
+
+    /**
+     * Bloquea la auto-exposición vía Camera2 interop. Extraída de la lambda donde
+     * vivía porque el `@OptIn` a nivel de clase no alcanza al cuerpo de un lambda
+     * asignado a una `var`: el lint de AGP reportaba UnsafeOptInUsageError (error,
+     * no warning) en las cuatro líneas y tumbaba `:android:ppg:lintDebug`. Como
+     * función propia el opt-in queda declarado justo donde se usa la API
+     * experimental, que además es donde un lector lo busca.
+     *
+     * Falla en silencio a propósito (`runCatching`): si un fabricante no respeta
+     * CONTROL_AE_LOCK, la captura PPG debe continuar con exposición automática en
+     * vez de abortar la sesión — la calidad la juzga el SQI después.
+     */
+    // Dos anotaciones a propósito, no es redundancia: `kotlin.OptIn` satisface al
+    // compilador de Kotlin, y `androidx.annotation.OptIn` es la que reconoce el lint
+    // de AGP (UnsafeOptInUsageError). Con solo la de Kotlin, lint seguía marcando
+    // error y tumbando :android:ppg:lintDebug.
+    @OptIn(ExperimentalCamera2Interop::class)
+    @androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
+    private fun lockAutoExposure(camera: Camera) {
+        runCatching {
+            val options = CaptureRequestOptions.Builder()
+                .setCaptureRequestOption(CaptureRequest.CONTROL_AE_LOCK, true)
+                .build()
+            Camera2CameraControl.from(camera.cameraControl).setCaptureRequestOptions(options)
         }
     }
 

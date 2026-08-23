@@ -1,5 +1,6 @@
 package co.helius.android.transport
 
+import android.Manifest
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
@@ -7,6 +8,7 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothProfile
 import android.content.Context
+import androidx.annotation.RequiresPermission
 import co.helius.core.application.ports.BundleStorePort
 import co.helius.core.domain.vo.PeerId
 import co.helius.core.domain.vo.PeerLink
@@ -39,6 +41,7 @@ class BleGattClient(
     private val context: Context,
     private val scope: CoroutineScope,
 ) {
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     suspend fun connectAndSync(
         device: BluetoothDevice,
         localStore: BundleStorePort,
@@ -48,6 +51,7 @@ class BleGattClient(
         return result ?: throw IllegalStateException("Encuentro BLE con ${device.address} agotó el tiempo")
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private suspend fun runSync(device: BluetoothDevice, localStore: BundleStorePort): PeerLink =
         suspendCancellableCoroutine { cont ->
             val session = Session(localStore, cont)
@@ -72,6 +76,7 @@ class BleGattClient(
         @Volatile private var finished = false
 
         val callback = object : BluetoothGattCallback() {
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                 if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) {
                     gattRef = gatt
@@ -88,6 +93,7 @@ class BleGattClient(
                 // mínimo es correcto, solo más lento (más chunks de los necesarios).
             }
 
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     finishWithError(gatt, "Descubrimiento de servicios falló, status=$status")
@@ -112,6 +118,7 @@ class BleGattClient(
             // sí la invoca el framework en todas las API levels (en 33+ por delegación
             // interna), así que es la única compatible con todo el rango de minSdk.
             @Suppress("DEPRECATION")
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
                 val value = characteristic.value ?: return
                 when (characteristic.uuid) {
@@ -131,6 +138,7 @@ class BleGattClient(
             }
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         private suspend fun enableNotificationsThenSync(gatt: BluetoothGatt) {
             val service = gatt.getService(BleGattProfile.SERVICE_UUID) ?: return finishWithError(gatt, "Servicio HELIUS no encontrado en el peer")
             val inventoryChar = service.getCharacteristic(BleGattProfile.INVENTORY_CHARACTERISTIC_UUID)
@@ -155,6 +163,7 @@ class BleGattClient(
             }
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         private suspend fun onServerInventoryReceived(gatt: BluetoothGatt, serverBloomBytes: ByteArray) {
             val serverBloom = InventoryBloom()
             serverBloom.mergeFrom(serverBloomBytes)
@@ -168,6 +177,7 @@ class BleGattClient(
             }
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         private suspend fun enableNotification(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             gatt.setCharacteristicNotification(characteristic, true)
             val descriptor = characteristic.getDescriptor(BleGattProfile.CLIENT_CHARACTERISTIC_CONFIG_UUID) ?: return
@@ -180,6 +190,7 @@ class BleGattClient(
             withTimeoutOrNull(OP_TIMEOUT_MS) { deferred.await() }
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         private suspend fun writeChunked(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, payload: ByteArray) {
             val messageId = (0..0xfffe).random() // suficiente para no colisionar con la única transferencia en curso
             val mtu = negotiatedMtu - 3 // 3 B de overhead ATT
@@ -196,6 +207,7 @@ class BleGattClient(
             }
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         private fun finishWithError(gatt: BluetoothGatt, message: String) {
             runCatching { gatt.close() }
             if (!finished) {

@@ -28,6 +28,10 @@ kotlin {
                 // vive en androidMain — ver core/src/androidMain/kotlin/co/helius/core/protocol/README.md.
                 implementation(libs.protobuf.java)
                 implementation(libs.protobuf.kotlin)
+                // @RequiresApi para marcar el piso de API 33 de X25519/XDH en el
+                // proveedor JCA de Android (ver core/crypto/Identity.kt) sin recurrir
+                // a @Suppress("NewApi"), que taparía el problema en vez de declararlo.
+                implementation(libs.androidx.annotation)
             }
         }
         val androidUnitTest by getting {
