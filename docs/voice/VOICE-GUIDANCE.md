@@ -2,6 +2,8 @@
 
 **Dueño:** Helmut. **Revisor de vocabulario:** Laura (ver `docs/glossary.md`, aplica igual a guiones de voz que a UI/docs).
 
+**Fundamento:** ver [`PSYCHOLOGICAL-FIRST-AID-EVIDENCE.md`](PSYCHOLOGICAL-FIRST-AID-EVIDENCE.md) para el estado del arte y las referencias reales detrás de este diseño (Primeros Auxilios Psicológicos, respiración pautada, y los límites honestos de lo que no está probado para este escenario específico).
+
 ## Por qué esto NO es una llamada en vivo a la API
 
 HELIUS opera durante y después de un evento sísmico, con los teléfonos en modo

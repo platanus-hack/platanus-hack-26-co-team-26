@@ -4,6 +4,8 @@
 **Fecha:** 2026-08-22
 **Dueño:** Helmut (mediciones RF/UWB) + Miguel (factor graph)
 
+**Estado del arte y referencias:** [LOCALIZATION-3D-STATE-OF-THE-ART.md](../LOCALIZATION-3D-STATE-OF-THE-ART.md)
+
 ## Contexto
 
 El diseño original estima una zona candidata 2D (lat/lon, radios de confianza
