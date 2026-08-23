@@ -1,0 +1,15 @@
+build:
+  maxIssues: 0
+
+complexity:
+  LongMethod:
+    threshold: 60
+  LargeClass:
+    threshold: 300
+
+style:
+  ForbiddenComment:
+    active: false # TODOs son intencionales durante el andamiaje (Anexo A)
+
+# Reglas de vocabulario clínico prohibido se verifican con un linter de términos
+# separado en CI (arch-guard.yml), no aquí — ver docs/glossary.md.

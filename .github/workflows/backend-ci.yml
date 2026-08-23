@@ -1,0 +1,17 @@
+name: backend-ci
+
+on:
+  pull_request:
+    paths: ["services/**"]
+
+jobs:
+  test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e services/shared[dev] || pip install -e services/shared
+      - run: ruff check services/
+      - run: lint-imports # .importlinter
+      - run: pytest services/

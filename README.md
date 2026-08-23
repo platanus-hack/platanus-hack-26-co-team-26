@@ -14,6 +14,28 @@ team-26
 - Helmut Chaparro Sandoval ([@hchaps404](https://github.com/hchaps404))
 - Laura Fernanda Martinez Galindo ([@laura-martinez-galindo](https://github.com/laura-martinez-galindo))
 
+## 🏗️ Monorepo y cómo empezar
+
+El código vive en la rama `develop` como un monorepo (Kotlin/Android + Python
+FastAPI + React). Arranque rápido:
+
+```bash
+make bootstrap && make proto && make up && make test
+```
+
+- **Arquitectura completa:** [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md)
+- **Quién hace qué y cómo se sincroniza el equipo:** [`docs/team/DIVISION-DE-TRABAJO.md`](docs/team/DIVISION-DE-TRABAJO.md)
+- **Primeras 72 horas:** [`docs/onboarding/FIRST-72-HOURS.md`](docs/onboarding/FIRST-72-HOURS.md)
+- **Roadmap por vertical slices:** [`docs/roadmap/VERTICAL-SLICES.md`](docs/roadmap/VERTICAL-SLICES.md)
+- **Cómo contribuir (branching, Definition of Done):** [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- **Seguridad y modelo de amenazas:** [`docs/security/THREAT-MODEL.md`](docs/security/THREAT-MODEL.md)
+- **Validación y métricas:** [`docs/validation/VALIDATION.md`](docs/validation/VALIDATION.md)
+- **Vocabulario obligatorio/prohibido:** [`docs/glossary.md`](docs/glossary.md)
+- **Decisiones de arquitectura (ADRs):** [`docs/architecture/ADR/`](docs/architecture/ADR/)
+
+La formulación técnico-científica completa (comunicaciones, PPG/EMG) está en las
+secciones de Estado del Arte más abajo en este mismo README.
+
 Before Submitting:
 
 - ✅ Fill in the project metadata (name, oneliner, description and deploy URL) in platanus-hack-project.jsonc

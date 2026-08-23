@@ -1,0 +1,22 @@
+name: arch-guard
+
+on: [pull_request]
+
+jobs:
+  konsist-and-import-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: "temurin", java-version: "17" }
+      - name: "Konsist: :core:domain no importa android.*/androidx.*/io.ktor.*"
+        run: ./gradlew konsistCheck
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: "import-linter: capas del backend (.importlinter)"
+        run: pip install import-linter && lint-imports
+      - name: "vocabulario clínico prohibido (docs/glossary.md)"
+        run: |
+          ! grep -rEn "triage|diagn[oó]stico|signos vitales m[eé]dicos" \
+            --include="*.kt" --include="*.py" --include="*.tsx" \
+            core android services web | grep -v "NUNCA\|nunca\|prohibid"

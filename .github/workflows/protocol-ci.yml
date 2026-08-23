@@ -1,0 +1,20 @@
+name: protocol-ci
+
+on:
+  pull_request:
+    paths: ["protocol/**"]
+
+jobs:
+  regen-and-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regenerar Kotlin/Python/TypeScript desde protocol/proto
+        run: make proto
+      - name: Detectar drift (generado vs. commiteado)
+        run: |
+          git diff --exit-code -- core/src/commonMain/kotlin/co/sismomesh/core/protocol \
+            services/shared/src/api/protocol web/src/domain/protocol || \
+            (echo "::error::Código generado desactualizado — corre 'make proto' y commitea el resultado" && exit 1)
+      - name: Round-trip Kotlin <-> Python contra vectores dorados
+        run: echo "TODO(dueño=Helmut): comparar protocol/test-vectors/bundles/*.bin byte a byte"

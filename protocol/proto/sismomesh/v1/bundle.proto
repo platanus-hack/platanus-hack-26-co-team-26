@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package sismomesh.v1;
+
+option java_package = "co.sismomesh.core.protocol.v1";
+option java_multiple_files = true;
+
+import "sismomesh/v1/status.proto";
+import "sismomesh/v1/motion.proto";
+import "sismomesh/v1/biomarker.proto";
+import "sismomesh/v1/observation.proto";
+
+// Fuente única de verdad del formato de datos (docs/protocol/PROTOCOL.md).
+// Regenerar con `make proto`. No editar los *_pb2.py / *.kt / *.ts generados a mano.
+
+message Bundle {
+  BundleHeader header = 1;
+  oneof payload {
+    EmergencyStatus status = 10;
+    MotionEvidence motion = 11;
+    BiomarkerEvidence biomarker = 12; // NUNCA "vitals" — ver docs/glossary.md
+    PeerObservation observation = 13;
+    RawSensorChunk raw = 14;
+    ResponderMessage responder = 15; // DTN inversa, ver Sección 8.6
+  }
+  bytes signature = 20; // Ed25519 sobre header||payload
+}
+
+message BundleHeader {
+  uint32 version = 1;
+  string disaster_id = 2;
+  bytes bundle_id = 3;       // 16B, derivado de hash del contenido
+  bytes node_id = 4;         // pseudónimo efímero
+  uint64 sequence = 5;
+  uint64 created_at = 6;     // epoch ms del emisor (no confiable)
+  uint64 expires_at = 7;
+  uint32 hop_count = 8;
+  Priority priority = 9;
+  ClockEvidence clock = 10;  // monotónico + skew observado
+}
+
+message ClockEvidence {
+  int64 monotonic_ms = 1;
+  optional int64 observed_skew_ms = 2;
+}
+
+enum Priority {
+  P0_LIFE_CRITICAL = 0;
+  P1_LOCATION = 1;
+  P2_STATUS = 2;
+  P3_NETWORK_OBS = 3;
+  P4_RAW_SENSOR = 4;
+  P5_DIAGNOSTIC = 5;
+}
+
+enum ResponseState {
+  UNKNOWN = 0;
+  SAFE = 1;
+  NEEDS_HELP = 2;
+  TRAPPED = 3;
+  UNCONFIRMED = 4;
+  NO_RECENT_EVIDENCE = 5;
+  // Prohibido agregar DEAD/ALIVE/INJURED — ver Sección 1.3 y docs/glossary.md.
+}
+
+message RawSensorChunk {
+  string tier = 1; // "T2"
+  bytes chunk = 2;
+  uint32 chunk_index = 3;
+  uint32 chunk_count = 4;
+}
+
+message ResponderMessage {
+  bytes ciphertext = 1; // instrucciones del gateway, cifrado extremo a extremo
+}
+
+// RelayMetadata lo añade el receptor (nunca el emisor), firmado por él —
+// ver Sección 6.3: "el relay nunca altera location, response_state ni evidencia".
+message RelayMetadata {
+  bytes received_from = 1;
+  string transport = 2;
+  int32 rssi_dbm = 3;
+  uint64 rx_timestamp = 4;
+  bytes observer_geo = 5;
+  double observer_acc_m = 6;
+}

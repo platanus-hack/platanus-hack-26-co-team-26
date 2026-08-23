@@ -1,0 +1,19 @@
+name: android-ci
+
+on:
+  pull_request:
+    paths: ["core/**", "android/**", "gradle/**", "*.gradle.kts", "settings.gradle.kts"]
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: "temurin", java-version: "17" }
+      - name: gradle test (core en JVM, sin hardware)
+        run: ./gradlew test
+      - name: ktlint + detekt
+        run: ./gradlew ktlintCheck detekt
+      - name: assembleDebug
+        run: ./gradlew :android:app:assembleDebug

@@ -1,0 +1,20 @@
+[importlinter]
+root_package = services
+
+[importlinter:contract:1]
+name = domain no importa framework
+type = forbidden
+source_modules =
+    services.shared.src.api.domain
+forbidden_modules =
+    fastapi
+    sqlalchemy
+    redis
+
+[importlinter:contract:2]
+name = application solo importa domain y sus propios puertos
+type = layers
+layers =
+    services.shared.src.api.adapters
+    services.shared.src.api.application
+    services.shared.src.api.domain

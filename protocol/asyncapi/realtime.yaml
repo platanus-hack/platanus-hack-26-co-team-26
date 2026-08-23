@@ -1,0 +1,32 @@
+asyncapi: 2.6.0
+info:
+  title: SismoMesh Realtime (WebSocket)
+  version: 0.1.0
+  description: >
+    WS /v1/stream/{incident_id} — eventos en tiempo real filtrados por rol,
+    consumidos por el dashboard (web/src/adapters/map). Dueño: Miguel (cliente) /
+    Miguel (servidor, services/shared/src/api/adapters/ws).
+channels:
+  v1/stream/{incident_id}:
+    parameters:
+      incident_id:
+        schema:
+          type: string
+    subscribe:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/NodeUpdated"
+          - $ref: "#/components/messages/HeatmapUpdated"
+          - $ref: "#/components/messages/AlertActivated"
+components:
+  messages:
+    NodeUpdated:
+      payload:
+        type: object
+        description: TODO(dueño=Miguel) — mapear a nodes(...) de Sección 12.2
+    HeatmapUpdated:
+      payload:
+        type: object
+    AlertActivated:
+      payload:
+        type: object

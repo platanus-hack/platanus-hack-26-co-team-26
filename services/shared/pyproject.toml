@@ -1,0 +1,27 @@
+[project]
+name = "sismomesh-services"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlalchemy>=2.0",
+    "geoalchemy2>=0.15",
+    "psycopg[binary]>=3.2",
+    "redis>=5.1",
+    "pydantic>=2.9",
+    "protobuf>=5.28",
+    "pysodium>=0.7", # CryptoVerifierPort (Ed25519)
+    "numpy>=2.1",
+    "scipy>=1.14",
+    "gtsam>=4.2", # factor graph, ver services/localization
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# Dueño: Miguel. TODO: separar en un pyproject.toml por servicio si el equipo
+# prefiere despliegues independientes (services/alert_ingestor, etc.).

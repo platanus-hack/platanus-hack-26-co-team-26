@@ -1,0 +1,23 @@
+# CODEOWNERS — ver docs/team/DIVISION-DE-TRABAJO.md para el detalle de misión por persona.
+# Cambios en protocol/ o en core/domain requieren ADR aprobado (docs/architecture/ADR/).
+
+/protocol/                          @hchaps404
+/core/src/commonMain/kotlin/co/sismomesh/core/dtn/       @hchaps404
+/core/src/commonMain/kotlin/co/sismomesh/core/crypto/    @hchaps404
+/core/src/commonMain/kotlin/co/sismomesh/core/signal/    @alexbzal
+/core/src/commonMain/kotlin/co/sismomesh/core/domain/policy/ @alexbzal
+/android/transport/                 @hchaps404
+/android/storage/                   @hchaps404
+/android/power/                     @hchaps404
+/android/ppg/                       @laura-martinez-galindo @jorgeb-py
+/android/inference/                 @alexbzal
+/android/sensing/                   @alexbzal
+/android/app/                       @laura-martinez-galindo @jorgeb-py
+/services/localization/             @EclipseIDEHater
+/services/alert_ingestor/           @EclipseIDEHater
+/services/bundle_ingestor/          @EclipseIDEHater
+/services/notifier/                 @EclipseIDEHater
+/services/analytics/                @EclipseIDEHater
+/web/                                @EclipseIDEHater
+/docs/privacy/                       @EclipseIDEHater
+/docs/security/                      @hchaps404
