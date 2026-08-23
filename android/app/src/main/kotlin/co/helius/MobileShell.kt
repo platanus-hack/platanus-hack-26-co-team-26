@@ -47,14 +47,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.camera.view.PreviewView
 import co.helius.android.sensing.AndroidMotionSensorSource
+import co.helius.android.sensing.SensorManagerMotionAdapter
 import co.helius.android.ppg.CameraPpgCaptureSource
 import co.helius.auth.DevAuthRepository
 import co.helius.core.application.ports.LocationPermissionState
 import co.helius.core.application.ports.MotionSample
-import co.sismomesh.core.signal.PpgPipeline
-import co.sismomesh.core.signal.PpgAssessment
-import co.sismomesh.core.signal.PulseEstimate
-import co.sismomesh.core.signal.VerificationStatus
+import co.helius.core.signal.motion.ActivityState
+import co.helius.core.signal.motion.DeterministicActivityClassifier
+import co.helius.core.signal.motion.MotionClassification
+import co.helius.core.signal.ppg.PpgPipeline
+import co.helius.core.signal.ppg.PpgAssessment
+import co.helius.core.signal.ppg.PulseEstimate
+import co.helius.core.signal.ppg.VerificationStatus
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -205,12 +209,25 @@ private fun HomeScreen(permission: LocationPermissionState, onRoute: (Route) -> 
 private fun MotionScreen() {
     val context = LocalContext.current
     var sample by remember { mutableStateOf<MotionSample?>(null) }
+    var evidence by remember { mutableStateOf<MotionClassification?>(null) }
     LaunchedEffect(Unit) { AndroidMotionSensorSource(context).observeMotion().collectLatest { sample = it } }
+    // Complemento del stream anterior: el mismo par acelerómetro+giroscopio, pero
+    // pasado por DSP (RMS/entropía espectral) y clasificado -- ver
+    // core/signal/motion/ActivityEvidenceClassifier.kt. La lectura simple de arriba
+    // muestra números crudos; esto muestra si constituyen evidencia de movimiento
+    // intencional (y el patrón de ráfagas tipo SOS, si lo hay).
+    LaunchedEffect(Unit) {
+        val classifier = DeterministicActivityClassifier()
+        SensorManagerMotionAdapter(context).observeMotionWindows().collectLatest { window ->
+            evidence = classifier.classify(window)
+        }
+    }
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Evidencia de movimiento", color = TextPrimary, fontSize = 26.sp)
         Text("El movimiento es evidencia del dispositivo; no demuestra vida ni lesiones.", color = TextSecondary)
         StatusPanel("Estado actual", sample?.state?.name ?: "ESPERANDO SENSOR", "Ventana del acelerómetro", RescueTeal)
         sample?.let { SensorValues(it) } ?: StatusPanel("Estado del sensor", "Recopilando", "El dispositivo puede no exponer un acelerómetro", Warning)
+        evidence?.let { ActivityEvidencePanel(it) }
     }
 }
 
@@ -220,6 +237,21 @@ private fun SensorValues(sample: MotionSample) {
         Text("Métricas de la ventana", color = TextPrimary, fontSize = 16.sp)
         Text("RMS ${"%.2f".format(sample.accelerationRms)} · varianza ${"%.2f".format(sample.accelerationVariance)}", color = TextSecondary)
         Text("Giroscopio ${sample.angularVelocityRads?.let { "disponible · %.2f rad/s".format(it) } ?: "no disponible"}", color = TextSecondary)
+    }
+}
+
+@Composable
+private fun ActivityEvidencePanel(evidence: MotionClassification) {
+    Column(Modifier.fillMaxWidth().background(SurfaceDark, RoundedCornerShape(12.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Evidencia de actividad (entropía espectral + patrón)", color = TextPrimary, fontSize = 16.sp)
+        Text(
+            evidence.activityState.name,
+            color = if (evidence.activityState == ActivityState.PURPOSEFUL_MOTION) RescueTeal else TextSecondary,
+        )
+        Text("Confianza de movimiento intencional ${"%.0f".format(evidence.purposefulMotionConfidence * 100)}%", color = TextSecondary)
+        if (evidence.pattern.isNotEmpty()) {
+            Text("Patrón de ráfagas detectado: ${evidence.pattern}", color = RescueTeal)
+        }
     }
 }
 

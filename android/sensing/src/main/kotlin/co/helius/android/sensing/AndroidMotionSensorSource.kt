@@ -7,7 +7,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import co.helius.core.application.ports.MotionSample
 import co.helius.core.application.ports.MotionSensorSource
-import co.sismomesh.core.location.MotionState
+import co.helius.core.location.MotionState
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

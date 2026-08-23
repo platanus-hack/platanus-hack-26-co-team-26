@@ -1,14 +1,18 @@
 package co.helius.core.application.ports
 
 import kotlinx.coroutines.flow.Flow
-import co.sismomesh.core.signal.PulseEstimate
+import co.helius.core.signal.ppg.PulseEstimate
 
 /**
  * Frames y señal PPG cruda. Dueño: Laura + Jorge (app Android + captura AIB).
- * Adaptador real: `co.helius.android.ppg.CameraXPpgEngine` (android/ppg/src/main/kotlin/co/helius/android/ppg/PpgEngine.kt).
+ * Adaptador real: `co.helius.android.ppg.CameraPpgCaptureSource`
+ * (android/ppg/src/main/kotlin/co/helius/android/ppg/CameraPpgCaptureSource.kt) —
+ * implementación directa de este puerto (frame a frame, sin DSP). Para la
+ * orquestación completa de sesión (estabilización, DSP, clasificación,
+ * paquete de 28B) ver `CameraXPpgEngine` en el mismo directorio
+ * (PpgEngine.kt) — no implementa este puerto, resuelve un contrato más rico
+ * (`PpgSessionState`/`PpgResult`).
  * Adaptador fake: VideoReplayFake (pendiente).
- * TODO(dueño=Laura/Jorge): cablear CameraXPpgEngine detrás de este puerto —
- * ver android/ppg/README.md § Pendiente de integración.
  */
 data class PpgFrame(
     val timestampEpochMillis: Long,

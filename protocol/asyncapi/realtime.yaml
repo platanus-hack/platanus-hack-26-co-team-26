@@ -27,7 +27,7 @@ components:
     DeviceLocation:
       name: device.location
       payload:
-        $ref: "../openapi/sismomesh-api.yaml#/components/schemas/EmergencyLocationSnapshot"
+        $ref: "../openapi/helius-api.yaml#/components/schemas/EmergencyLocationSnapshot"
     DeviceMotion:
       name: device.motion
       payload:

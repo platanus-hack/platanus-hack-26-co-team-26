@@ -1,4 +1,4 @@
-package co.sismomesh.core.location
+package co.helius.core.location
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,8 +17,8 @@ class LocationIntelligenceTest {
 
     @Test
     fun `haversine and bearing are geographically meaningful`() {
-        val bogota = GeoPoint(4.7110, -74.0721)
-        val medellin = GeoPoint(6.2442, -75.5812)
+        val bogota = LocalGeoPoint(4.7110, -74.0721)
+        val medellin = LocalGeoPoint(6.2442, -75.5812)
         val distanceKm = haversineMeters(bogota, medellin) / 1_000
 
         assertTrue(distanceKm in 235.0..255.0)
@@ -65,7 +65,7 @@ class LocationIntelligenceTest {
 
     private fun sample(id: String, lat: Double, lon: Double, timestamp: Long) = LocationSample(
         id = id,
-        point = GeoPoint(lat, lon),
+        point = LocalGeoPoint(lat, lon),
         horizontalAccuracyMeters = 8.0,
         timestampEpochMillis = timestamp,
         provider = LocationProvider.GNSS,
@@ -75,7 +75,7 @@ class LocationIntelligenceTest {
 
     private fun stay(id: String, lat: Double, lon: Double, arrived: Long, duration: Long) = StayPoint(
         id = id,
-        centroid = GeoPoint(lat, lon),
+        centroid = LocalGeoPoint(lat, lon),
         arrivedAtEpochMillis = arrived,
         departedAtEpochMillis = arrived + duration,
         sampleCount = 4,

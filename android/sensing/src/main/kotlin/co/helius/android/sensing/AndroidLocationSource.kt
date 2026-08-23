@@ -10,11 +10,11 @@ import android.location.LocationManager
 import android.os.CancellationSignal
 import co.helius.core.application.ports.LocationAccuracy
 import co.helius.core.application.ports.LocationSource
-import co.sismomesh.core.location.GeoPoint
-import co.sismomesh.core.location.LocationEvidenceType
-import co.sismomesh.core.location.LocationProvider
-import co.sismomesh.core.location.LocationSample
-import co.sismomesh.core.location.LocationTrackingProfile
+import co.helius.core.location.LocalGeoPoint
+import co.helius.core.location.LocationEvidenceType
+import co.helius.core.location.LocationProvider
+import co.helius.core.location.LocationSample
+import co.helius.core.location.LocationTrackingProfile
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -75,7 +75,7 @@ class AndroidLocationSource(context: Context) : LocationSource {
 
 private fun Location.toSample(profile: LocationTrackingProfile) = LocationSample(
     id = "location-$elapsedRealtimeNanos",
-    point = GeoPoint(latitude, longitude),
+    point = LocalGeoPoint(latitude, longitude),
     altitudeMeters = if (hasAltitude()) altitude else null,
     horizontalAccuracyMeters = if (hasAccuracy()) accuracy.toDouble() else null,
     verticalAccuracyMeters = if (android.os.Build.VERSION.SDK_INT >= 26 && hasVerticalAccuracy()) verticalAccuracyMeters.toDouble() else null,

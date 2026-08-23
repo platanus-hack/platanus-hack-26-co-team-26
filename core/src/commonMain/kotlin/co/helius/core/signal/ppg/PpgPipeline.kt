@@ -1,4 +1,4 @@
-package co.sismomesh.core.signal
+package co.helius.core.signal.ppg
 
 /**
  * Cadena determinista: resample → normalize → detrend → bandpass(0.5-4Hz) → FFT/PSD

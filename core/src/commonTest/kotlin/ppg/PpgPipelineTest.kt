@@ -1,4 +1,4 @@
-package co.sismomesh.core.signal
+package co.helius.core.signal.ppg
 
 import kotlin.math.PI
 import kotlin.math.sin

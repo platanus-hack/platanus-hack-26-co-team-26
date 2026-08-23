@@ -1,6 +1,6 @@
-package co.sismomesh.core.location
+package co.helius.core.location
 
-data class GeoPoint(val latitude: Double, val longitude: Double) {
+data class LocalGeoPoint(val latitude: Double, val longitude: Double) {
     init {
         require(latitude in -90.0..90.0) { "Latitude must be between -90 and 90" }
         require(longitude in -180.0..180.0) { "Longitude must be between -180 and 180" }
@@ -16,7 +16,7 @@ enum class BatteryState { NORMAL, LOW, CRITICAL }
 
 data class LocationSample(
     val id: String,
-    val point: GeoPoint,
+    val point: LocalGeoPoint,
     val altitudeMeters: Double? = null,
     val horizontalAccuracyMeters: Double? = null,
     val verticalAccuracyMeters: Double? = null,
@@ -31,7 +31,7 @@ data class LocationSample(
 
 data class StayPoint(
     val id: String,
-    val centroid: GeoPoint,
+    val centroid: LocalGeoPoint,
     val arrivedAtEpochMillis: Long,
     val departedAtEpochMillis: Long,
     val sampleCount: Int,
@@ -41,7 +41,7 @@ data class StayPoint(
 
 data class FrequentPlace(
     val id: String,
-    val centroid: GeoPoint,
+    val centroid: LocalGeoPoint,
     val visitCount: Int,
     val totalDwellMillis: Long,
     val lastVisitEpochMillis: Long,
@@ -56,7 +56,7 @@ data class LikelyLocation(
 
 data class EmergencyLocationSnapshot(
     val deviceId: String,
-    val point: GeoPoint?,
+    val point: LocalGeoPoint?,
     val altitudeMeters: Double?,
     val accuracyMeters: Double?,
     val evidenceType: LocationEvidenceType,

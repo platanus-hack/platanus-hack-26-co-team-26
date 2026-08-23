@@ -1,8 +1,8 @@
 package co.helius.core.application.ports
 
-import co.sismomesh.core.location.LocationSample
-import co.sismomesh.core.location.LocationTrackingProfile
-import co.sismomesh.core.location.MotionState
+import co.helius.core.location.LocationSample
+import co.helius.core.location.LocationTrackingProfile
+import co.helius.core.location.MotionState
 import kotlinx.coroutines.flow.Flow
 
 enum class LocationAccuracy { APPROXIMATE, PRECISE }

@@ -1,4 +1,4 @@
-package co.sismomesh.core.location
+package co.helius.core.location
 
 import kotlin.math.PI
 import kotlin.math.atan2
@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 
 private const val EARTH_RADIUS_METERS = 6_371_000.0
 
-fun haversineMeters(from: GeoPoint, to: GeoPoint): Double {
+fun haversineMeters(from: LocalGeoPoint, to: LocalGeoPoint): Double {
     val lat1 = from.latitude.toRadians()
     val lat2 = to.latitude.toRadians()
     val deltaLat = (to.latitude - from.latitude).toRadians()
@@ -19,7 +19,7 @@ fun haversineMeters(from: GeoPoint, to: GeoPoint): Double {
     return EARTH_RADIUS_METERS * 2 * atan2(sqrt(a), sqrt(1 - a))
 }
 
-fun initialBearingDegrees(from: GeoPoint, to: GeoPoint): Double {
+fun initialBearingDegrees(from: LocalGeoPoint, to: LocalGeoPoint): Double {
     val fromLat = from.latitude.toRadians()
     val toLat = to.latitude.toRadians()
     val deltaLon = (to.longitude - from.longitude).toRadians()
@@ -103,7 +103,7 @@ class LocationEstimationService {
     }
 }
 
-private fun List<GeoPoint>.centroid(): GeoPoint = GeoPoint(
+private fun List<LocalGeoPoint>.centroid(): LocalGeoPoint = LocalGeoPoint(
     latitude = sumOf { it.latitude } / size,
     longitude = sumOf { it.longitude } / size,
 )
