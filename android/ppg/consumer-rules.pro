@@ -1,2 +1,2 @@
--keep class co.sismomesh.android.ppg.** { *; }
--keep class co.sismomesh.core.signal.ppg.** { *; }
+-keep class co.helius.android.ppg.** { *; }
+-keep class co.helius.core.signal.ppg.** { *; }

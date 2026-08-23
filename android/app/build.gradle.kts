@@ -5,10 +5,10 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh"
+    namespace = "co.helius"
     compileSdk = 35
     defaultConfig {
-        applicationId = "co.sismomesh"
+        applicationId = "co.helius"
         minSdk = 26 // API 26 mínimo (Sección 2.1)
         targetSdk = 35
     }

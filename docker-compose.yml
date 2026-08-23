@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgis/postgis:16-3.4
     environment:
-      POSTGRES_DB: sismomesh
-      POSTGRES_USER: sismomesh
-      POSTGRES_PASSWORD: sismomesh_dev
+      POSTGRES_DB: helius
+      POSTGRES_USER: helius
+      POSTGRES_PASSWORD: helius_dev
     ports: ["5432:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
 
@@ -16,8 +16,8 @@ services:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: sismomesh
-      MINIO_ROOT_PASSWORD: sismomesh_dev
+      MINIO_ROOT_USER: helius
+      MINIO_ROOT_PASSWORD: helius_dev
     ports: ["9000:9000", "9001:9001"]
     volumes: ["miniodata:/data"]
 
@@ -26,7 +26,7 @@ services:
       context: ./services/shared
     depends_on: [postgres, redis, minio]
     environment:
-      DATABASE_URL: postgresql://sismomesh:sismomesh_dev@postgres:5432/sismomesh
+      DATABASE_URL: postgresql://helius:helius_dev@postgres:5432/helius
       REDIS_URL: redis://redis:6379/0
     ports: ["8000:8000"]
     command: uvicorn src.api.bootstrap.main:app --host 0.0.0.0 --port 8000 --reload

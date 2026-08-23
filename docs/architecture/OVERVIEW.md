@@ -1,8 +1,8 @@
-# Arquitectura de SismoMesh
+# Arquitectura de HELIUS
 
 ## 1. Qué es el producto
 
-SismoMesh convierte smartphones en nodos oportunistas de evidencia, relevo y
+HELIUS convierte smartphones en nodos oportunistas de evidencia, relevo y
 localización cuando un sismo derriba la infraestructura de red.
 
 - **Antes del evento** (Promesa A — Preparación): preserva contexto de ubicación,
@@ -61,7 +61,7 @@ cobertura iOS mientras esté en standby (ADR-0002).
 FUENTES DE EVENTO SÍSMICO (SGC · CAP feeds · USGS · manual)
         │ Internet
         ▼
-SISMOMESH CLOUD (FastAPI, hexagonal)
+HELIUS CLOUD (FastAPI, hexagonal)
   alert-ingestor · bundle-ingestor · localization · notifier · analytics
   PostgreSQL+PostGIS · Redis · S3
         │
@@ -78,7 +78,7 @@ ADAPTIVE TRANSPORT LAYER (androidMain)
 Survivor Node ──store-carry-forward──▶ Relay Node
    │
    ▼
-Responder Gateway (teléfono de rescate) ──al recuperar red──▶ SismoMesh Cloud
+Responder Gateway (teléfono de rescate) ──al recuperar red──▶ HELIUS Cloud
 ```
 
 ### Los cinco flujos que definen el sistema
@@ -109,7 +109,7 @@ CLI              │  políticas·invariantes LiteRT
 - Verificado en CI: `:core:domain` no importa `android.*`/`androidx.*`/`io.ktor.*`
   (Konsist en Kotlin, `import-linter` en Python).
 
-Puertos completos: `core/src/commonMain/kotlin/co/sismomesh/core/application/ports/`
+Puertos completos: `core/src/commonMain/kotlin/co/helius/core/application/ports/`
 (app) y `services/shared/src/api/application/ports.py` (backend).
 
 ## 5. Contratos del protocolo (resumen — ver `protocol/docs/PROTOCOL.md`)
@@ -159,7 +159,7 @@ vertical real: elevación UWB, diferencial de barómetro (calibrado por
 edificio) y GNSS como *prior* débil. Nunca se infiere profundidad a partir de
 RSSI puro. `GeoPoint` lleva `altitude_m`/`altitude_source`;
 `PeerObservation` lleva los campos crudos de UWB/barómetro
-(`protocol/proto/sismomesh/v1/status.proto`, `observation.proto`). La salida
+(`protocol/proto/helius/v1/status.proto`, `observation.proto`). La salida
 mantiene el mismo espíritu que en 2D: zona candidata + piso estimado, ambos con
 incertidumbre explícita — nunca "profundidad exacta".
 

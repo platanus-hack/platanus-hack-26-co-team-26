@@ -22,6 +22,6 @@ protoc \
   --proto_path=protocol/proto \
   --java_out="$JAVA_OUT" \
   --kotlin_out="$KOTLIN_OUT" \
-  protocol/proto/sismomesh/v1/*.proto
+  protocol/proto/helius/v1/*.proto
 
 echo "Generado en $JAVA_OUT y $KOTLIN_OUT. No editar a mano — regenerar con este script."

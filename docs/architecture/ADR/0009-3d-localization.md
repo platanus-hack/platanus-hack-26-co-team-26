@@ -25,7 +25,7 @@ Se añade un tercer eje al modelo de localización, alimentado por fuentes que
 | Barómetro (`barometric_pressure_hpa`) | Diferencial de presión → altura relativa | Requiere calibración por edificio (altura de piso varía); útil como *prior* de piso, no de metros exactos |
 | GNSS (`altitude_m` con `AltitudeSource.GNSS`) | Referencia absoluta débil en interiores | Solo como *prior* inicial antes de perder señal |
 
-`GeoPoint` (`protocol/proto/sismomesh/v1/status.proto`) gana
+`GeoPoint` (`protocol/proto/helius/v1/status.proto`) gana
 `altitude_m`/`altitude_acc_m`/`altitude_source`; `PeerObservation`
 (`observation.proto`) gana los campos crudos de UWB y presión barométrica. El
 factor graph de `services/localization` (Miguel) los fusiona igual que ya

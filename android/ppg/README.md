@@ -24,7 +24,7 @@ detrás de `PpgCaptureIPort` (`core/application/ports/SensingPorts.kt`) y de
 `RunBiomarkerSession` (`core/application/usecase/UseCases.kt`) para que su
 resultado (`PpgPacketCodec.encode(...)`, 28 B) viaje como payload `biomarker`
 del bundle DTN — ver `protocol/ppg/PPG_PACKET_V1.md` y
-`protocol/proto/sismomesh/v1/biomarker.proto`.
+`protocol/proto/helius/v1/biomarker.proto`.
 
 **Dueño:** Laura + Jorge.
 
@@ -32,5 +32,5 @@ del bundle DTN — ver `protocol/ppg/PPG_PACKET_V1.md` y
 de madurez completa por elemento en `docs/architecture/OVERVIEW.md` § 10 (AIB).
 
 Ver `docs/team/DIVISION-DE-TRABAJO.md` y
-`core/src/commonMain/kotlin/co/sismomesh/core/application/ports/` para el
+`core/src/commonMain/kotlin/co/helius/core/application/ports/` para el
 contrato exacto de puertos.

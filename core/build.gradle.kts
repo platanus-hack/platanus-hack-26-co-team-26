@@ -25,7 +25,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 // Código generado por protobuf (java_out + kotlin_out) es JVM-only,
-                // vive en androidMain — ver core/src/androidMain/kotlin/co/sismomesh/core/protocol/README.md.
+                // vive en androidMain — ver core/src/androidMain/kotlin/co/helius/core/protocol/README.md.
                 implementation(libs.protobuf.java)
                 implementation(libs.protobuf.kotlin)
             }
@@ -42,7 +42,7 @@ kotlin {
 }
 
 android {
-    namespace = "co.sismomesh.core"
+    namespace = "co.helius.core"
     compileSdk = 35
     defaultConfig {
         minSdk = 26

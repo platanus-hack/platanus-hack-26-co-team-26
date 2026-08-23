@@ -1,4 +1,4 @@
-rootProject.name = "sismomesh"
+rootProject.name = "helius"
 
 pluginManagement {
     repositories {

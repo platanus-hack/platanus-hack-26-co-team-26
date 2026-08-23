@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, "services/shared/src/api/protocol")
 
 from google.protobuf import json_format
-from sismomesh.v1 import bundle_pb2, status_pb2, motion_pb2, biomarker_pb2, observation_pb2, common_pb2
+from helius.v1 import bundle_pb2, status_pb2, motion_pb2, biomarker_pb2, observation_pb2, common_pb2
 
 OUT = "protocol/test-vectors/bundles"
 PLACEHOLDER_SIG = bytes(64)
@@ -45,7 +45,7 @@ def write(name: str, bundle: bundle_pb2.Bundle):
 
 # 1. status
 b = bundle_pb2.Bundle()
-b.header.CopyFrom(header("sismomesh-golden-2026", b"\x01" * 8, 1, common_pb2.P1_LOCATION))
+b.header.CopyFrom(header("helius-golden-2026", b"\x01" * 8, 1, common_pb2.P1_LOCATION))
 b.status.location.lat = 4.65123
 b.status.location.lon = -74.08291
 b.status.location.acc_m = 12.5
@@ -59,7 +59,7 @@ write("status_trapped", b)
 
 # 2. motion
 b = bundle_pb2.Bundle()
-b.header.CopyFrom(header("sismomesh-golden-2026", b"\x02" * 8, 1, common_pb2.P1_LOCATION))
+b.header.CopyFrom(header("helius-golden-2026", b"\x02" * 8, 1, common_pb2.P1_LOCATION))
 b.motion.purposeful_motion_confidence = 0.91
 b.motion.pattern = "3-3"
 b.motion.last_motion_ts = 1755878390
@@ -69,7 +69,7 @@ write("motion_purposeful", b)
 
 # 3. biomarker
 b = bundle_pb2.Bundle()
-b.header.CopyFrom(header("sismomesh-golden-2026", b"\x03" * 8, 1, common_pb2.P2_STATUS))
+b.header.CopyFrom(header("helius-golden-2026", b"\x03" * 8, 1, common_pb2.P2_STATUS))
 b.biomarker.pulse_bpm = 112.0
 b.biomarker.pulse_ci_low = 105.0
 b.biomarker.pulse_ci_high = 119.0
@@ -83,7 +83,7 @@ write("biomarker_pulse", b)
 
 # 4. observation
 b = bundle_pb2.Bundle()
-b.header.CopyFrom(header("sismomesh-golden-2026", b"\x04" * 8, 1, common_pb2.P3_NETWORK_OBS))
+b.header.CopyFrom(header("helius-golden-2026", b"\x04" * 8, 1, common_pb2.P3_NETWORK_OBS))
 b.observation.incident_id = b"incident-2026-001"
 b.observation.node_a = b"\x01" * 8
 b.observation.node_b = b"\x02" * 8
@@ -95,7 +95,7 @@ write("observation_peer", b)
 
 # 5. raw (T2)
 b = bundle_pb2.Bundle()
-b.header.CopyFrom(header("sismomesh-golden-2026", b"\x05" * 8, 1, common_pb2.P4_RAW_SENSOR))
+b.header.CopyFrom(header("helius-golden-2026", b"\x05" * 8, 1, common_pb2.P4_RAW_SENSOR))
 b.raw.tier = "T2"
 b.raw.chunk = bytes(range(32))
 b.raw.chunk_index = 0

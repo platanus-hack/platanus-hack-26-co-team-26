@@ -18,21 +18,23 @@ Los documentos de esta carpeta (`ARCHITECTURE.md`, `INTEGRATION.md`,
 referencia de diseño. El código ya está integrado en la estructura hexagonal del
 proyecto; cuando estos documentos mencionen una ruta, el mapeo real es:
 
-| Ruta en estos documentos | Ruta real en el monorepo |
+| Ruta en la entrega original de Laura | Ruta real en el monorepo |
 |---|---|
-| `android/ppg-core/.../com/sismomesh/ppg/RgbFrameAnalyzer.kt`, `MotionSampler.kt` | `android/ppg/src/main/kotlin/co/sismomesh/android/ppg/` |
-| `android/ppg-core/.../com/sismomesh/ppg/PpgEngine.kt` (`CameraXPpgEngine`) | `android/ppg/src/main/kotlin/co/sismomesh/android/ppg/PpgEngine.kt` |
-| `android/ppg-core/.../com/sismomesh/ppg/{Models,PpgSignalProcessor,SignalQualityEvaluator,PhysiologicalClassifier,EstimatedEcgReconstructor,IfoFusionEngine,PpgPacketCodec,SignalModelRunner}.kt` | `core/src/commonMain/kotlin/co/sismomesh/core/signal/ppg/` (Kotlin puro, testeable en JVM sin Android — ver ADR-0003) |
+| `android/ppg-core/.../com/sismomesh/ppg/RgbFrameAnalyzer.kt`, `MotionSampler.kt` | `android/ppg/src/main/kotlin/co/helius/android/ppg/` |
+| `android/ppg-core/.../com/sismomesh/ppg/PpgEngine.kt` (`CameraXPpgEngine`) | `android/ppg/src/main/kotlin/co/helius/android/ppg/PpgEngine.kt` |
+| `android/ppg-core/.../com/sismomesh/ppg/{Models,PpgSignalProcessor,SignalQualityEvaluator,PhysiologicalClassifier,EstimatedEcgReconstructor,IfoFusionEngine,PpgPacketCodec,SignalModelRunner}.kt` | `core/src/commonMain/kotlin/co/helius/core/signal/ppg/` (Kotlin puro, testeable en JVM sin Android — ver ADR-0003) |
 | `android/ppg-core/src/test/**` | `core/src/commonTest/kotlin/ppg/` (adaptados de JUnit4 a `kotlin.test` para portabilidad multiplataforma) |
 | `protocol/PPG_PACKET_V1.md` | `protocol/ppg/PPG_PACKET_V1.md` |
 | `training/` (Python) | `ml/ppg/training/` (paquete `src/` intacto, mismos imports) |
 | `backend/` (registro de modelos FastAPI) | `services/ppg_model_registry/` |
 
-El paquete Kotlin `com.sismomesh.ppg` original se dividió en dos, siguiendo la
+El nombre del proyecto era "SismoMesh" al momento de esta entrega; el paquete
+Kotlin `com.sismomesh.ppg` (nombre original de Laura) se dividió en dos,
+siguiendo la
 regla hexagonal del proyecto (`docs/architecture/ADR/0001-hexagonal.md`,
 `0003-kmp-core-ios-standby.md`): lo que no depende de `android.*`/CameraX vive en
-`core/signal/ppg` (paquete `co.sismomesh.core.signal.ppg`); lo que sí depende de
-CameraX/sensores vive en `android/ppg` (paquete `co.sismomesh.android.ppg`).
+`core/signal/ppg` (paquete `co.helius.core.signal.ppg`); lo que sí depende de
+CameraX/sensores vive en `android/ppg` (paquete `co.helius.android.ppg`).
 
 ## Decisión de producto
 

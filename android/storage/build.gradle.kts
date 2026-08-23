@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.storage"
+    namespace = "co.helius.android.storage"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
 }

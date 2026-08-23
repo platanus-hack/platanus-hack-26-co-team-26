@@ -1,6 +1,6 @@
-# Protocolo SismoMesh — resumen normativo
+# Protocolo HELIUS — resumen normativo
 
-**Fuente única de verdad:** `protocol/proto/sismomesh/v1/*.proto`. Kotlin, Python y
+**Fuente única de verdad:** `protocol/proto/helius/v1/*.proto`. Kotlin, Python y
 TypeScript se **generan**, nunca se escriben a mano (`make proto`, ver
 `protocol/codegen/`).
 

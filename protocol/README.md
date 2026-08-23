@@ -1,6 +1,6 @@
 # protocol/ — fuente única de verdad
 
-Kotlin, Python y TypeScript **se generan** desde `proto/sismomesh/v1/*.proto`
+Kotlin, Python y TypeScript **se generan** desde `proto/helius/v1/*.proto`
 (`make proto`); nunca se escriben a mano. Ver `docs/PROTOCOL.md`.
 
 - `proto/` — definiciones `.proto3` (Bundle, Status, Motion, Biomarker, Observation,

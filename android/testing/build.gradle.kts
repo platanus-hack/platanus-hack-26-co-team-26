@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.testing"
+    namespace = "co.helius.android.testing"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
 }

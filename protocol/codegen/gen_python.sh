@@ -11,7 +11,7 @@ mkdir -p "$OUT"
 protoc \
   --proto_path=protocol/proto \
   --python_out="$OUT" \
-  protocol/proto/sismomesh/v1/*.proto
+  protocol/proto/helius/v1/*.proto
 
 find "$OUT" -type d -exec sh -c 'test -f "$1/__init__.py" || touch "$1/__init__.py"' _ {} \;
 

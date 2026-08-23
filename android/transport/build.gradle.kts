@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.transport"
+    namespace = "co.helius.android.transport"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
     kotlinOptions { jvmTarget = "17" }

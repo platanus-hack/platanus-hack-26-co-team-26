@@ -1,4 +1,4 @@
-# Contribuir a SismoMesh
+# Contribuir a HELIUS
 
 ## Arranque rápido
 

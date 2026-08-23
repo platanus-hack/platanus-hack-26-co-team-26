@@ -1,13 +1,13 @@
 package ppg
 
-import co.sismomesh.core.signal.ppg.Classification
-import co.sismomesh.core.signal.ppg.EstimatedEcg
-import co.sismomesh.core.signal.ppg.EstimatedEcgStatus
-import co.sismomesh.core.signal.ppg.IfoFusionEngine
-import co.sismomesh.core.signal.ppg.IfoStatus
-import co.sismomesh.core.signal.ppg.PhysiologicalObservation
-import co.sismomesh.core.signal.ppg.QualityReason
-import co.sismomesh.core.signal.ppg.SignalQuality
+import co.helius.core.signal.ppg.Classification
+import co.helius.core.signal.ppg.EstimatedEcg
+import co.helius.core.signal.ppg.EstimatedEcgStatus
+import co.helius.core.signal.ppg.IfoFusionEngine
+import co.helius.core.signal.ppg.IfoStatus
+import co.helius.core.signal.ppg.PhysiologicalObservation
+import co.helius.core.signal.ppg.QualityReason
+import co.helius.core.signal.ppg.SignalQuality
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

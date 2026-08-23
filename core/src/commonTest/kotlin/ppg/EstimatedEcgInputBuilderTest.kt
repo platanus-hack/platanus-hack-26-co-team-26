@@ -1,8 +1,8 @@
 package ppg
 
-import co.sismomesh.core.signal.ppg.EstimatedEcgInputBuilder
-import co.sismomesh.core.signal.ppg.ProcessedPpg
-import co.sismomesh.core.signal.ppg.SignalFeatures
+import co.helius.core.signal.ppg.EstimatedEcgInputBuilder
+import co.helius.core.signal.ppg.ProcessedPpg
+import co.helius.core.signal.ppg.SignalFeatures
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

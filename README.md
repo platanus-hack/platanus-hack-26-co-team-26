@@ -1,10 +1,10 @@
-# team-26 Platanus Hack 26: Bogotá Project
+# HELIUS — team-26, Platanus Hack 26: Bogotá
 
 **Current project logo:** project-logo.png
 
 <img src="./project-logo.png" alt="Project Logo" width="200" />
 
-Track: 🛡️ AI Security
+Track: AI Security
 
 team-26
 
@@ -14,7 +14,7 @@ team-26
 - Helmut Chaparro Sandoval ([@hchaps404](https://github.com/hchaps404))
 - Laura Fernanda Martinez Galindo ([@laura-martinez-galindo](https://github.com/laura-martinez-galindo))
 
-## 🏗️ Monorepo y cómo empezar
+## Monorepo y cómo empezar
 
 El código vive en la rama `develop` como un monorepo (Kotlin/Android + Python
 FastAPI + React). Arranque rápido:
@@ -40,15 +40,12 @@ secciones de Estado del Arte más abajo en este mismo README.
 
 Before Submitting:
 
-- ✅ Fill in the project metadata (name, oneliner, description and deploy URL) in platanus-hack-project.jsonc
+- [ ] Fill in the project metadata in platanus-hack-project.jsonc — name/oneliner/description done, `deploy-url` still pending (no build published yet)
+- [x] Replace the contents of project-description.md with your project description in markdown
+- [x] Provide a 1000x1000 png project logo, max 500kb (verified: 1000×1000, 16 KB)
+- [x] Provide a concise and to the point readme.
 
-- ✅ Replace the contents of project-description.md with your project description in markdown
-
-- ✅ Provide a 1000x1000 png project logo, max 500kb
-
-- ✅ Provide a concise and to the point readme.
-
-## ⚠️ Deploying & integrations (Vercel, Render, etc.)
+## Deploying & integrations (Vercel, Render, etc.)
 
 Deploy platforms like **Vercel**, **Render** or **Netlify** can only connect to
 repositories **you own** — they can't be granted access to this organization repo.
@@ -70,13 +67,13 @@ code to a personal repo:
 
 Your commits stay mirrored here for judging, while the deploy runs from the repo you control.
 
-Have fun! 🚀
+Have fun!
 
 ---
 
-## 🔬 Estado del Arte — Comunicaciones y Dimensionamiento de Señal en Redes de Emergencia
+## Estado del Arte — Comunicaciones y Dimensionamiento de Señal en Redes de Emergencia
 
-SismoMesh propone que teléfonos sin infraestructura de red (torres caídas, sin energía, sin Internet) formen una malla oportunista que mueva señales de estado, ubicación y biomarcadores entre sobrevivientes, rescatistas y un *gateway* eventual. Esa idea se apoya en tres cuerpos de conocimiento con madurez muy distinta: la teoría de comunicación clásica (Shannon, códigos de corrección de errores) está resuelta desde hace décadas; el enrutamiento oportunista/tolerante a demora (DTN) tiene fundamentos sólidos pero pocas validaciones en escombros reales; y la propagación de radio dentro de estructuras colapsadas es, en 2026, todavía un área activa de medición más que de modelos cerrados. Esta sección sintetiza ese estado del arte y lo convierte en fórmulas de dimensionamiento verificables, no en promesas de alcance.
+HELIUS propone que teléfonos sin infraestructura de red (torres caídas, sin energía, sin Internet) formen una malla oportunista que mueva señales de estado, ubicación y biomarcadores entre sobrevivientes, rescatistas y un *gateway* eventual. Esa idea se apoya en tres cuerpos de conocimiento con madurez muy distinta: la teoría de comunicación clásica (Shannon, códigos de corrección de errores) está resuelta desde hace décadas; el enrutamiento oportunista/tolerante a demora (DTN) tiene fundamentos sólidos pero pocas validaciones en escombros reales; y la propagación de radio dentro de estructuras colapsadas es, en 2026, todavía un área activa de medición más que de modelos cerrados. Esta sección sintetiza ese estado del arte y lo convierte en fórmulas de dimensionamiento verificables, no en promesas de alcance.
 
 **Qué está bien establecido.** El límite de capacidad de un canal ruidoso lo fijó Shannon en 1948 y sigue siendo el techo teórico contra el que se mide cualquier enlace [C1]. La corrección de errores por bloque (Reed-Solomon) es teoría de los años 60, hoy implementada en hardware de consumo (CDs, comunicaciones satelitales, y el propio decodificador de `ggwave`) [C2]. El modelo log-distance con *shadowing* aleatorio es el estándar de facto para presupuestar enlaces en entornos no ideales y aparece en cualquier texto de referencia de comunicaciones inalámbricas [C3].
 
@@ -141,7 +138,7 @@ Un problema recurrente en proyectos de comunicación de emergencia es presentar 
 
 ### C.1 De señal fisiológica a paquete transmisible
 
-La fotopletismografía (PPG) por cámara + flash es, dentro de este proyecto, la fuente de datos que primero entra a la red: un valor de pulso o una forma de onda deben empaquetarse antes de viajar por BLE, Wi-Fi Aware o audio. La fundamentación fisiológica y óptica completa —qué tan defendible es cada salida, cómo se extrae la señal, qué tan lejos está SpO2 de ser confiable con RGB— se desarrolla en detalle en la sección [Estado del Arte — PPG con Cámara y Fusión Multimodal](#-estado-del-arte--ppg-con-cámara-y-fusión-multimodal-biosignals) más abajo. Aquí solo interesa el contrato de datos: qué tamaño y qué forma tiene el objeto que el subsistema de comunicaciones debe transportar.
+La fotopletismografía (PPG) por cámara + flash es, dentro de este proyecto, la fuente de datos que primero entra a la red: un valor de pulso o una forma de onda deben empaquetarse antes de viajar por BLE, Wi-Fi Aware o audio. La fundamentación fisiológica y óptica completa —qué tan defendible es cada salida, cómo se extrae la señal, qué tan lejos está SpO2 de ser confiable con RGB— se desarrolla en detalle en la sección [Estado del Arte — PPG con Cámara y Fusión Multimodal](#estado-del-arte--ppg-con-cámara-y-fusión-multimodal-biosignals) más abajo. Aquí solo interesa el contrato de datos: qué tamaño y qué forma tiene el objeto que el subsistema de comunicaciones debe transportar.
 
 <details>
 <summary><b>Formalización de apoyo — modelo óptico de primer orden</b></summary>
@@ -178,7 +175,7 @@ f_Nyquist = fs/2          Delta_f = 1/T          Delta_HR = 60/T [bpm]
 
 ### C.2 Integridad y eficiencia del paquete
 
-Todo transporte debe entregar el mismo objeto lógico al *Bundle Layer*, y ese objeto necesita dos garantías independientes: **eficiencia** (cuántos bytes útiles viajan por byte transmitido) e **integridad** (si el objeto llega, ¿es exactamente el que se envió?). La corrección de errores por bloque es teoría resuelta desde Reed y Solomon (1960) [C2] — lo interesante para SismoMesh no es reinventar el código, sino elegir el código correcto para el patrón de pérdida real: errores independientes de bit favorecen ARQ; ráfagas y *erasures* por contactos breves favorecen FEC/*erasure coding*. Ahí es donde entra RaptorQ (RFC 6330): a diferencia de un código de bloque fijo, genera *repair symbols* bajo demanda y tolera perder casi cualquier subconjunto de fragmentos, con un *overhead* que depende de la pérdida observada, no de una constante universal [C7].
+Todo transporte debe entregar el mismo objeto lógico al *Bundle Layer*, y ese objeto necesita dos garantías independientes: **eficiencia** (cuántos bytes útiles viajan por byte transmitido) e **integridad** (si el objeto llega, ¿es exactamente el que se envió?). La corrección de errores por bloque es teoría resuelta desde Reed y Solomon (1960) [C2] — lo interesante para HELIUS no es reinventar el código, sino elegir el código correcto para el patrón de pérdida real: errores independientes de bit favorecen ARQ; ráfagas y *erasures* por contactos breves favorecen FEC/*erasure coding*. Ahí es donde entra RaptorQ (RFC 6330): a diferencia de un código de bloque fijo, genera *repair symbols* bajo demanda y tolera perder casi cualquier subconjunto de fragmentos, con un *overhead* que depende de la pérdida observada, no de una constante universal [C7].
 
 <details>
 <summary><b>Formalización de apoyo — modelo de paquete, BER→PER, ARQ, FEC</b></summary>
@@ -305,7 +302,7 @@ Ningún transporte único cubre todo el problema, y esa es precisamente la razó
 <details>
 <summary><b>Formalización de apoyo — BLE</b></summary>
 
-| PHY BLE | Protocol data rate | Aplicación aprox. máx.* | Rol SismoMesh |
+| PHY BLE | Protocol data rate | Aplicación aprox. máx.* | Rol HELIUS |
 |---|---|---|---|
 | LE 2M | 2 Mbit/s | ~1.4 Mbit/s | *bulk* corto si ambos soportan |
 | LE 1M | 1 Mbit/s | ~0.8 Mbit/s | control / transferencia general |
@@ -481,9 +478,9 @@ Al recibir: **FEC reconstruye → hash verifica → AEAD autentica → parser de
 
 ---
 
-## 🫀 Estado del Arte — PPG con Cámara y Fusión Multimodal (Biosignals)
+## Estado del Arte — PPG con Cámara y Fusión Multimodal (Biosignals)
 
-La segunda pieza de datos que SismoMesh intenta capturar es evidencia fisiológica: ¿la persona tiene pulso?, ¿está en un estado de activación elevada?, ¿hay indicios de dolor? La fotopletismografía (PPG) con cámara y flash de un smartphone es, con diferencia, la señal biomédica mejor estudiada en teléfonos de consumo — su fundamento óptico se remonta a la revisión clásica de Allen (2007), hoy con más de 2000 citas y todavía el punto de partida obligado de cualquier trabajo en el área [B1]. Ese no es el caso del resto de señales que este proyecto querría inferir: electromiografía (EMG), saturación de oxígeno (SpO2), dolor o estado de ánimo. Ahí la ciencia es mucho más desigual, y el estado del arte importa tanto por lo que permite como por lo que **explícitamente no respalda**.
+La segunda pieza de datos que HELIUS intenta capturar es evidencia fisiológica: ¿la persona tiene pulso?, ¿está en un estado de activación elevada?, ¿hay indicios de dolor? La fotopletismografía (PPG) con cámara y flash de un smartphone es, con diferencia, la señal biomédica mejor estudiada en teléfonos de consumo — su fundamento óptico se remonta a la revisión clásica de Allen (2007), hoy con más de 2000 citas y todavía el punto de partida obligado de cualquier trabajo en el área [B1]. Ese no es el caso del resto de señales que este proyecto querría inferir: electromiografía (EMG), saturación de oxígeno (SpO2), dolor o estado de ánimo. Ahí la ciencia es mucho más desigual, y el estado del arte importa tanto por lo que permite como por lo que **explícitamente no respalda**.
 
 **Qué está bien establecido.** La frecuencia de pulso por PPG de cámara es viable si la señal pasa control de calidad — revisiones sistemáticas recientes (2024) confirman validez frente a ECG bajo condiciones controladas, con la salvedad constante de que el movimiento, la presión del dedo y el modelo de cámara dominan el error [B2]. El principio óptico (componente AC pulsátil sobre DC lento) es física de transporte de luz en tejido bien descrita desde hace más de una década [B1].
 

@@ -1,10 +1,10 @@
 package ppg
 
-import co.sismomesh.core.signal.ppg.Classification
-import co.sismomesh.core.signal.ppg.PhysiologicalObservation
-import co.sismomesh.core.signal.ppg.PpgPacketCodec
-import co.sismomesh.core.signal.ppg.SignalFeatures
-import co.sismomesh.core.signal.ppg.SignalQuality
+import co.helius.core.signal.ppg.Classification
+import co.helius.core.signal.ppg.PhysiologicalObservation
+import co.helius.core.signal.ppg.PpgPacketCodec
+import co.helius.core.signal.ppg.SignalFeatures
+import co.helius.core.signal.ppg.SignalQuality
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

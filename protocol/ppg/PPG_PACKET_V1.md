@@ -1,9 +1,9 @@
 # PPG Packet v1 — resumen de 28 bytes
 
 Formato compacto para el payload `biomarker` en el tier T0/T1 del bundle (ver
-`protocol/docs/PROTOCOL.md` § Tiers y `protocol/proto/sismomesh/v1/biomarker.proto`).
+`protocol/docs/PROTOCOL.md` § Tiers y `protocol/proto/helius/v1/biomarker.proto`).
 Codificado/decodificado por `PpgPacketCodec` en
-`core/src/commonMain/kotlin/co/sismomesh/core/signal/ppg/PpgPacketCodec.kt`.
+`core/src/commonMain/kotlin/co/helius/core/signal/ppg/PpgPacketCodec.kt`.
 
 Todos los enteros son little-endian. El transporte debe añadir cifrado/autenticación
 (ver `docs/security/THREAT-MODEL.md`); el CRC aquí solo detecta corrupción accidental.

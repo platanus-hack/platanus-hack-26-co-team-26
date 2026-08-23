@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.inference"
+    namespace = "co.helius.android.inference"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
 }

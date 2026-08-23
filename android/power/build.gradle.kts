@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.power"
+    namespace = "co.helius.android.power"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
 }

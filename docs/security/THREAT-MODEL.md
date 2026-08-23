@@ -29,7 +29,7 @@
 - **Base local:** SQLCipher, clave derivada y protegida por Keystore.
 
 **Break-glass (identidad):** ver ADR-0008. El usuario define previamente una
-`EmergencyDataPolicy` (`protocol/proto/sismomesh/v1/identity.proto`) — qué
+`EmergencyDataPolicy` (`protocol/proto/helius/v1/identity.proto`) — qué
 campos (nombre, notas médicas, contacto de emergencia) se cifran para cada
 familiar vinculado y consentido, y cuáles para la autoridad de rescate del
 incidente. Son destinatarios **independientes**: un familiar puede ver el

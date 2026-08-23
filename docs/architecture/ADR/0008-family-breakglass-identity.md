@@ -25,7 +25,7 @@ propio blob cifrado — nunca un solo blob "para cualquiera":
 - **Autoridad de rescate:** clave pública de la autoridad activa del incidente.
 
 El usuario define en modo "Preparación" una `EmergencyDataPolicy`
-(`protocol/proto/sismomesh/v1/identity.proto`) que decide, campo por campo, qué
+(`protocol/proto/helius/v1/identity.proto`) que decide, campo por campo, qué
 ve cada destinatario: `share_name_with_family`, `share_name_with_authority`,
 `share_medical_notes_with_family`, etc. El contenido real
 (`IdentityProfilePlaintext`: nombre, notas médicas, contacto de emergencia) solo

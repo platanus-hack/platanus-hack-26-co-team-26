@@ -20,10 +20,10 @@
          en runtime vía PackageManager.hasSystemFeature (Sección 7.1), NO required aquí. -->
 
     <application
-        android:name=".SismoMeshApp"
+        android:name=".HELIUSApp"
         android:allowBackup="false"
-        android:label="SismoMesh"
-        android:theme="@style/Theme.SismoMesh">
+        android:label="HELIUS"
+        android:theme="@style/Theme.HELIUS">
 
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>

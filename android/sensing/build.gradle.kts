@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.sensing"
+    namespace = "co.helius.android.sensing"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
 }

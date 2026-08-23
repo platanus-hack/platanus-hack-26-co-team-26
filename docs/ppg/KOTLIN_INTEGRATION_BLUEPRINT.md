@@ -28,7 +28,7 @@ com.<app>.physio
 └── integration/      factory, DI y adaptadores de la app
 ```
 
-La entrega actual usa temporalmente `com.sismomesh.ppg`; la desarrolladora debe cambiar únicamente el namespace antes de integrar.
+La entrega actual usa temporalmente `com.helius.ppg`; la desarrolladora debe cambiar únicamente el namespace antes de integrar.
 
 ## 3. Dependencias entre capas
 

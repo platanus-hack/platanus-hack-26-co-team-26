@@ -14,7 +14,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-app = FastAPI(title="SismoMesh PPG Model Registry", version="1.0.0")
+app = FastAPI(title="HELIUS PPG Model Registry", version="1.0.0")
 MODEL_DIR = Path(__file__).resolve().parent.parent / "models"
 
 

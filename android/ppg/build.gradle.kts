@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "co.sismomesh.android.ppg"
+    namespace = "co.helius.android.ppg"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
     kotlinOptions { jvmTarget = "17" }
