@@ -65,16 +65,27 @@ class BleGattClient(
         private var gattRef: BluetoothGatt? = null
         private var pendingOp: CompletableDeferred<Unit>? = null
         private var descriptorsEnabled = 0
+        // Fallback conservador hasta que onMtuChanged confirme lo negociado -- nunca
+        // asumir el máximo, ver docs/validation/VALIDATION.md (no todos los
+        // fabricantes conceden el MTU pedido).
+        @Volatile private var negotiatedMtu: Int = NEGOTIATED_MTU_FALLBACK
         @Volatile private var finished = false
 
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                 if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) {
                     gattRef = gatt
+                    gatt.requestMtu(REQUESTED_MTU)
                     gatt.discoverServices()
                 } else {
                     finishWithError(gatt, "Conexión GATT terminó, status=$status newState=$newState")
                 }
+            }
+
+            override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+                if (status == BluetoothGatt.GATT_SUCCESS) negotiatedMtu = mtu
+                // Si falla, se queda con NEGOTIATED_MTU_FALLBACK -- seguir con MTU
+                // mínimo es correcto, solo más lento (más chunks de los necesarios).
             }
 
             override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
@@ -171,7 +182,7 @@ class BleGattClient(
 
         private suspend fun writeChunked(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, payload: ByteArray) {
             val messageId = (0..0xfffe).random() // suficiente para no colisionar con la única transferencia en curso
-            val mtu = NEGOTIATED_MTU_FALLBACK - 3 // 3 B de overhead ATT
+            val mtu = negotiatedMtu - 3 // 3 B de overhead ATT
             val maxChunkPayload = (mtu - BleChunking.HEADER_SIZE).coerceAtLeast(1)
             for (chunk in BleChunking.chunk(messageId, payload, maxChunkPayload)) {
                 val deferred = CompletableDeferred<Unit>()
@@ -196,9 +207,11 @@ class BleGattClient(
 
     companion object {
         private const val OP_TIMEOUT_MS = 5_000L
-        // MTU por defecto de BLE si nunca se negoció uno mayor -- ver BleChunking.
-        // TODO(dueño=Helmut): llamar gatt.requestMtu() antes de escribir y usar el
-        // valor real reportado en onMtuChanged en vez de este fallback conservador.
+        // Máximo MTU que soporta BLE (Android lo recorta al máximo real que el
+        // stack/fabricante permita) -- se pide, pero nunca se asume concedido.
+        private const val REQUESTED_MTU = 517
+        // MTU mínimo garantizado por el estándar BLE; fallback mientras
+        // onMtuChanged no confirme uno mayor, o si la negociación falla.
         private const val NEGOTIATED_MTU_FALLBACK = 23
     }
 }

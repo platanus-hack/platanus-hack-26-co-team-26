@@ -86,14 +86,38 @@ inspección, no ejecutado**.
   mutuamente los bundles que al otro le faltan, vía `notify`/`write` con
   reensamblado de chunks.
 
+## Qué se resolvió portando desde el prototipo Flutter (2026-08-23)
+
+El equipo decidió quedarse 100% en Kotlin nativo (no Flutter) y descartar las
+ramas `feat/motion-evidence`/`feat/offline-triage-ppg`. Antes de borrarlas se
+extrajeron dos mejoras concretas de `BleGattPlugin.kt` (el plugin nativo
+Kotlin que usaba la app Flutter) que cerraban exactamente los dos pendientes
+de esta sección:
+
+- **Negociación de MTU**: `BleGattClient` ahora llama `gatt.requestMtu(517)`
+  al conectar y usa el valor real reportado en `onMtuChanged` (con fallback a
+  23 B si la negociación falla o el fabricante no la concede). `BleGattServer`
+  captura el MTU por dispositivo en `onMtuChanged` y lo usa para calcular el
+  tamaño de chunk en `notifyChunked`.
+- **Múltiples peers simultáneos**: `BleGattServer` ya no comparte un solo
+  `BleReassembler`/notificación pendiente entre todas las conexiones —
+  reensambladores, MTU y notificación pendiente están indexados por
+  `device.address` en `ConcurrentHashMap`, y se limpian en `onConnectionStateChange`
+  al desconectar.
+
+De la comparación con el código Dart también se sacaron `sdnnMs`/`pnn50` para
+`core/signal/ppg/SignalFeatures` (HRV en dominio del tiempo) — no eran un bug,
+solo campos que el pipeline Kotlin no exponía todavía.
+
+**Ninguno de los dos cambios de BLE se ejecutó contra hardware real** — mismo
+criterio L(-1) que el resto de esta tabla, revisar por inspección no es lo
+mismo que probarlo. Sí quedan más fáciles de validar en el próximo test de
+campo (`docs/validation/BLE-INTERCONNECTION-TEST.md`) porque ahora hay algo
+concreto que medir (MTU efectivo reportado, dos teléfonos conectando al
+mismo tercero a la vez).
+
 ## Qué sigue sin cubrir
 
-- `gatt.requestMtu()` nunca se llama — el cliente siempre asume el MTU mínimo
-  (23 B), lo cual es *correcto pero lento* (más chunks de los necesarios). No
-  es un bug, es una optimización pendiente.
-- Un solo peer conectado a la vez por `BleGattServer` (el reensamblador no
-  distingue por dispositivo) — con más de una conexión GATT simultánea al
-  mismo teléfono, los chunks de distintos peers se mezclarían.
 - Nada de esto se ha probado contra la matriz de fabricantes
   (`docs/validation/VALIDATION.md`) — ni siquiera contra un único par de
   teléfonos reales.

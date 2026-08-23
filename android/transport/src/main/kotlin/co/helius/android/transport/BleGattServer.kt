@@ -17,6 +17,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -26,9 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger
  * `BleTransport.startAdvertising()` esté activo (se anuncia como conectable),
  * porque cualquier nodo puede iniciar la conexión hacia este teléfono.
  *
- * TODO(dueño=Helmut): esto asume que un solo peer está conectado por vez por
- * simplicidad del `BleReassembler` (uno por característica, no por `device`).
- * Con múltiples conexiones GATT simultáneas hay que indexar por dirección MAC.
+ * Soporta múltiples peers conectados a la vez: todo el estado por conexión
+ * (reensambladores, MTU negociado, notificación pendiente) está indexado por
+ * `device.address`, no en campos únicos — un solo `BleReassembler` compartido
+ * mezclaría los chunks de dos peers distintos.
  */
 class BleGattServer(
     private val context: Context,
@@ -36,11 +38,12 @@ class BleGattServer(
     private val scope: CoroutineScope,
 ) {
     private var gattServer: BluetoothGattServer? = null
-    private val inventoryReassembler = BleReassembler()
-    private val bundleReassembler = BleReassembler()
+    private val inventoryReassemblers = ConcurrentHashMap<String, BleReassembler>()
+    private val bundleReassemblers = ConcurrentHashMap<String, BleReassembler>()
+    private val effectiveMtu = ConcurrentHashMap<String, Int>()
+    private val pendingNotifications = ConcurrentHashMap<String, CompletableDeferred<Unit>>()
     private val nextMessageId = AtomicInteger(1)
     private val subscribedDevices = mutableSetOf<String>()
-    @Volatile private var pendingNotification: CompletableDeferred<Unit>? = null
 
     fun start() {
         val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -58,7 +61,15 @@ class BleGattServer(
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                 subscribedDevices.remove(device.address)
+                inventoryReassemblers.remove(device.address)
+                bundleReassemblers.remove(device.address)
+                effectiveMtu.remove(device.address)
+                pendingNotifications.remove(device.address)
             }
+        }
+
+        override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
+            effectiveMtu[device.address] = mtu
         }
 
         override fun onDescriptorWriteRequest(
@@ -93,11 +104,13 @@ class BleGattServer(
 
             when (characteristic.uuid) {
                 BleGattProfile.INVENTORY_CHARACTERISTIC_UUID -> {
-                    val bloomBytes = inventoryReassembler.accept(value) ?: return
+                    val reassembler = inventoryReassemblers.getOrPut(device.address) { BleReassembler() }
+                    val bloomBytes = reassembler.accept(value) ?: return
                     onClientInventoryReceived(device, bloomBytes)
                 }
                 BleGattProfile.BUNDLE_TRANSFER_CHARACTERISTIC_UUID -> {
-                    val bundleBytes = bundleReassembler.accept(value) ?: return
+                    val reassembler = bundleReassemblers.getOrPut(device.address) { BleReassembler() }
+                    val bundleBytes = reassembler.accept(value) ?: return
                     scope.launch {
                         runCatching { bundleBytes.toDomainBundle() }
                             .onSuccess { store.save(it) }
@@ -110,7 +123,7 @@ class BleGattServer(
         }
 
         override fun onNotificationSent(device: BluetoothDevice, status: Int) {
-            pendingNotification?.complete(Unit)
+            pendingNotifications[device.address]?.complete(Unit)
         }
     }
 
@@ -153,22 +166,30 @@ class BleGattServer(
         val characteristic = service.getCharacteristic(characteristicUuid) ?: return
 
         val messageId = nextMessageId.getAndUpdate { (it % 0xffff) + 1 }
-        val maxChunkPayload = MAX_ATTRIBUTE_VALUE_LENGTH - BleChunking.HEADER_SIZE
+        // MTU real si ya se negoció (onMtuChanged), si no el mínimo BLE -- nunca por
+        // encima del límite duro de ATT (512 B de valor de característica).
+        val mtu = (effectiveMtu[device.address] ?: MIN_BLE_MTU) - ATT_OPCODE_OVERHEAD
+        val maxChunkPayload = (mtu - BleChunking.HEADER_SIZE)
+            .coerceAtLeast(1)
+            .coerceAtMost(MAX_ATTRIBUTE_VALUE_LENGTH - BleChunking.HEADER_SIZE)
         for (chunk in BleChunking.chunk(messageId, payload, maxChunkPayload)) {
             val deferred = CompletableDeferred<Unit>()
-            pendingNotification = deferred
+            pendingNotifications[device.address] = deferred
             characteristic.value = chunk
             val queued = server.notifyCharacteristicChanged(device, characteristic, false)
             if (!queued) return // cola de notificaciones llena o desconectado; abortar este mensaje
             withTimeoutOrNull(NOTIFY_ACK_TIMEOUT_MS) { deferred.await() }
                 ?: return // sin confirmación a tiempo: mejor abortar que seguir enviando a ciegas
         }
+        pendingNotifications.remove(device.address)
     }
 
     companion object {
         // Límite duro de GATT (ATT), independiente del MTU negociado: nunca escribir
         // más de 512 B de valor de característica de una sola vez.
         private const val MAX_ATTRIBUTE_VALUE_LENGTH = 512
+        private const val MIN_BLE_MTU = 23
+        private const val ATT_OPCODE_OVERHEAD = 3
         private const val NOTIFY_ACK_TIMEOUT_MS = 5_000L
     }
 }

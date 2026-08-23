@@ -76,6 +76,14 @@ data class SignalFeatures(
     val shortRmssdMs: Float?,
     val irregularity: Float,
     val perfusionProxy: Float,
+    /** Desviación estándar de los IBI de la ventana (HRV, dominio del tiempo).
+     * Requiere >= 2 IBI (3 picos); null si la ventana no da para calcularla. */
+    val sdnnMs: Float? = null,
+    /** Fracción de pares de IBI consecutivos con diferencia > 50ms — proxy
+     * clásico de HRV de alta frecuencia. Solo se reporta con >= 10 IBI
+     * ([co.helius.core.signal.ppg.PpgSignalProcessor.MIN_BEATS_FOR_PNN50]);
+     * por debajo de eso el ratio es demasiado ruidoso para decir algo. */
+    val pnn50: Float? = null,
 )
 
 data class ProcessedPpg(

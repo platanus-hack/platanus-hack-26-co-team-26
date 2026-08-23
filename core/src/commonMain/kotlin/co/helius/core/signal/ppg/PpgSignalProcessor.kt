@@ -29,12 +29,22 @@ class PpgSignalProcessor {
             val d = b - a; d * d
         }.average()).toFloat() else null
         val meanIbi = if (ibis.isNotEmpty()) ibis.average().toFloat() else null
+        // SDNN: desviación estándar de los IBI, medida clásica de HRV en el dominio
+        // del tiempo. Requiere al menos 2 IBI (3 picos) para tener sentido.
+        val sdnn = if (ibis.size >= 2) standardDeviation(ibis) else null
         val irregularity = if (meanIbi != null && meanIbi > 0 && ibis.size >= 3) {
-            standardDeviation(ibis) / meanIbi
+            (sdnn ?: standardDeviation(ibis)) / meanIbi
         } else 1f
+        // pNN50: fracción de pares de IBI consecutivos que difieren más de 50ms.
+        // Se reporta solo con >= MIN_BEATS_FOR_PNN50 IBI -- por debajo de eso el
+        // ratio es un cociente de muy pocos eventos, demasiado ruidoso para decir algo.
+        val pnn50 = if (ibis.size >= MIN_BEATS_FOR_PNN50) {
+            val diffs = ibis.zipWithNext { a, b -> abs(b - a) }
+            diffs.count { it > 50f }.toFloat() / diffs.size
+        } else null
         val perfusion = standardDeviation(detrended.toList()) / max(1f, red.average().toFloat())
         return ProcessedPpg(sampleRateHz, normalized, d1, d2, motion, SignalFeatures(
-            bpm, medianIbi, rmssd, irregularity, perfusion
+            bpm, medianIbi, rmssd, irregularity, perfusion, sdnn, pnn50
         ))
     }
 
@@ -109,5 +119,9 @@ class PpgSignalProcessor {
         if (x.size < 2) return 0f
         val mean = x.average()
         return sqrt(x.sumOf { val d = it - mean; d * d } / (x.size - 1)).toFloat()
+    }
+
+    companion object {
+        const val MIN_BEATS_FOR_PNN50 = 10
     }
 }
